@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      # Same major Xcode as local builds (Swift 6.2+, iOS 26 SDK).
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: latest-stable
+      - run: xcodebuild -version
+      # project.yml is the source of truth; the tracked .xcodeproj must match it.
+      # Pinned to the local version: another one may write the project differently.
+      - name: Check generated project
+        run: |
+          curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
+          unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
+          "$RUNNER_TEMP/xcodegen/bin/xcodegen" generate
+          git diff --exit-code
+      - name: Core tests
+        run: swift test --package-path Packages/TrainingLoopCore
+      - name: Build app
+        run: >
+          xcodebuild build
+          -project TrainingLoop.xcodeproj
+          -scheme TrainingLoop
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO
