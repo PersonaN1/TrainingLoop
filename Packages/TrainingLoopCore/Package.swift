@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "TrainingLoopCore", targets: ["TrainingLoopCore"])
     ],
     targets: [
-        .target(name: "TrainingLoopCore"),
+        .target(name: "TrainingLoopCore", resources: [.process("Exercises.xcstrings")]),
         .testTarget(name: "TrainingLoopCoreTests", dependencies: ["TrainingLoopCore"])
     ]
 )

@@ -17,8 +17,20 @@ struct BuiltinExercisesTests {
 
     /// Exercise names are unique (SPEC D8) in every language.
     @Test func namesAreUniquePerLanguage() {
-        #expect(Set(all.map(\.nameEN)).count == all.count)
-        #expect(Set(all.map(\.nameRU)).count == all.count)
+        for language in ["en", "ru"] {
+            let names = all.map { $0.name(languageCode: language) }
+            #expect(Set(names).count == all.count, "\(language)")
+        }
+    }
+
+    /// Every key has a name in every language; a missing one would show the raw key.
+    @Test func everyNameIsTranslated() {
+        for exercise in all {
+            for language in ["en", "ru"] {
+                let name = exercise.name(languageCode: language)
+                #expect(!name.isEmpty && name != exercise.key, "\(exercise.key) in \(language)")
+            }
+        }
     }
 
     @Test func timedExercises() {
@@ -38,6 +50,7 @@ struct BuiltinExercisesTests {
         #expect(pullUp.name(languageCode: "ru") == "Подтягивания")
         #expect(pullUp.name(languageCode: "en") == "Pull-up")
         #expect(pullUp.name(languageCode: "de") == "Pull-up")
+        #expect(BuiltinExercises.exercise(key: "farmers_walk")?.name(languageCode: "ru") == "Фермерская прогулка")
         #expect(BuiltinExercises.exercise(key: "missing") == nil)
     }
 

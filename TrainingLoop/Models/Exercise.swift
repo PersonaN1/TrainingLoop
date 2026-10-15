@@ -23,6 +23,7 @@ final class Exercise {
     var createdAt: Date = Date.now
 
     init(builtin: BuiltinExercise) {
+        id = builtin.exerciseID
         builtinKey = builtin.key
         measure = builtin.measure
         weighted = builtin.weighted
@@ -60,10 +61,10 @@ final class Exercise {
 
     var builtin: BuiltinExercise? { builtinKey.flatMap(BuiltinExercises.exercise(key:)) }
 
-    /// Built-in names follow the interface language.
+    /// Built-in names follow the app's interface language (the Exercises String Catalog in TrainingLoopCore).
     var name: String {
         if let builtin {
-            return builtin.name(languageCode: Bundle.main.preferredLocalizations.first)
+            return builtin.name(languageCode: Bundle.main.preferredLocalizations.first ?? "en")
         }
         return customName ?? ""
     }
