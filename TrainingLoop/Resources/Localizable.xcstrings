@@ -3,27 +3,82 @@
   "strings" : {
     "Exercises" : {
       "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Упражнения" } }
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упражнения"
+          }
+        }
+      }
+    },
+    "Full Body" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фулбади"
+          }
+        }
       }
     },
     "History" : {
       "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "История" } }
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "История"
+          }
+        }
+      }
+    },
+    "Home, No Equipment" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дома без железа"
+          }
+        }
+      }
+    },
+    "Legs + Pull-ups" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ноги + подтягивания"
+          }
+        }
       }
     },
     "Settings" : {
       "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Настройки" } }
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
       }
     },
     "Start a workout — it will appear here" : {
       "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Начните тренировку — она появится здесь" } }
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начните тренировку — она появится здесь"
+          }
+        }
       }
     },
     "Workouts" : {
       "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Тренировки" } }
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировки"
+          }
+        }
       }
     }
   },
