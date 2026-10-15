@@ -4,6 +4,12 @@
 
 A workout log for iPhone from the maker of SetLoop. Free, no ads, no sign-up, no data collection.
 
-Статус: проектирование. Спецификация — [docs/SPEC.md](docs/SPEC.md).
+Статус: разработка. Спецификация — [docs/SPEC.md](docs/SPEC.md), технический план — [docs/TECH.md](docs/TECH.md).
+
+## Сборка
+
+- Xcode 26+ (Swift 6), iOS 17.0+. Проект описан в `project.yml` ([XcodeGen](https://github.com/yonaskolb/XcodeGen) 2.46.0); сгенерированный `TrainingLoop.xcodeproj` закоммичен — после правки `project.yml` выполните `xcodegen generate`.
+- Подпись: создайте `Config/Local.xcconfig` (вне git) со строкой `DEVELOPMENT_TEAM = <ваш Team ID>`.
+- Тесты домена: `swift test --package-path Packages/TrainingLoopCore`.
 
 See [LICENSE](LICENSE) and [CONTRIBUTING.md](CONTRIBUTING.md).

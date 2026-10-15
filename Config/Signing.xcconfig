@@ -1,0 +1,3 @@
+// Signing team comes from the untracked Local.xcconfig, so each developer uses their own.
+// Create it with one line: DEVELOPMENT_TEAM = <your Team ID>
+#include? "Local.xcconfig"

@@ -1,0 +1,31 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Exercises" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Упражнения" } }
+      }
+    },
+    "History" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "История" } }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Настройки" } }
+      }
+    },
+    "Start a workout — it will appear here" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Начните тренировку — она появится здесь" } }
+      }
+    },
+    "Workouts" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Тренировки" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
