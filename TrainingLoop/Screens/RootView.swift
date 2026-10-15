@@ -11,7 +11,7 @@ struct RootView: View {
                 .tabItem { Label("History", systemImage: "clock.arrow.circlepath") }
             PlaceholderTab(title: "Exercises", systemImage: "dumbbell")
                 .tabItem { Label("Exercises", systemImage: "dumbbell") }
-            PlaceholderTab(title: "Settings", systemImage: "gearshape")
+            SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape") }
         }
     }
