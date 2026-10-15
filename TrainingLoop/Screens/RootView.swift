@@ -9,7 +9,7 @@ struct RootView: View {
             PlaceholderTab(title: "History", systemImage: "clock.arrow.circlepath",
                            hint: "Start a workout — it will appear here")
                 .tabItem { Label("History", systemImage: "clock.arrow.circlepath") }
-            PlaceholderTab(title: "Exercises", systemImage: "dumbbell")
+            ExercisesView()
                 .tabItem { Label("Exercises", systemImage: "dumbbell") }
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape") }
@@ -37,4 +37,6 @@ private struct PlaceholderTab: View {
 
 #Preview {
     RootView()
+        .environment(AppSettings())
+        .modelContainer(for: Exercise.self, inMemory: true)
 }

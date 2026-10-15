@@ -68,4 +68,33 @@ final class Exercise {
         }
         return customName ?? ""
     }
+
+    var isCustom: Bool { builtinKey == nil }
+
+    /// Names that search and the uniqueness check compare against: a built-in exercise in every
+    /// language, so a custom "Bench Press" doesn't clash only after the interface language changes.
+    var allNames: [String] {
+        if let builtin { return ["en", "ru"].map { builtin.name(languageCode: $0) } }
+        return [customName ?? ""]
+    }
+}
+
+extension ModelContext {
+    /// Whether the exercise appears in any workout, finished or running (SPEC D8): such an exercise
+    /// keeps its type and goes to the archive instead of being deleted.
+    func hasHistory(_ exercise: Exercise) -> Bool {
+        let id = exercise.id
+        let descriptor = FetchDescriptor<WorkoutEntry>(predicate: #Predicate { $0.exerciseID == id })
+        return ((try? fetchCount(descriptor)) ?? 0) > 0
+    }
+
+    /// Whether a template refers to the exercise; deleting it would leave a gap in the template.
+    func isInTemplate(_ exercise: Exercise) -> Bool {
+        let templates = (try? fetch(FetchDescriptor<Template>())) ?? []
+        return templates.contains { $0.definition.exerciseIDs.contains(exercise.id) }
+    }
+
+    func customExerciseCount() -> Int {
+        (try? fetchCount(FetchDescriptor<Exercise>(predicate: #Predicate { $0.builtinKey == nil }))) ?? 0
+    }
 }
