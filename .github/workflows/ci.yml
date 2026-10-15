@@ -23,8 +23,14 @@ jobs:
           unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
           "$RUNNER_TEMP/xcodegen/bin/xcodegen" generate
           git diff --exit-code
+      # Through Xcode's build system, as the app is built: SwiftPM in Xcode 26 copies
+      # String Catalogs (Exercises.xcstrings) without compiling them.
       - name: Core tests
-        run: swift test --package-path Packages/TrainingLoopCore
+        working-directory: Packages/TrainingLoopCore
+        run: >
+          xcodebuild test
+          -scheme TrainingLoopCore
+          -destination 'platform=macOS'
       - name: Build app
         run: >
           xcodebuild build
