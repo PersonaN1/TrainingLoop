@@ -1,0 +1,978 @@
+<title>Макеты TrainingLoop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* Холст: секции по вкладкам приложения, в каждой ряд телефонов (светлая и тёмная тема) с подписью решения V. */
+:root {
+  --bg: #EEF3F5;
+  --fg: #15242B;
+  --muted: #5A6B73;
+  --line: #D3DEE3;
+  --panel: #FFFFFF;
+  --brand: #0E7C9E;
+  --brand-ink: #0B6684;
+  --coral: #FF6B52;
+  --page-font: "Onest", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --ios-font: -apple-system, "SF Pro Text", "SF Pro", system-ui, "Segoe UI", Roboto, sans-serif;
+  --rounded: ui-rounded, "SF Pro Rounded", "Nunito", -apple-system, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0C1418; --fg: #E4EEF1; --muted: #8FA3AB; --line: #22343B; --panel: #132027; --brand-ink: #5BC0E0; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #0C1418; --fg: #E4EEF1; --muted: #8FA3AB; --line: #22343B; --panel: #132027; --brand-ink: #5BC0E0; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--page-font); font-size: 15px; line-height: 1.45; }
+.wrap { padding-inline: 24px; padding-block: 28px 64px; max-width: 1640px; margin: 0 auto; }
+header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+header.top h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; display: flex; align-items: center; gap: 14px; }
+header.top h1 svg { width: 44px; height: 44px; border-radius: 10px; flex: none; }
+header.top p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.seg-page { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
+.seg-page button { font: 500 14px var(--page-font); color: var(--muted); background: none; border: 0; padding: 7px 14px; border-radius: 7px; cursor: pointer; }
+.seg-page button[aria-pressed="true"] { background: var(--brand); color: #fff; }
+.seg-page button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 14px 0 0; font-size: 14px; }
+nav.toc a { color: var(--brand-ink); text-decoration: none; }
+nav.toc a:hover { text-decoration: underline; }
+section.area { padding-top: 40px; }
+section.area > h2 { margin: 0 0 4px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+section.area > p.lead { margin: 0 0 18px; color: var(--muted); max-width: 70ch; }
+.row-shots { display: flex; flex-wrap: wrap; gap: 36px 40px; align-items: flex-start; }
+.shot { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.shot .phones { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 4px; max-width: calc(100vw - 48px); }
+.shot .cap { max-width: 400px; }
+.shot .cap b { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--brand-ink); margin-right: 6px; }
+.shot .cap span.t { font-weight: 600; }
+.shot .cap p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+body[data-show="light"] .phone.dark:not(.single), body[data-show="dark"] .phone.light:not(.single) { display: none; }
+
+/* ---------- Телефон ---------- */
+.phone {
+  --accent: #0E7C9E; --accent-fill: #0E7C9E; --coral: #FF6B52; --rest: #1E8E52; --green: #1E8E52;
+  flex: none; width: 393px; height: 852px; border-radius: 54px; border: 11px solid #0E1113;
+  position: relative; overflow: hidden; font-family: var(--ios-font); font-size: 17px; line-height: 1.29;
+  -webkit-font-smoothing: antialiased; background: var(--p-bg); color: var(--p-fg);
+  box-shadow: 0 1px 0 1px #2a3034, 0 18px 40px -18px rgba(10, 30, 40, .45);
+}
+.phone.light { --p-bg: #F2F2F7; --p-card: #FFFFFF; --p-fg: #000; --p-sec: rgba(60,60,67,.6); --p-ter: rgba(60,60,67,.3); --p-sep: rgba(60,60,67,.18); --p-fill: rgba(120,120,128,.12); --p-glass: rgba(255,255,255,.72); --accent: #0E7C9E; --coral-text: #D2452E; --red: #FF3B30; --tint: rgba(14,124,158,.09); --green-text: #1E8E52; }
+.phone.dark { --p-bg: #000000; --p-card: #1C1C1E; --p-fg: #FFF; --p-sec: rgba(235,235,245,.6); --p-ter: rgba(235,235,245,.3); --p-sep: rgba(84,84,88,.55); --p-fill: rgba(118,118,128,.24); --p-glass: rgba(40,40,44,.72); --accent: #3FB2D8; --coral-text: #FF7A63; --red: #FF453A; --tint: rgba(63,178,216,.14); --green-text: #34C26E; color-scheme: dark; }
+.phone .scr { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 120px; scrollbar-width: none; }
+.phone .scr::-webkit-scrollbar { display: none; }
+.phone .island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 124px; height: 36px; background: #000; border-radius: 20px; z-index: 30; }
+.phone .home { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 136px; height: 5px; border-radius: 3px; background: var(--p-fg); opacity: .85; z-index: 30; }
+.sb { height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 6px 34px 0 46px; font-weight: 600; font-size: 17px; position: relative; z-index: 5; }
+.sb .ic { display: flex; gap: 6px; align-items: center; }
+.sb svg { height: 12px; fill: currentColor; }
+
+.nav { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; gap: 8px; position: relative; }
+.nav .ttl { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 600; white-space: nowrap; }
+.nav .l, .nav .r { display: flex; gap: 8px; align-items: center; color: var(--accent); }
+.glassbtn { height: 44px; min-width: 44px; padding: 0 14px; border-radius: 22px; background: var(--p-glass); backdrop-filter: blur(12px); box-shadow: 0 0 0 .5px var(--p-sep), 0 4px 14px rgba(0,0,0,.06); display: inline-flex; align-items: center; justify-content: center; gap: 4px; color: var(--accent); font-size: 17px; }
+.glassbtn.pill2 { padding: 0 6px; gap: 0; }
+.glassbtn.pill2 > span { padding: 0 10px; display: inline-flex; }
+.glassbtn.on { background: var(--accent-fill); color: #fff; }
+.glassbtn.fill { background: var(--accent-fill); color: #fff; font-weight: 600; }
+.glassbtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lt { font-size: 34px; font-weight: 700; letter-spacing: .01em; padding: 2px 16px 10px; line-height: 1.2; }
+.sub { color: var(--p-sec); font-size: 15px; padding: 0 16px 14px; margin-top: -6px; }
+
+.grp { margin: 0 16px 22px; background: var(--p-card); border-radius: 22px; overflow: hidden; }
+.sh { font-size: 13px; color: var(--p-sec); padding: 0 32px 7px; text-transform: uppercase; letter-spacing: .02em; }
+.sf { font-size: 13px; color: var(--p-sec); padding: 0 32px; margin: -14px 0 22px; line-height: 1.35; }
+.r { min-height: 48px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; position: relative; }
+.r + .r::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: .5px; background: var(--p-sep); }
+.r .grow { flex: 1; min-width: 0; }
+.r .v { color: var(--p-sec); white-space: nowrap; }
+.r .chev { color: var(--p-ter); font-size: 20px; line-height: 1; }
+.r .s2 { font-size: 15px; color: var(--p-sec); margin-top: 2px; }
+.r.ac { color: var(--accent); }
+.r.red { color: var(--red); justify-content: center; }
+.tog { width: 51px; height: 31px; border-radius: 16px; background: var(--p-fill); position: relative; flex: none; }
+.tog::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+.tog.on { background: #34C759; }
+.tog.on::after { left: 22px; }
+.badge { font-size: 12px; font-weight: 600; color: var(--accent); background: var(--tint); border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.rnd { font-family: var(--rounded); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Таб-бар iOS 26 */
+.tabbar { position: absolute; left: 16px; right: 16px; bottom: 22px; height: 62px; border-radius: 31px; background: var(--p-glass); backdrop-filter: blur(16px); box-shadow: 0 0 0 .5px var(--p-sep), 0 8px 24px rgba(0,0,0,.12); display: flex; padding: 4px; z-index: 20; }
+.tabbar div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; font-weight: 600; color: var(--p-fg); border-radius: 27px; }
+.tabbar div.on { color: var(--accent); background: var(--p-fill); }
+.tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.minibar { position: absolute; left: 16px; right: 16px; bottom: 94px; height: 56px; border-radius: 28px; background: var(--accent-fill); color: #fff; display: flex; align-items: center; gap: 12px; padding: 0 8px 0 18px; z-index: 19; box-shadow: 0 8px 24px rgba(14,124,158,.35); }
+.minibar .grow { flex: 1; min-width: 0; line-height: 1.2; }
+.minibar .grow b { display: block; font-size: 15px; }
+.minibar .grow span { font-size: 13px; opacity: .85; }
+.minibar .t { font-family: var(--rounded); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; }
+.minibar .open { width: 40px; height: 40px; border-radius: 20px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; }
+
+/* Карточка шаблона V5 */
+.cards { display: flex; flex-direction: column; gap: 12px; padding: 0 16px 16px; }
+.tc { background: var(--p-card); border-radius: 22px; padding: 14px 16px; }
+.tc .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.tc .hd b { font-size: 17px; font-weight: 600; }
+.play { width: 32px; height: 32px; border-radius: 16px; background: var(--accent-fill); display: flex; align-items: center; justify-content: center; flex: none; }
+.play svg { width: 13px; height: 13px; fill: #fff; margin-left: 2px; }
+.tc .ex { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; padding: 3px 0; }
+.tc .ex span:last-child { color: var(--p-sec); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tc .ss { border-left: 3px solid var(--accent); padding-left: 9px; margin: 2px 0; }
+.tc .more { font-size: 15px; color: var(--p-sec); padding: 3px 0; }
+.tc .ft { font-size: 13px; color: var(--p-sec); margin-top: 8px; padding-top: 8px; border-top: .5px solid var(--p-sep); }
+
+/* Предпросмотр и редактор V6 */
+.ssec { border-left: 3px solid var(--accent); }
+.sslab { color: var(--accent); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; padding: 0 32px 7px; display: flex; justify-content: space-between; }
+.exh { font-weight: 600; }
+.setline { font-variant-numeric: tabular-nums; }
+.setline .n { color: var(--p-sec); width: 22px; display: inline-block; }
+.ghost { color: var(--p-ter); }
+.pin { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px 30px; background: linear-gradient(to bottom, transparent, var(--p-bg) 26%); z-index: 15; display: flex; flex-direction: column; gap: 10px; }
+.bigbtn { height: 52px; border-radius: 26px; background: var(--accent-fill); color: #fff; font-weight: 600; font-size: 17px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.bigbtn.sec { background: var(--p-fill); color: var(--accent); }
+.pinrow { display: flex; gap: 10px; }
+.pinrow > * { flex: 1; }
+.summ { text-align: center; font-size: 13px; color: var(--p-sec); font-variant-numeric: tabular-nums; }
+.sheet { position: absolute; inset: 58px 0 0; background: var(--p-bg); border-radius: 34px 34px 0 0; overflow: hidden; box-shadow: 0 -1px 0 var(--p-sep); }
+.sheet-dim { position: absolute; inset: 0; background: #000; opacity: .35; }
+.phone.dark .sheet { background: #1C1C1E; }
+.phone.dark .sheet .grp { background: #2C2C2E; }
+.grab { width: 36px; height: 5px; border-radius: 3px; background: var(--p-ter); margin: 6px auto 4px; }
+.field { margin: 0 16px 22px; background: var(--p-card); border-radius: 22px; padding: 13px 16px; font-size: 17px; }
+
+/* Идущая тренировка V3, V4 */
+.wk-hd { display: flex; align-items: center; justify-content: space-between; padding: 0 16px 8px; gap: 10px; }
+.wk-hd .mid { text-align: center; line-height: 1.15; }
+.wk-hd .mid b { display: block; font-size: 17px; }
+.wk-hd .mid span { font-family: var(--rounded); font-weight: 700; color: var(--p-sec); font-size: 15px; font-variant-numeric: tabular-nums; }
+.blk { margin: 0 16px 12px; background: var(--p-card); border-radius: 22px; padding: 12px 0 8px; position: relative; overflow: hidden; }
+.blk.sset::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
+.blk .lab { color: var(--accent); font-size: 13px; font-weight: 600; padding: 0 16px 6px; }
+.blk .exn { display: flex; justify-content: space-between; align-items: center; padding: 2px 16px 6px; font-weight: 600; }
+.blk .exn .dots { color: var(--accent); font-weight: 700; letter-spacing: 1px; }
+.blk .exn small { font-weight: 400; color: var(--p-sec); font-size: 13px; }
+.blk + .blk { margin-top: 0; }
+.blk .inner + .inner { border-top: .5px solid var(--p-sep); margin-top: 6px; padding-top: 8px; }
+.sg { display: grid; grid-template-columns: 26px 1fr 66px 54px 34px; align-items: center; gap: 8px; padding: 4px 12px 4px 16px; font-variant-numeric: tabular-nums; font-size: 16px; }
+.sg.h { font-size: 12px; color: var(--p-sec); text-transform: uppercase; letter-spacing: .03em; padding-top: 0; padding-bottom: 2px; }
+.sg.h span:nth-child(3), .sg.h span:nth-child(4) { text-align: center; }
+.sg .n { color: var(--p-sec); font-weight: 600; }
+.sg .pv { color: var(--p-sec); font-size: 14px; white-space: nowrap; }
+.sg .in { height: 32px; border-radius: 9px; background: var(--p-fill); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.sg .in.pre { color: var(--p-ter); font-weight: 500; }
+.sg .ck { width: 30px; height: 30px; border-radius: 9px; background: var(--p-fill); display: flex; align-items: center; justify-content: center; }
+.sg .ck svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+.sg.done .ck { background: var(--accent-fill); }
+.sg.done .in { background: transparent; }
+.sg.cur { background: var(--tint); }
+.sg.cur .in { box-shadow: inset 0 0 0 1.5px var(--accent); background: var(--p-card); }
+.addset { color: var(--accent); font-size: 15px; padding: 6px 16px 4px; }
+.collapsed { margin: 0 16px 12px; background: var(--p-card); border-radius: 22px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+.collapsed b { font-weight: 600; }
+.collapsed span { color: var(--p-sec); font-size: 15px; display: flex; align-items: center; gap: 6px; }
+.collapsed span i { width: 20px; height: 20px; border-radius: 10px; background: var(--accent-fill); display: inline-flex; align-items: center; justify-content: center; }
+.collapsed span i svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.restbar { position: absolute; left: 10px; right: 10px; bottom: 22px; border-radius: 30px; background: var(--p-glass); backdrop-filter: blur(18px); box-shadow: 0 0 0 .5px var(--p-sep), 0 10px 30px rgba(0,0,0,.18); padding: 12px 14px 12px 20px; z-index: 20; overflow: hidden; }
+.restbar .prog { position: absolute; left: 0; top: 0; height: 4px; background: var(--rest); }
+.restbar .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.restbar .lbl { font-size: 13px; color: var(--green-text); font-weight: 600; }
+.restbar .big { font-family: var(--rounded); font-weight: 700; font-size: 38px; line-height: 1; color: var(--green-text); font-variant-numeric: tabular-nums; }
+.restbar .btns { display: flex; gap: 6px; }
+.restbar .btns span { height: 40px; padding: 0 12px; border-radius: 20px; background: var(--p-fill); display: inline-flex; align-items: center; font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; }
+.restbar .btns span.g { background: var(--rest); color: #fff; }
+.restbar .nx { font-size: 13px; color: var(--p-sec); margin-top: 8px; }
+
+/* Отдых на весь экран */
+.restfull { background: #1E8E52 !important; color: #fff; }
+.restfull .home { background: #fff; }
+.rf { display: flex; flex-direction: column; align-items: center; padding: 0 24px; }
+.rf .topl { align-self: stretch; display: flex; justify-content: space-between; align-items: center; height: 44px; font-size: 15px; opacity: .9; }
+.rf .topl .c { width: 44px; height: 44px; border-radius: 22px; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; }
+.rf .topl svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.rf h3 { margin: 38px 0 0; font-size: 22px; font-weight: 600; }
+.rf .phase { opacity: .85; font-size: 15px; margin-top: 2px; }
+.ring { position: relative; width: 270px; height: 270px; margin-top: 28px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .t { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring .t b { font-family: var(--rounded); font-weight: 700; font-size: 84px; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.ring .t span { opacity: .85; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.rf .ctl { display: flex; align-items: center; gap: 34px; margin-top: 34px; }
+.rf .ctl .s { width: 64px; height: 64px; border-radius: 32px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-weight: 700; font-family: var(--rounded); font-size: 20px; }
+.rf .ctl .m { width: 84px; height: 84px; border-radius: 42px; background: #fff; display: flex; align-items: center; justify-content: center; }
+.rf .ctl .m svg { width: 34px; height: 34px; fill: #1E8E52; }
+.rf .ctl-l { display: flex; gap: 34px; font-size: 13px; opacity: .85; margin-top: 8px; }
+.rf .ctl-l span { width: 64px; text-align: center; }
+.rf .ctl-l span.m { width: 84px; }
+.rf .next { align-self: stretch; margin-top: 36px; background: rgba(255,255,255,.16); border-radius: 22px; padding: 14px 18px; font-size: 15px; }
+.rf .next small { display: block; opacity: .8; font-size: 13px; margin-bottom: 2px; }
+
+/* Итоги V8 */
+.done-ic { width: 64px; height: 64px; border-radius: 32px; background: #1E8E52; margin: 6px auto 12px; display: flex; align-items: center; justify-content: center; }
+.done-ic svg { width: 34px; height: 34px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ctr { text-align: center; }
+.ctr .nm { font-size: 22px; font-weight: 700; }
+.ctr .dur { font-family: var(--rounded); font-weight: 700; font-size: 52px; line-height: 1.1; font-variant-numeric: tabular-nums; margin-top: 4px; }
+.ctr .when { color: var(--p-sec); font-size: 15px; margin-bottom: 18px; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 16px 22px; }
+.tiles.two { grid-template-columns: repeat(2, 1fr); }
+.tile { background: var(--p-card); border-radius: 20px; padding: 12px 14px; min-width: 0; }
+.tile small { display: block; font-size: 13px; color: var(--p-sec); }
+.tile b { font-family: var(--rounded); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; display: block; margin-top: 2px; white-space: nowrap; }
+.tile .d { font-size: 12px; color: var(--p-sec); margin-top: 2px; }
+.rec { color: var(--coral-text); }
+.trophy { color: var(--coral); }
+
+/* История V9 */
+.segc { margin: 0 16px 16px; height: 36px; border-radius: 18px; background: var(--p-fill); display: flex; padding: 2px; }
+.segc span { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; border-radius: 16px; }
+.segc span.on { background: var(--p-card); font-weight: 600; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+.phone.dark .segc span.on { background: #636366; }
+.hrow .nm { display: flex; justify-content: space-between; font-weight: 600; }
+.hrow .nm i { font-style: normal; font-weight: 600; font-size: 15px; color: var(--coral-text); }
+.hrow .m { font-size: 15px; color: var(--p-sec); font-variant-numeric: tabular-nums; margin-top: 2px; }
+.hrow .e { font-size: 15px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card { margin: 0 16px 14px; background: var(--p-card); border-radius: 22px; padding: 14px 16px; }
+.card h4 { margin: 0 0 10px; font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; }
+.card h4 span { color: var(--p-sec); font-weight: 400; }
+.bars { display: flex; align-items: flex-end; gap: 14px; height: 110px; padding-top: 6px; }
+.bars div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; font-size: 11px; color: var(--p-sec); font-variant-numeric: tabular-nums; }
+.bars i { display: block; width: 100%; border-radius: 6px 6px 3px 3px; background: var(--accent-fill); }
+.bars i.part { opacity: .45; }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 13px; font-variant-numeric: tabular-nums; }
+.cal .w { color: var(--p-sec); font-size: 11px; }
+.cal span { height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
+.cal span.x { background: var(--accent-fill); color: #fff; font-weight: 600; }
+.cal span.today { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.cal span.f { color: var(--p-ter); }
+.hb { display: grid; grid-template-columns: 96px 1fr 26px; align-items: center; gap: 10px; font-size: 14px; padding: 4px 0; font-variant-numeric: tabular-nums; }
+.hb i { display: block; height: 10px; border-radius: 5px; background: var(--accent-fill); }
+.hb span:last-child { text-align: right; color: var(--p-sec); }
+
+/* Каталог V10 */
+.search { margin: 0 16px 10px; height: 40px; border-radius: 20px; background: var(--p-fill); display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--p-sec); }
+.search svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+.chips { display: flex; gap: 8px; padding: 0 16px 14px; }
+.chip { height: 30px; padding: 0 10px 0 12px; border-radius: 15px; background: var(--tint); color: var(--accent); font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.menu { position: absolute; top: 104px; right: 16px; width: 250px; border-radius: 24px; background: var(--p-glass); backdrop-filter: blur(24px); box-shadow: 0 0 0 .5px var(--p-sep), 0 18px 48px rgba(0,0,0,.25); z-index: 25; padding: 6px 0; font-size: 16px; }
+.menu .mi { padding: 10px 18px; display: flex; justify-content: space-between; gap: 8px; }
+.menu .mi span { color: var(--p-sec); }
+.menu .sep { height: 7px; background: var(--p-sep); opacity: .4; margin: 4px 0; }
+.updown { font-size: 12px; color: var(--p-sec); margin-left: 4px; }
+
+/* Экран упражнения V7 */
+.ex-meta { color: var(--p-sec); font-size: 15px; padding: 0 16px 14px; margin-top: -6px; }
+.chart b.big { font-family: var(--rounded); font-weight: 700; font-size: 34px; font-variant-numeric: tabular-nums; }
+.chart .chg { color: var(--green-text); font-weight: 600; font-size: 15px; margin-left: 6px; }
+.chart svg { width: 100%; height: 150px; display: block; margin-top: 6px; }
+.chart .per { display: flex; gap: 4px; margin-top: 8px; }
+.chart .per span { flex: 1; text-align: center; font-size: 13px; font-weight: 500; padding: 6px 0; border-radius: 12px; color: var(--p-sec); }
+.chart .per span.on { background: var(--p-fill); color: var(--p-fg); font-weight: 600; }
+.info { display: inline-flex; width: 18px; height: 18px; border-radius: 9px; border: 1.5px solid var(--accent); color: var(--accent); font-size: 11px; font-weight: 700; align-items: center; justify-content: center; margin-left: 4px; vertical-align: 1px; font-style: normal; }
+.reps { display: grid; grid-template-columns: repeat(5, 1fr); text-align: center; gap: 4px; font-variant-numeric: tabular-nums; }
+.reps small { display: block; color: var(--p-sec); font-size: 12px; }
+.reps b { font-size: 15px; }
+.sheet .grp.formula { padding: 14px 16px; font-size: 15px; }
+.formula .f { font-family: var(--rounded); font-weight: 700; font-size: 19px; margin: 6px 0; }
+.para { padding: 0 20px 14px; font-size: 15px; line-height: 1.45; }
+.para ul { margin: 0; padding-left: 18px; }
+.para li { margin-bottom: 6px; }
+
+/* Экран блокировки V11 */
+.lock { background: radial-gradient(120% 80% at 20% 0%, #2B5876 0%, #182848 45%, #0B1020 100%) !important; color: #fff; }
+.lock .home { background: #fff; }
+.lock .clock { text-align: center; margin-top: 8px; }
+.lock .clock small { display: block; font-size: 18px; font-weight: 600; opacity: .9; }
+.lock .clock b { font-family: var(--rounded); font-size: 92px; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.la { margin: 210px 10px 0; border-radius: 26px; padding: 14px 16px 14px; color: #fff; position: relative; overflow: hidden; }
+.la.rest { background: #1E8E52; }
+.la.set { background: #0E7C9E; }
+.la .t1 { display: flex; justify-content: space-between; font-size: 13px; opacity: .9; font-variant-numeric: tabular-nums; }
+.la .mid { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: 6px; }
+.la .mid small { display: block; font-size: 15px; font-weight: 600; }
+.la .mid b { font-family: var(--rounded); font-weight: 700; font-size: 46px; line-height: 1; font-variant-numeric: tabular-nums; }
+.la .mid b.plan { font-size: 34px; }
+.la .bt { display: flex; gap: 8px; }
+.la .bt span { height: 40px; padding: 0 14px; border-radius: 20px; background: rgba(255,255,255,.22); display: inline-flex; align-items: center; font-weight: 600; font-size: 15px; }
+.la .bt span.w { background: #fff; color: #0E7C9E; padding: 0 18px; }
+.la .nx { font-size: 13px; opacity: .9; margin-top: 10px; }
+.la .pb { height: 4px; border-radius: 2px; background: rgba(255,255,255,.3); margin-top: 10px; overflow: hidden; }
+.la .pb i { display: block; height: 100%; background: #fff; }
+.lock .di-demo { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); z-index: 31; }
+.dis { display: flex; flex-direction: column; gap: 14px; padding: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; }
+.dis small { color: var(--muted); font-size: 13px; }
+.di { background: #000; color: #fff; border-radius: 22px; height: 37px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px 0 8px; width: 250px; font-family: var(--ios-font); font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; }
+.di .ring-s { width: 24px; height: 24px; }
+.di .g { color: #4CD77E; }
+.di .b { color: #5FC6EA; }
+.di.min { width: 37px; justify-content: center; padding: 0; }
+.di.exp { flex-direction: column; align-items: stretch; height: auto; width: 360px; border-radius: 40px; padding: 18px 22px 16px; gap: 8px; }
+.di.exp .row1 { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: rgba(255,255,255,.7); font-weight: 500; }
+.di.exp .row2 { display: flex; justify-content: space-between; align-items: center; }
+.di.exp .row2 b { font-family: var(--rounded); font-size: 40px; color: #4CD77E; line-height: 1; }
+.di.exp .row2 .bt { display: flex; gap: 8px; }
+.di.exp .row2 .bt span { height: 38px; padding: 0 14px; border-radius: 19px; background: rgba(76,215,126,.22); color: #4CD77E; display: inline-flex; align-items: center; }
+.di.exp .nx { font-size: 13px; color: rgba(255,255,255,.7); font-weight: 500; }
+
+/* Иконка V2 */
+.icons { display: flex; flex-wrap: wrap; gap: 20px; }
+.icobox { display: flex; align-items: flex-end; gap: 22px; padding: 24px 28px; border-radius: 22px; }
+.icobox.l { background: linear-gradient(135deg, #E9EEF2, #CBD9E2); }
+.icobox.d { background: linear-gradient(135deg, #1B2430, #070A0F); }
+.icobox figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 12px; }
+.icobox.l figure { color: #3A4A55; }
+.icobox.d figure { color: #AAB7C2; }
+.icobox svg { display: block; }
+
+@media (max-width: 520px) {
+  .wrap { padding-inline: 16px; }
+  header.top h1 { font-size: 28px; }
+  .shot .phones { max-width: calc(100vw - 32px); }
+}
+@media (prefers-reduced-motion: no-preference) { .seg-page button { transition: background .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1><svg viewBox="0 0 1024 1024" aria-hidden="true"><rect width="1024" height="1024" fill="#0E7C9E"/><rect x="164" y="184" width="594" height="123" fill="#FF6B52"/><rect x="338" y="184" width="123" height="656" fill="#FF6B52"/><rect x="563" y="389" width="123" height="451" fill="#FFFFFF"/><rect x="563" y="717" width="297" height="123" fill="#FFFFFF"/></svg>Макеты TrainingLoop</h1>
+      <p>Экраны первой версии по решениям V1–V12 из docs/DESIGN.md. Каждый экран показан в светлой и тёмной теме; длинные экраны прокручиваются внутри телефона.</p>
+    </div>
+    <div class="seg-page" role="group" aria-label="Тема телефонов">
+      <button type="button" id="th-both" data-show="both" aria-pressed="true">Обе темы</button>
+      <button type="button" id="th-light" data-show="light" aria-pressed="false">Светлая</button>
+      <button type="button" id="th-dark" data-show="dark" aria-pressed="false">Тёмная</button>
+    </div>
+  </header>
+  <nav class="toc" aria-label="Разделы">
+    <a href="#templates">Тренировки</a><a href="#workout">Идущая тренировка</a><a href="#history">История</a><a href="#exercises">Упражнения</a><a href="#settings">Настройки</a><a href="#lock">Экран блокировки</a><a href="#icon">Иконка</a>
+  </nav>
+
+  <section class="area" id="templates">
+    <h2>Тренировки</h2>
+    <p class="lead">Вкладка с шаблонами, предпросмотр и редактор. Шаблоны «Ноги + подтягивания», «Фулбади» и «Дома без железа» — примеры первого запуска (D18).</p>
+    <div class="row-shots">
+      <div class="shot" data-t="t-list"><div class="phones"></div><div class="cap"><b>V5 · D13</b><span class="t">Карточки шаблонов</span><p>Состав до 6 строк и «…ещё N», ▶ — сразу старт. Над таб-баром — свёрнутая идущая тренировка.</p></div></div>
+      <div class="shot" data-t="t-preview"><div class="phones"></div><div class="cap"><b>V6</b><span class="t">Предпросмотр шаблона</span><p>Состав только для чтения, «Старт» закреплён внизу, ✎ и ⋯ вверху.</p></div></div>
+      <div class="shot" data-t="t-editor"><div class="phones"></div><div class="cap"><b>V6 · D3 · D4</b><span class="t">Редактор шаблона</span><p>Лист. Суперсет — секция с морской полосой и двумя строками отдыха. Пустой вес — серым «прошлый».</p></div></div>
+    </div>
+  </section>
+
+  <section class="area" id="workout">
+    <h2>Идущая тренировка</h2>
+    <p class="lead">Один список: текущее упражнение раскрыто, выполненные свёрнуты. Отдых — панель внизу, тап разворачивает его на весь экран.</p>
+    <div class="row-shots">
+      <div class="shot" data-t="w-list"><div class="phones"></div><div class="cap"><b>V3 · D7</b><span class="t">Подходы и «Прошлый раз»</span><p>Выполненные упражнения свёрнуты. Значения подставлены из шаблона и прошлого раза (серым), галочка сохраняет подход.</p></div></div>
+      <div class="shot" data-t="w-superset"><div class="phones"></div><div class="cap"><b>V4 · D5</b><span class="t">Суперсет и отдых</span><p>Подсветка на следующем подходе переходит между упражнениями по кругу. Отдых внутри круга — 0:30.</p></div></div>
+      <div class="shot" data-t="w-rest"><div class="phones"></div><div class="cap"><b>V3</b><span class="t">Отдых на весь экран</span><p>Зелёный экран в стиле SetLoop: кольцо, −10 / Пропустить / +10, что дальше.</p></div></div>
+      <div class="shot" data-t="w-summary"><div class="phones"></div><div class="cap"><b>V8 · D6</b><span class="t">Итоги тренировки</span><p>Рекорды текстом тёмного коралла, «Обновить шаблон» выключен по умолчанию, «Не сохранять» с подтверждением.</p></div></div>
+    </div>
+  </section>
+
+  <section class="area" id="history">
+    <h2>История</h2>
+    <p class="lead">Записи по дням и сводка за период.</p>
+    <div class="row-shots">
+      <div class="shot" data-t="h-list"><div class="phones"></div><div class="cap"><b>V9 · D16</b><span class="t">Записи</span><p>🏆 N справа, «начало · длительность · тоннаж», упражнения одной строкой с «+N».</p></div></div>
+      <div class="shot" data-t="h-summary"><div class="phones"></div><div class="cap"><b>V9 · D11</b><span class="t">Сводка</span><p>Плитки, тоннаж по неделям, календарь месяца, подходы по группам мышц: топ-3 и «ещё N».</p></div></div>
+    </div>
+  </section>
+
+  <section class="area" id="exercises">
+    <h2>Упражнения</h2>
+    <p class="lead">Каталог из 53 встроенных и своих упражнений, форма нового упражнения и статистика.</p>
+    <div class="row-shots">
+      <div class="shot" data-t="e-catalog"><div class="phones"></div><div class="cap"><b>V10 · D8</b><span class="t">Каталог с фильтром</span><p>Текстовая кнопка «Фильтр (1) ▾», чип «Спина ✕» под поиском, бейдж «своё».</p></div></div>
+      <div class="shot" data-t="e-filter"><div class="phones"></div><div class="cap"><b>V10</b><span class="t">Меню фильтра</span><p>Группа мышц, оборудование, «Только свои».</p></div></div>
+      <div class="shot" data-t="e-new"><div class="phones"></div><div class="cap"><b>V10 · D2</b><span class="t">Новое упражнение</span><p>«Тип упражнения» со значением справа и тумблер «С отягощением» оформлены одинаково.</p></div></div>
+      <div class="shot" data-t="e-stats"><div class="phones"></div><div class="cap"><b>V7 · D10</b><span class="t">Статистика упражнения</span><p>График веса с рекордами кораллом, плитки, лучший вес на 1/3/5/8/10 повторов, история.</p></div></div>
+      <div class="shot" data-t="e-1rm"><div class="phones"></div><div class="cap"><b>V7</b><span class="t">Что такое расчётный 1ПМ</span><p>Лист по ⓘ: формула Эпли с примером, «это прогноз, а не поднятый вес».</p></div></div>
+    </div>
+  </section>
+
+  <section class="area" id="settings">
+    <h2>Настройки</h2>
+    <div class="row-shots">
+      <div class="shot" data-t="s-settings"><div class="phones"></div><div class="cap"><b>V12 · D20</b><span class="t">Настройки</span><p>Тренировка · Звук и вибрация · Экран · Упражнения · О приложении.</p></div></div>
+    </div>
+  </section>
+
+  <section class="area" id="lock">
+    <h2>Экран блокировки</h2>
+    <p class="lead">Live Activity в двух состояниях: отдых и подход. Цикл «Выполнено» → отдых → сигнал → следующий подход идёт без разблокировки.</p>
+    <div class="row-shots">
+      <div class="shot" data-t="l-rest" data-single="dark"><div class="phones"></div><div class="cap"><b>V11</b><span class="t">Отдых</span><p>Зелёная плашка, «+10» и «Пропустить», что дальше и прогресс.</p></div></div>
+      <div class="shot" data-t="l-set" data-single="dark"><div class="phones"></div><div class="cap"><b>V11</b><span class="t">Подход</span><p>Морская плашка, план «62,5 кг × 8», белая кнопка «Выполнено» без значка.</p></div></div>
+      <div class="shot">
+        <div class="dis">
+          <small>Dynamic Island · отдых, свёрнутый</small>
+          <div class="di"><svg class="ring-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="rgba(76,215,126,.3)" stroke-width="3"/><circle cx="12" cy="12" r="9" fill="none" stroke="#4CD77E" stroke-width="3" stroke-dasharray="56.5" stroke-dashoffset="22" stroke-linecap="round" transform="rotate(-90 12 12)"/></svg><span class="g">0:18</span></div>
+          <small>Dynamic Island · подход, свёрнутый</small>
+          <div class="di"><span class="b" style="padding-left:6px">Присед</span><span class="b">4/4</span></div>
+          <small>Минимальный (рядом другая активность)</small>
+          <div class="di min"><svg class="ring-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="rgba(76,215,126,.3)" stroke-width="3"/><circle cx="12" cy="12" r="9" fill="none" stroke="#4CD77E" stroke-width="3" stroke-dasharray="56.5" stroke-dashoffset="22" stroke-linecap="round" transform="rotate(-90 12 12)"/></svg></div>
+          <small>Развёрнутый · отдых</small>
+          <div class="di exp">
+            <div class="row1"><span>TrainingLoop · Ноги + подтягивания</span><span>24:18</span></div>
+            <div class="row2"><b>0:18</b><div class="bt"><span>+10</span><span>Пропустить</span></div></div>
+            <div class="nx">Далее: Подтягивания, подход 3 · +5 кг × 8</div>
+          </div>
+        </div>
+        <div class="cap"><b>V11</b><span class="t">Dynamic Island</span><p>Всегда чёрный; зелёный и морской осветлены для читаемости, как в SetLoop V10.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="area" id="icon">
+    <h2>Иконка</h2>
+    <p class="lead">Монограмма TL: коралловая T, под её правым крылом белая L, фон морской. Углы скругляет система.</p>
+    <div class="icons" id="icons"></div>
+  </section>
+</div>
+
+<!-- ================= Шаблоны экранов ================= -->
+
+<template id="t-list">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"><div class="l"></div><div class="r"><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></div></div>
+    <div class="lt">Тренировки</div>
+    <div class="cards">
+      <div class="tc">
+        <div class="hd"><b>Ноги + подтягивания</b><span class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span></div>
+        <div class="ss"><div class="ex"><span>Присед со штангой</span><span>4×8</span></div><div class="ex"><span>Подтягивания</span><span>4×6–8</span></div></div>
+        <div class="ex"><span>Румынская тяга</span><span>3×10</span></div>
+        <div class="ft">~25 мин · сегодня</div>
+      </div>
+      <div class="tc">
+        <div class="hd"><b>Верх · гантели</b><span class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span></div>
+        <div class="ex"><span>Жим гантелей лёжа</span><span>4×10</span></div>
+        <div class="ex"><span>Тяга гантели одной рукой</span><span>4×10</span></div>
+        <div class="ex"><span>Жим гантелей сидя</span><span>3×10–12</span></div>
+        <div class="ex"><span>Махи гантелями в стороны</span><span>3×15</span></div>
+        <div class="ex"><span>Молотки с гантелями</span><span>3×12</span></div>
+        <div class="ex"><span>Французский жим лёжа</span><span>3×12</span></div>
+        <div class="more">…ещё 2</div>
+        <div class="ft">~50 мин · 4 дня назад</div>
+      </div>
+      <div class="tc">
+        <div class="hd"><b>Фулбади</b><span class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span></div>
+        <div class="ex"><span>Присед со штангой</span><span>3×8</span></div>
+        <div class="ex"><span>Жим штанги лёжа</span><span>3×8</span></div>
+        <div class="ex"><span>Тяга штанги в наклоне</span><span>3×10</span></div>
+        <div class="ex"><span>Жим штанги стоя</span><span>3×10</span></div>
+        <div class="ex"><span>Планка</span><span>3×45 с</span></div>
+        <div class="ft">~35 мин · 2 дня назад</div>
+      </div>
+      <div class="tc">
+        <div class="hd"><b>Дома без железа</b><span class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span></div>
+        <div class="ss"><div class="ex"><span>Отжимания</span><span>3×15</span></div><div class="ex"><span>Приседания без веса</span><span>3×20</span></div><div class="ex"><span>Скручивания</span><span>3×20</span></div><div class="ex"><span>Бёрпи</span><span>3×10</span></div></div>
+        <div class="ex"><span>Планка</span><span>3×60 с</span></div>
+        <div class="ft">~20 мин · Ещё не выполнялась</div>
+      </div>
+    </div>
+  </div>
+  <div class="minibar"><div class="grow"><b>Ноги + подтягивания</b><span>Подтягивания · подход 3 из 4</span></div><span class="t">24:18</span><span class="open"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></span></div>
+  <div class="tabbar" data-on="0"></div>
+</template>
+
+<template id="t-preview">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"><div class="l"><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span></div><div class="r"><span class="glassbtn pill2"><span><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></span><span><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></span></span></div></div>
+    <div class="lt">Ноги + подтягивания</div>
+    <div class="sub">3 упражнения · 11 подходов · ~25 мин</div>
+    <div class="sslab"><span>Суперсет · 4 круга</span></div>
+    <div class="grp ssec">
+      <div class="r"><div class="grow"><div class="exh">Присед со штангой</div><div class="s2 num">4 подхода · 8 повт · 60 кг</div></div></div>
+      <div class="r"><div class="grow"><div class="exh">Подтягивания</div><div class="s2 num">4 подхода · 6–8 повт · +5 кг</div></div></div>
+      <div class="r"><div class="grow">Отдых в круге</div><span class="v num">0:30</span></div>
+      <div class="r"><div class="grow">Отдых после круга</div><span class="v num">1:30</span></div>
+    </div>
+    <div class="grp">
+      <div class="r"><div class="grow"><div class="exh">Румынская тяга</div><div class="s2 num">3 подхода · 10 повт · 70 кг</div></div></div>
+      <div class="r"><div class="grow">Отдых</div><span class="v num">1:30</span></div>
+    </div>
+    <div class="sh">Последний раз</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Сегодня, 18:05</div><span class="v num">52 мин</span><span class="chev">›</span></div>
+    </div>
+  </div>
+  <div class="pin"><div class="bigbtn"><svg viewBox="0 0 10 12" width="13" height="13" fill="#fff"><path d="M0 0l10 6-10 6z"/></svg>Старт</div></div>
+</template>
+
+<template id="t-editor">
+  <div class="sb" style="position:relative;z-index:0"></div>
+  <div class="sheet-dim"></div>
+  <div class="sheet">
+    <div class="scr" style="padding-bottom:190px">
+      <div class="grab"></div>
+      <div class="nav"><div class="l"><span class="glassbtn">Отмена</span></div><div class="ttl">Тренировка</div><div class="r"><span class="glassbtn fill">Готово</span></div></div>
+      <div style="height:10px"></div>
+      <div class="field">Ноги + подтягивания</div>
+      <div class="sslab"><span>Суперсет</span><span>•••</span></div>
+      <div class="grp ssec">
+        <div class="r"><div class="grow exh">Присед со штангой</div><span style="color:var(--accent)">•••</span></div>
+        <div class="r setline"><div class="grow"><span class="n">1</span>8 повт</div><span>60 кг</span></div>
+        <div class="r setline"><div class="grow"><span class="n">2</span>8 повт</div><span>60 кг</span></div>
+        <div class="r setline"><div class="grow"><span class="n">3</span>8 повт</div><span>62,5 кг</span></div>
+        <div class="r setline"><div class="grow"><span class="n">4</span>8 повт</div><span>62,5 кг</span></div>
+        <div class="r ac">+ Подход</div>
+        <div class="r"><div class="grow exh">Подтягивания</div><span style="color:var(--accent)">•••</span></div>
+        <div class="r setline"><div class="grow"><span class="n">1</span>8 повт</div><span class="ghost">прошлый</span></div>
+        <div class="r setline"><div class="grow"><span class="n">2</span>8 повт</div><span class="ghost">прошлый</span></div>
+        <div class="r setline"><div class="grow"><span class="n">3</span>6 повт</div><span class="ghost">прошлый</span></div>
+        <div class="r setline"><div class="grow"><span class="n">4</span>6 повт</div><span class="ghost">прошлый</span></div>
+        <div class="r ac">+ Подход</div>
+        <div class="r"><div class="grow">Отдых в круге</div><span class="v num">0:30</span></div>
+        <div class="r"><div class="grow">Отдых после круга</div><span class="v num">1:30</span></div>
+      </div>
+      <div class="grp">
+        <div class="r"><div class="grow exh">Румынская тяга</div><span style="color:var(--accent)">•••</span></div>
+        <div class="r setline"><div class="grow"><span class="n">1</span>10 повт</div><span>70 кг</span></div>
+        <div class="r setline"><div class="grow"><span class="n">2</span>10 повт</div><span>70 кг</span></div>
+        <div class="r setline"><div class="grow"><span class="n">3</span>10 повт</div><span>70 кг</span></div>
+        <div class="r ac">+ Подход</div>
+        <div class="r"><div class="grow">Отдых</div><span class="v num">1:30</span></div>
+      </div>
+    </div>
+    <div class="pin" style="padding-bottom:26px">
+      <div class="pinrow"><div class="bigbtn">+ Добавить упражнения</div><div class="bigbtn sec" style="flex:0 0 112px">Выбрать</div></div>
+      <div class="summ">3 упр. · 11 подходов · ~25 мин</div>
+    </div>
+  </div>
+</template>
+
+<template id="w-list">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="wk-hd"><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span><div class="mid"><b>Фулбади</b><span>18:42</span></div><span class="glassbtn fill">Завершить</span></div>
+    <div class="collapsed"><b>Присед со штангой</b><span><i><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></i>3 подхода</span></div>
+    <div class="collapsed"><b>Жим штанги лёжа</b><span><i><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></i>3 подхода</span></div>
+    <div class="blk">
+      <div class="exn"><span>Тяга штанги в наклоне</span><span class="dots">•••</span></div>
+      <div class="sg h"><span>№</span><span>Прошлый раз</span><span>кг</span><span>Повт</span><span></span></div>
+      <div class="sg done"><span class="n">1</span><span class="pv">55 × 10</span><span class="in">57,5</span><span class="in">10</span><span class="ck"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span></div>
+      <div class="sg cur"><span class="n">2</span><span class="pv">55 × 10</span><span class="in">57,5</span><span class="in">10</span><span class="ck"></span></div>
+      <div class="sg"><span class="n">3</span><span class="pv">55 × 9</span><span class="in pre">57,5</span><span class="in pre">10</span><span class="ck"></span></div>
+      <div class="addset">+ Подход</div>
+    </div>
+    <div class="blk">
+      <div class="exn"><span>Жим штанги стоя</span><span class="dots">•••</span></div>
+      <div class="sg h"><span>№</span><span>Прошлый раз</span><span>кг</span><span>Повт</span><span></span></div>
+      <div class="sg"><span class="n">1</span><span class="pv">35 × 10</span><span class="in pre">35</span><span class="in pre">10</span><span class="ck"></span></div>
+      <div class="sg"><span class="n">2</span><span class="pv">35 × 10</span><span class="in pre">35</span><span class="in pre">10</span><span class="ck"></span></div>
+      <div class="sg"><span class="n">3</span><span class="pv">35 × 8</span><span class="in pre">35</span><span class="in pre">10</span><span class="ck"></span></div>
+      <div class="addset">+ Подход</div>
+    </div>
+    <div class="blk">
+      <div class="exn"><span>Планка <small>· на время</small></span><span class="dots">•••</span></div>
+      <div class="sg h"><span>№</span><span>Прошлый раз</span><span>кг</span><span>Время</span><span></span></div>
+      <div class="sg"><span class="n">1</span><span class="pv">0:45</span><span class="in pre">—</span><span class="in pre">0:45</span><span class="ck"></span></div>
+      <div class="sg"><span class="n">2</span><span class="pv">0:45</span><span class="in pre">—</span><span class="in pre">0:45</span><span class="ck"></span></div>
+      <div class="sg"><span class="n">3</span><span class="pv">0:40</span><span class="in pre">—</span><span class="in pre">0:45</span><span class="ck"></span></div>
+    </div>
+    <div class="grp" style="margin-top:4px"><div class="r ac" style="justify-content:center">+ Добавить упражнение</div></div>
+  </div>
+</template>
+
+<template id="w-superset">
+  <div class="scr" style="padding-bottom:170px">
+    <div class="sb"></div>
+    <div class="wk-hd"><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span><div class="mid"><b>Ноги + подтягивания</b><span>24:18</span></div><span class="glassbtn fill">Завершить</span></div>
+    <div class="blk sset">
+      <div class="lab">Суперсет · круг 3 из 4</div>
+      <div class="inner">
+        <div class="exn"><span>Присед со штангой</span><span class="dots">•••</span></div>
+        <div class="sg h"><span>№</span><span>Прошлый раз</span><span>кг</span><span>Повт</span><span></span></div>
+        <div class="sg done"><span class="n">1</span><span class="pv">60 × 8</span><span class="in">60</span><span class="in">8</span><span class="ck"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span></div>
+        <div class="sg done"><span class="n">2</span><span class="pv">60 × 8</span><span class="in">60</span><span class="in">8</span><span class="ck"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span></div>
+        <div class="sg done"><span class="n">3</span><span class="pv">60 × 8</span><span class="in">62,5</span><span class="in">8</span><span class="ck"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span></div>
+        <div class="sg"><span class="n">4</span><span class="pv">60 × 7</span><span class="in pre">62,5</span><span class="in pre">8</span><span class="ck"></span></div>
+      </div>
+      <div class="inner">
+        <div class="exn"><span>Подтягивания</span><span class="dots">•••</span></div>
+        <div class="sg h"><span>№</span><span>Прошлый раз</span><span>+кг</span><span>Повт</span><span></span></div>
+        <div class="sg done"><span class="n">1</span><span class="pv">+5 × 8</span><span class="in">+5</span><span class="in">8</span><span class="ck"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span></div>
+        <div class="sg done"><span class="n">2</span><span class="pv">+5 × 7</span><span class="in">+5</span><span class="in">10</span><span class="ck"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></span></div>
+        <div class="sg cur"><span class="n">3</span><span class="pv">+5 × 6</span><span class="in">+5</span><span class="in">8</span><span class="ck"></span></div>
+        <div class="sg"><span class="n">4</span><span class="pv">+5 × 6</span><span class="in pre">+5</span><span class="in pre">6</span><span class="ck"></span></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="exn"><span>Румынская тяга</span><span class="dots">•••</span></div>
+      <div class="sg h"><span>№</span><span>Прошлый раз</span><span>кг</span><span>Повт</span><span></span></div>
+      <div class="sg"><span class="n">1</span><span class="pv">70 × 10</span><span class="in pre">70</span><span class="in pre">10</span><span class="ck"></span></div>
+      <div class="sg"><span class="n">2</span><span class="pv">70 × 10</span><span class="in pre">70</span><span class="in pre">10</span><span class="ck"></span></div>
+      <div class="sg"><span class="n">3</span><span class="pv">70 × 9</span><span class="in pre">70</span><span class="in pre">10</span><span class="ck"></span></div>
+    </div>
+  </div>
+  <div class="restbar">
+    <div class="prog" style="width:40%"></div>
+    <div class="top">
+      <div><div class="lbl">Отдых в круге</div><div class="big">0:18</div></div>
+      <div class="btns"><span>−10</span><span>+10</span><span class="g">Пропустить</span></div>
+    </div>
+    <div class="nx">Далее: Подтягивания, подход 3 · +5 кг × 8</div>
+  </div>
+</template>
+
+<template id="w-rest">
+  <div class="scr" style="padding-bottom:40px">
+    <div class="sb"></div>
+    <div class="rf">
+      <div class="topl"><span class="c"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span><span>Ноги + подтягивания · 26:40</span><span style="width:44px"></span></div>
+      <h3>Отдых</h3>
+      <div class="phase">после круга 3 из 4</div>
+      <div class="ring">
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="5"/><circle cx="50" cy="50" r="45" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="56.5"/></svg>
+        <div class="t"><b>1:12</b><span>из 1:30</span></div>
+      </div>
+      <div class="ctl"><span class="s">−10</span><span class="m"><svg viewBox="0 0 24 24"><path d="M5 5l9 7-9 7zM16 5h3v14h-3z"/></svg></span><span class="s">+10</span></div>
+      <div class="ctl-l"><span></span><span class="m">Пропустить</span><span></span></div>
+      <div class="next"><small>Далее</small>Присед со штангой, подход 4 · 62,5 кг × 8</div>
+    </div>
+  </div>
+</template>
+
+<template id="w-summary">
+  <div class="scr" style="padding-bottom:150px">
+    <div class="sb"></div>
+    <div class="done-ic"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg></div>
+    <div class="ctr"><div class="nm">Ноги + подтягивания</div><div class="dur">52:40</div><div class="when">Пт, 16 окт · 18:05</div></div>
+    <div class="tiles"><div class="tile"><small>Тоннаж</small><b>4 220 кг</b></div><div class="tile"><small>Подходы</small><b>11</b></div><div class="tile"><small>Упражнения</small><b>3</b></div></div>
+    <div class="sh"><span class="trophy">🏆</span> Новые рекорды</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Присед со штангой<div class="s2">Лучший вес</div></div><span class="rec num" style="font-weight:600">62,5 кг × 8</span></div>
+      <div class="r"><div class="grow">Подтягивания<div class="s2">Макс. повторов</div></div><span class="rec num" style="font-weight:600">10</span></div>
+    </div>
+    <div class="sh">Подходы по группам мышц</div>
+    <div class="grp"><div class="r" style="font-size:15px">Квадрицепсы 4 · Спина 4 · Бицепс бедра 3</div></div>
+    <div class="grp">
+      <div class="r"><span style="color:var(--p-sec);width:92px">Название</span><div class="grow">Ноги + подтягивания</div></div>
+      <div class="r"><span style="color:var(--p-sec);width:92px">Заметка</span><div class="grow ghost">Как прошло?</div></div>
+    </div>
+    <div class="grp">
+      <div class="r"><div class="grow">Обновить шаблон<div class="s2 num">Изменилось: Присед со штангой — 62,5 кг вместо 60 кг в подходах 3–4</div></div><span class="tog"></span></div>
+    </div>
+  </div>
+  <div class="pin"><div class="bigbtn">Сохранить</div><div style="text-align:center;color:var(--red);font-size:17px;padding:4px 0 2px">Не сохранять</div></div>
+</template>
+
+<template id="h-list">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"><div class="l"></div><div class="r"><span class="glassbtn">Выбрать</span></div></div>
+    <div class="lt">История</div>
+    <div class="segc"><span class="on">Записи</span><span>Сводка</span></div>
+    <div class="sh">Сегодня</div>
+    <div class="grp"><div class="r"><div class="grow hrow"><div class="nm">Ноги + подтягивания<i>🏆 2</i></div><div class="m">18:05 · 52 мин · 4 220 кг</div><div class="e">Присед со штангой, Подтягивания, Румынская тяга</div></div></div></div>
+    <div class="sh">Среда, 14 октября</div>
+    <div class="grp"><div class="r"><div class="grow hrow"><div class="nm">Фулбади</div><div class="m">07:40 · 41 мин · 5 860 кг</div><div class="e">Присед со штангой, Жим штанги лёжа, Тяга шт… +2</div></div></div></div>
+    <div class="sh">Понедельник, 12 октября</div>
+    <div class="grp">
+      <div class="r"><div class="grow hrow"><div class="nm">Верх · гантели<i>🏆 1</i></div><div class="m">19:10 · 55 мин · 3 940 кг</div><div class="e">Жим гантелей лёжа, Тяга гантели одной ру… +6</div></div></div>
+      <div class="r"><div class="grow hrow"><div class="nm">Тренировка</div><div class="m">08:15 · 12 мин · без веса</div><div class="e">Вис на перекладине, Планка</div></div></div>
+    </div>
+    <div class="sh">Суббота, 10 октября</div>
+    <div class="grp"><div class="r"><div class="grow hrow"><div class="nm">Дома без железа</div><div class="m">11:30 · 24 мин · без веса</div><div class="e">Отжимания, Приседания без веса, Скручива… +2</div></div></div></div>
+  </div>
+  <div class="tabbar" data-on="1"></div>
+</template>
+
+<template id="h-summary">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"><div class="l"></div><div class="r"><span class="glassbtn">Выбрать</span></div></div>
+    <div class="lt">История</div>
+    <div class="segc"><span>Записи</span><span class="on">Сводка</span></div>
+    <div class="segc" style="height:32px"><span>Неделя</span><span class="on">Месяц</span><span>Год</span></div>
+    <div class="sh">Октябрь 2026</div>
+    <div class="tiles two">
+      <div class="tile"><small>Тренировок</small><b>9</b></div>
+      <div class="tile"><small>Время</small><b>6 ч 50 мин</b></div>
+      <div class="tile"><small>Тоннаж</small><b>36,4 т</b></div>
+      <div class="tile"><small>Серия недель</small><b>6</b></div>
+    </div>
+    <div class="card"><h4>Тоннаж по неделям <span>т</span></h4>
+      <div class="bars"><div>5,2<i style="height:42%"></i>28 сен</div><div>9,6<i style="height:77%"></i>5 окт</div><div>12,4<i style="height:100%"></i>12 окт</div><div>9,2<i class="part" style="height:74%"></i>сейчас</div></div>
+    </div>
+    <div class="card"><h4>Октябрь</h4>
+      <div class="cal">
+        <span class="w">Пн</span><span class="w">Вт</span><span class="w">Ср</span><span class="w">Чт</span><span class="w">Пт</span><span class="w">Сб</span><span class="w">Вс</span>
+        <span></span><span></span><span></span><span class="x">1</span><span>2</span><span class="x">3</span><span>4</span>
+        <span class="x">5</span><span>6</span><span class="x">7</span><span>8</span><span class="x">9</span><span>10</span><span>11</span>
+        <span class="x">12</span><span>13</span><span class="x">14</span><span>15</span><span class="x today">16</span><span class="f">17</span><span class="f">18</span>
+        <span class="f">19</span><span class="f">20</span><span class="f">21</span><span class="f">22</span><span class="f">23</span><span class="f">24</span><span class="f">25</span>
+        <span class="f">26</span><span class="f">27</span><span class="f">28</span><span class="f">29</span><span class="f">30</span><span class="f">31</span><span></span>
+      </div>
+    </div>
+    <div class="card"><h4>Подходы по группам мышц</h4>
+      <div class="hb"><span>Квадрицепсы</span><i style="width:100%"></i><span>38</span></div>
+      <div class="hb"><span>Спина</span><i style="width:89%"></i><span>34</span></div>
+      <div class="hb"><span>Грудь</span><i style="width:58%"></i><span>22</span></div>
+      <div style="color:var(--accent);font-size:15px;padding-top:6px">Ещё 8 групп</div>
+    </div>
+  </div>
+  <div class="tabbar" data-on="1"></div>
+</template>
+
+<template id="e-catalog">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"><div class="l"></div><div class="r"><span class="glassbtn on">Фильтр (1) ▾</span><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></div></div>
+    <div class="lt">Упражнения</div>
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>Поиск</div>
+    <div class="chips"><span class="chip">Спина ✕</span></div>
+    <div class="sh">Спина</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Подтягивания<div class="s2 num">Собственный вес · 18 трен. · +10 кг × 6</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Тяга штанги в наклоне<div class="s2 num">Штанга · 12 трен. · 60 кг × 10</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Тяга гантели одной рукой<div class="s2 num">Гантели · 7 трен. · 32 кг × 10</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Тяга верхнего блока<div class="s2">Блок · ещё не делали</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Тяга горизонтального блока<div class="s2">Блок · ещё не делали</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Тяга в рычажном тренажёре<span class="badge">своё</span><div class="s2 num">Тренажёр · 3 трен. · 80 кг × 12</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Становая тяга<div class="s2">Штанга · ещё не делали</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Гиперэкстензия<div class="s2 num">Собственный вес · 4 трен. · 15</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Подтягивания обратным хватом<div class="s2">Собственный вес · ещё не делали</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Тяга Т-грифа<div class="s2">Штанга · ещё не делали</div></div><span class="chev">›</span></div>
+    </div>
+  </div>
+  <div class="tabbar" data-on="2"></div>
+</template>
+
+<template id="e-filter">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"><div class="l"></div><div class="r"><span class="glassbtn">Фильтр ▾</span><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span></div></div>
+    <div class="lt">Упражнения</div>
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>Поиск</div>
+    <div class="sh" style="margin-top:12px">Грудь</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Жим штанги лёжа<div class="s2 num">Штанга · 14 трен. · 80 кг × 6</div></div></div>
+      <div class="r"><div class="grow">Жим штанги на наклонной скамье<div class="s2">Штанга · ещё не делали</div></div></div>
+      <div class="r"><div class="grow">Жим гантелей лёжа<div class="s2 num">Гантели · 9 трен. · 30 кг × 10</div></div></div>
+      <div class="r"><div class="grow">Разводка гантелей лёжа<div class="s2">Гантели · ещё не делали</div></div></div>
+      <div class="r"><div class="grow">Сведение рук в кроссовере<div class="s2">Блок · ещё не делали</div></div></div>
+      <div class="r"><div class="grow">Отжимания<div class="s2 num">Собственный вес · 6 трен. · 25</div></div></div>
+    </div>
+    <div class="sh">Спина</div>
+    <div class="grp"><div class="r"><div class="grow">Становая тяга<div class="s2">Штанга · ещё не делали</div></div></div></div>
+  </div>
+  <div class="menu">
+    <div class="mi">Группа мышц<span>Любая ›</span></div>
+    <div class="mi">Оборудование<span>Любое ›</span></div>
+    <div class="sep"></div>
+    <div class="mi">Только свои<span>○</span></div>
+  </div>
+  <div class="tabbar" data-on="2"></div>
+</template>
+
+<template id="e-new">
+  <div class="sb" style="position:relative;z-index:0"></div>
+  <div class="sheet-dim"></div>
+  <div class="sheet">
+    <div class="scr" style="padding-bottom:40px">
+      <div class="grab"></div>
+      <div class="nav"><div class="l"><span class="glassbtn">Отмена</span></div><div class="r"><span class="glassbtn fill">Готово</span></div></div>
+      <div class="lt" style="padding-top:10px">Новое упражнение</div>
+      <div class="field">Тяга в рычажном тренажёре</div>
+      <div class="sh">Что записывать в подходе</div>
+      <div class="grp">
+        <div class="r"><div class="grow">Тип упражнения</div><span class="v" style="color:var(--accent)">На повторы<span class="updown">⌃⌄</span></span></div>
+        <div class="r"><div class="grow">С отягощением</div><span class="tog on"></span></div>
+      </div>
+      <div class="sf">Вес можно оставить пустым — например, подтягивания без пояса.</div>
+      <div class="sh">Описание</div>
+      <div class="grp">
+        <div class="r"><div class="grow">Основная группа</div><span class="v" style="color:var(--accent)">Спина<span class="updown">⌃⌄</span></span></div>
+        <div class="r"><div class="grow">Вспомогательные</div><span class="v">Бицепс, Плечи</span><span class="chev">›</span></div>
+        <div class="r"><div class="grow">Оборудование</div><span class="v" style="color:var(--accent)">Тренажёр<span class="updown">⌃⌄</span></span></div>
+        <div class="r" style="align-items:flex-start;min-height:92px"><div class="grow ghost">Заметка — например, настройка сиденья</div></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="e-stats">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"><div class="l"><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span></div><div class="r"><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></span></div></div>
+    <div class="lt">Присед со штангой</div>
+    <div class="ex-meta">Квадрицепсы · Штанга · 24 тренировки</div>
+    <div class="segc"><span class="on">Вес</span><span>Тоннаж</span></div>
+    <div class="card chart">
+      <div><b class="big">62,5 кг</b><span class="chg">▲ 7,5 за 3 мес</span></div>
+      <svg viewBox="0 0 320 150" aria-label="Лучший вес по тренировкам за 3 месяца">
+        <g stroke="var(--p-sep)" stroke-width="1"><line x1="30" y1="26.7" x2="316" y2="26.7"/><line x1="30" y1="60" x2="316" y2="60"/><line x1="30" y1="93.3" x2="316" y2="93.3"/></g>
+        <g fill="var(--p-sec)" font-size="11" font-family="-apple-system, system-ui, sans-serif"><text x="0" y="30.5">62,5</text><text x="6" y="64">57,5</text><text x="0" y="97">52,5</text><text x="40" y="128">авг</text><text x="140" y="128">сен</text><text x="250" y="128">окт</text></g>
+        <polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="40,76.7 70,76.7 100,60 130,60 160,68.3 190,43.3 220,43.3 250,43.3 280,26.7 306,26.7"/>
+        <g fill="var(--accent)"><circle cx="40" cy="76.7" r="3.5"/><circle cx="70" cy="76.7" r="3.5"/><circle cx="130" cy="60" r="3.5"/><circle cx="160" cy="68.3" r="3.5"/><circle cx="220" cy="43.3" r="3.5"/><circle cx="250" cy="43.3" r="3.5"/><circle cx="306" cy="26.7" r="3.5"/></g>
+        <g fill="#FF6B52" stroke="var(--p-card)" stroke-width="2"><circle cx="100" cy="60" r="6"/><circle cx="190" cy="43.3" r="6"/><circle cx="280" cy="26.7" r="6"/></g>
+      </svg>
+      <div class="per"><span>Мес</span><span class="on">3 мес</span><span>Год</span><span>Всё</span></div>
+    </div>
+    <div class="tiles two">
+      <div class="tile"><small>Лучший вес</small><b class="rec">62,5 кг × 8</b><div class="d">16 окт</div></div>
+      <div class="tile"><small>Расч. 1ПМ<i class="info">i</i></small><b>≈ 79,2 кг</b><div class="d">из 62,5 × 8</div></div>
+      <div class="tile"><small>Тоннаж за трен.</small><b>1 960 кг</b><div class="d">16 окт</div></div>
+      <div class="tile"><small>Макс. повторов</small><b>12</b><div class="d">40 кг · 2 авг</div></div>
+    </div>
+    <div class="card"><h4>Лучший вес на повторы</h4>
+      <div class="reps"><div><small>1</small><b>—</b></div><div><small>3</small><b>—</b></div><div><small>5</small><b>67,5</b></div><div><small>8</small><b>62,5</b></div><div><small>10</small><b>55</b></div></div>
+    </div>
+    <div class="sh">История</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Пт, 16 окт<div class="s2 num">60×8 · 60×8 · 62,5×8 <span class="trophy">🏆</span> · 62,5×8</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Ср, 14 окт<div class="s2 num">60×8 · 60×8 · 60×8</div></div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Пт, 9 окт<div class="s2 num">57,5×8 · 60×8 · 60×7 · 60×7</div></div><span class="chev">›</span></div>
+    </div>
+  </div>
+  <div class="tabbar" data-on="2"></div>
+</template>
+
+<template id="e-1rm">
+  <div class="sb" style="position:relative;z-index:0"></div>
+  <div class="sheet-dim"></div>
+  <div class="sheet" style="top:330px">
+    <div class="scr" style="padding-bottom:30px">
+      <div class="grab"></div>
+      <div class="nav"><div class="ttl">Расчётный 1ПМ</div><div class="l"></div><div class="r"><span class="glassbtn"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span></div></div>
+      <div class="para" style="padding-top:10px">Оценка веса, который вы подняли бы на 1 повтор, по формуле Эпли.</div>
+      <div class="grp formula">
+        <div style="color:var(--p-sec)">вес × (1 + повторы ÷ 30)</div>
+        <div class="f">62,5 × (1 + 8 ÷ 30) ≈ 79,2 кг</div>
+      </div>
+      <div class="para"><ul>
+        <li>Это прогноз, а не поднятый вес. Рекордом он не считается.</li>
+        <li>Подходы больше 12 повторов не учитываются: там формула сильно ошибается.</li>
+        <li>Реально поднятый вес на 1 повтор — в графе «1» блока «Лучший вес на повторы».</li>
+      </ul></div>
+    </div>
+  </div>
+</template>
+
+<template id="s-settings">
+  <div class="scr">
+    <div class="sb"></div>
+    <div class="nav"></div>
+    <div class="lt">Настройки</div>
+    <div class="sh">Тренировка</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Единицы веса</div><span class="v" style="color:var(--accent)">кг<span class="updown">⌃⌄</span></span></div>
+      <div class="r"><div class="grow">Отдых по умолчанию</div><span class="v num">1:30</span><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Запускать отдых после подхода</div><span class="tog on"></span></div>
+    </div>
+    <div class="sh">Звук и вибрация</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Звуки</div><span class="v">Стекло</span><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Вибрация</div><span class="tog on"></span></div>
+      <div class="r"><div class="grow">Голосовые подсказки</div><span class="tog"></span></div>
+      <div class="r"><div class="grow">Игнорировать беззвучный режим</div><span class="tog on"></span></div>
+    </div>
+    <div class="sf">Во время звонка сигналы не воспроизводятся.</div>
+    <div class="sh">Экран</div>
+    <div class="grp">
+      <div class="r"><div class="grow">На экране блокировки</div><span class="tog on"></span></div>
+      <div class="r"><div class="grow">Не гасить экран</div><span class="tog"></span></div>
+      <div class="r"><div class="grow">Тема</div><span class="v" style="color:var(--accent)">Системная<span class="updown">⌃⌄</span></span></div>
+    </div>
+    <div class="sh">Упражнения</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Скрытые упражнения</div><span class="v num">3</span><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Архив</div><span class="v num">1</span><span class="chev">›</span></div>
+    </div>
+    <div class="sh">О приложении</div>
+    <div class="grp">
+      <div class="r"><div class="grow">Конфиденциальность</div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Поддержка</div><span class="chev">›</span></div>
+      <div class="r"><div class="grow">Версия</div><span class="v num">1.0 (1)</span></div>
+    </div>
+  </div>
+  <div class="tabbar" data-on="3"></div>
+</template>
+
+<template id="l-rest">
+  <div class="scr" style="padding-bottom:0">
+    <div class="sb"></div>
+    <div class="clock"><small>Пятница, 16 октября</small><b>18:29</b></div>
+    <div class="la rest">
+      <div class="t1"><span>TrainingLoop · Ноги + подтягивания</span><span>24:18</span></div>
+      <div class="mid"><div><small>Отдых</small><b>0:18</b></div><div class="bt"><span>+10</span><span>Пропустить</span></div></div>
+      <div class="nx">Далее: Подтягивания, подход 3 · +5 кг × 8</div>
+      <div class="pb"><i style="width:40%"></i></div>
+    </div>
+  </div>
+</template>
+
+<template id="l-set">
+  <div class="scr" style="padding-bottom:0">
+    <div class="sb"></div>
+    <div class="clock"><small>Пятница, 16 октября</small><b>18:31</b></div>
+    <div class="la set">
+      <div class="t1"><span>TrainingLoop · Ноги + подтягивания</span><span>26:02</span></div>
+      <div class="mid"><div><small>Присед со штангой · подход 4 из 4</small><b class="plan">62,5 кг × 8</b></div></div>
+      <div class="mid" style="align-items:center;margin-top:10px"><span style="font-size:13px;opacity:.9">Суперсет · далее Подтягивания</span><div class="bt"><span class="w">Выполнено</span></div></div>
+    </div>
+  </div>
+</template>
+
+<script>
+(function () {
+  var sbHTML = '<span>9:41</span><span class="ic"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="24.5" y="4" width="1.5" height="4" rx=".7" opacity=".4"/></svg></span>';
+  var tabs = [
+    ['Тренировки', '<rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M10 9.2v5.6l4.6-2.8z" fill="currentColor"/>'],
+    ['История', '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'],
+    ['Упражнения', '<path d="M3 12h18"/><rect x="5" y="7.5" width="3" height="9" rx="1"/><rect x="16" y="7.5" width="3" height="9" rx="1"/><path d="M3 10v4M21 10v4"/>'],
+    ['Настройки', '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5" stroke-dasharray="3.2 2.7" stroke-width="3.2"/>']
+  ];
+  function tabbar(on) {
+    return tabs.map(function (t, i) {
+      return '<div' + (i === on ? ' class="on"' : '') + '><svg viewBox="0 0 24 24">' + t[1] + '</svg>' + t[0] + '</div>';
+    }).join('');
+  }
+  document.querySelectorAll('.shot[data-t]').forEach(function (shot) {
+    var tpl = document.getElementById(shot.dataset.t);
+    var holder = shot.querySelector('.phones');
+    var themes = shot.dataset.single ? [shot.dataset.single] : ['light', 'dark'];
+    themes.forEach(function (th) {
+      var ph = document.createElement('div');
+      ph.className = 'phone ' + th + (shot.dataset.single ? ' single' : '');
+      if (shot.dataset.t === 'w-rest') ph.classList.add('restfull');
+      if (shot.dataset.t.indexOf('l-') === 0) ph.classList.add('lock');
+      ph.setAttribute('role', 'img');
+      ph.setAttribute('aria-label', shot.querySelector('.t').textContent + (th === 'dark' ? ', тёмная тема' : ', светлая тема'));
+      ph.appendChild(tpl.content.cloneNode(true));
+      ph.insertAdjacentHTML('beforeend', '<div class="island"></div><div class="home"></div>');
+      ph.querySelectorAll('.sb').forEach(function (s) { s.innerHTML = sbHTML; });
+      ph.querySelectorAll('.tabbar').forEach(function (t) { t.innerHTML = tabbar(+t.dataset.on); });
+      holder.appendChild(ph);
+    });
+  });
+  document.body.classList.add('ready');
+
+  var icon = '<rect width="1024" height="1024" fill="#0E7C9E"/><rect x="164" y="184" width="594" height="123" fill="#FF6B52"/><rect x="338" y="184" width="123" height="656" fill="#FF6B52"/><rect x="563" y="389" width="123" height="451" fill="#FFFFFF"/><rect x="563" y="717" width="297" height="123" fill="#FFFFFF"/>';
+  var sizes = [[180, 'Магазин'], [60, 'Главный экран'], [40, 'Spotlight'], [29, 'Настройки']];
+  ['l', 'd'].forEach(function (k) {
+    var box = document.createElement('div');
+    box.className = 'icobox ' + k;
+    box.innerHTML = sizes.map(function (s) {
+      var r = Math.round(s[0] * 0.225);
+      return '<figure><svg width="' + s[0] + '" height="' + s[0] + '" viewBox="0 0 1024 1024" style="border-radius:' + r + 'px" aria-hidden="true">' + icon + '</svg><figcaption>' + s[0] + ' pt · ' + s[1] + '</figcaption></figure>';
+    }).join('');
+    document.getElementById('icons').appendChild(box);
+  });
+
+  var btns = document.querySelectorAll('.seg-page button');
+  function setShow(v) {
+    document.body.dataset.show = v;
+    btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.show === v)); });
+    try { localStorage.setItem('tl-show', v); } catch (e) {}
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { setShow(b.dataset.show); }); });
+  var saved = null;
+  try { saved = localStorage.getItem('tl-show'); } catch (e) {}
+  setShow(saved || 'both');
+})();
+</script>
