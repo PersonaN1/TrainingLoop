@@ -1,6 +1,8 @@
 # TrainingLoop — базовый дизайн
 
 > Подтверждённые дизайн-решения. Функциональные решения — в [SPEC.md](SPEC.md). Основа — дизайн SetLoop (SetLoop/docs/DESIGN.md): всё, что не оговорено здесь, повторяет его.
+>
+> Макеты экранов по этим решениям (светлая и тёмная тема): холст https://claude.ai/artifact/FbGpYBFUDAmFd7sYUDPBqZ, исходник — [design/screens.html](design/screens.html). Цифры и названия на макетах — примеры.
 
 ## Решения
 
