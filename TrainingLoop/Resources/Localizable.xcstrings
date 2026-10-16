@@ -21,6 +21,126 @@
         }
       }
     },
+    "%@ reps" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ повт"
+          }
+        }
+      }
+    },
+    "%@ s" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ с"
+          }
+        }
+      }
+    },
+    "%lld exercises" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld exercise"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld exercises"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld упр."
+          }
+        }
+      }
+    },
+    "%lld min" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld мин"
+          }
+        }
+      }
+    },
+    "%lld s" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld с"
+          }
+        }
+      }
+    },
+    "%lld sets" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld set"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld sets"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld подход"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld подхода"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld подходов"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld подхода"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld workouts" : {
       "localizations" : {
         "en" : {
@@ -49,6 +169,16 @@
         }
       }
     },
+    "A template is a plan of one workout: exercises, sets and rest." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шаблон — план одной тренировки: упражнения, подходы и отдых."
+          }
+        }
+      }
+    },
     "About" : {
       "localizations" : {
         "ru" : {
@@ -65,6 +195,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пресс"
+          }
+        }
+      }
+    },
+    "Add (%lld)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить (%lld)"
+          }
+        }
+      }
+    },
+    "Add Exercises" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить упражнения"
+          }
+        }
+      }
+    },
+    "Add exercises from the catalog. Sets and rest can be changed for each one." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте упражнения из каталога. Подходы и отдых настраиваются у каждого."
+          }
+        }
+      }
+    },
+    "Add Set" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подход"
           }
         }
       }
@@ -179,6 +349,16 @@
         }
       }
     },
+    "Can't merge these exercises" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не получается объединить"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "ru" : {
@@ -239,12 +419,84 @@
         }
       }
     },
+    "Delete %lld templates?" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Delete %lld template?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Delete %lld templates?"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld шаблон?"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld шаблона?"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld шаблонов?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld шаблона?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Delete (%lld)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить (%lld)"
+          }
+        }
+      }
+    },
     "Delete Exercise" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Удалить упражнение"
+          }
+        }
+      }
+    },
+    "Delete Set" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить подход"
           }
         }
       }
@@ -259,12 +511,52 @@
         }
       }
     },
+    "Delete this template?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить этот шаблон?"
+          }
+        }
+      }
+    },
     "Description" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Описание"
+          }
+        }
+      }
+    },
+    "Deselect All" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Снять выбор"
+          }
+        }
+      }
+    },
+    "Discard Changes" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не сохранять"
+          }
+        }
+      }
+    },
+    "Discard changes?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить изменения?"
           }
         }
       }
@@ -365,6 +657,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Достигнут предел упражнений"
+          }
+        }
+      }
+    },
+    "Exercise Options" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Действия с упражнением"
           }
         }
       }
@@ -586,12 +888,52 @@
         }
       }
     },
+    "kg" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "кг"
+          }
+        }
+      }
+    },
     "Kilograms" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Килограммы"
+          }
+        }
+      }
+    },
+    "last time's weight" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вес в прошлый раз"
+          }
+        }
+      }
+    },
+    "lb" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "фнт"
+          }
+        }
+      }
+    },
+    "Leave empty to use the weight from the previous time." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставьте пустым — подставится вес из прошлого раза."
           }
         }
       }
@@ -636,6 +978,36 @@
         }
       }
     },
+    "Merge into Superset" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить в суперсет"
+          }
+        }
+      }
+    },
+    "Minutes" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Минуты"
+          }
+        }
+      }
+    },
+    "More" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ещё"
+          }
+        }
+      }
+    },
     "Muscle Group" : {
       "localizations" : {
         "ru" : {
@@ -676,6 +1048,26 @@
         }
       }
     },
+    "New Template" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новый шаблон"
+          }
+        }
+      }
+    },
+    "New Workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новая тренировка"
+          }
+        }
+      }
+    },
     "No" : {
       "localizations" : {
         "ru" : {
@@ -702,6 +1094,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет подходящих упражнений"
+          }
+        }
+      }
+    },
+    "No Templates" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет шаблонов"
           }
         }
       }
@@ -846,12 +1248,82 @@
         }
       }
     },
+    "Remove from Superset" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убрать из суперсета"
+          }
+        }
+      }
+    },
+    "Replace" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить"
+          }
+        }
+      }
+    },
+    "Replace Exercise" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить упражнение"
+          }
+        }
+      }
+    },
+    "Reps" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторы"
+          }
+        }
+      }
+    },
     "Reset Filter" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сбросить фильтр"
+          }
+        }
+      }
+    },
+    "Rest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отдых"
+          }
+        }
+      }
+    },
+    "Rest After Round" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отдых после круга"
+          }
+        }
+      }
+    },
+    "Rest Within Round" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отдых в круге"
           }
         }
       }
@@ -882,6 +1354,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вспомогательные группы"
+          }
+        }
+      }
+    },
+    "Seconds" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Секунды"
+          }
+        }
+      }
+    },
+    "Select" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать"
+          }
+        }
+      }
+    },
+    "Select All" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать все"
+          }
+        }
+      }
+    },
+    "Select at least two neighbouring exercises." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите хотя бы два соседних упражнения."
+          }
+        }
+      }
+    },
+    "Select neighbouring exercises to merge them into a superset. Drag to reorder; drop an exercise between two of a superset to add it there, or away from it to take it out." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите соседние упражнения, чтобы объединить их в суперсет. Перетаскивайте, чтобы поменять порядок: между упражнениями суперсета — чтобы добавить в него, в сторону от него — чтобы убрать."
+          }
+        }
+      }
+    },
+    "Set %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подход %lld"
           }
         }
       }
@@ -972,6 +1504,16 @@
         }
       }
     },
+    "Split Superset" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разъединить"
+          }
+        }
+      }
+    },
     "Start a workout — it will appear here" : {
       "localizations" : {
         "ru" : {
@@ -992,6 +1534,78 @@
         }
       }
     },
+    "Superset" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Суперсет"
+          }
+        }
+      }
+    },
+    "Superset Options" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Действия с суперсетом"
+          }
+        }
+      }
+    },
+    "Superset · %lld rounds" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Superset · %lld round"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Superset · %lld rounds"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Суперсет · %lld круг"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Суперсет · %lld круга"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Суперсет · %lld кругов"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Суперсет · %lld круга"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Support" : {
       "localizations" : {
         "ru" : {
@@ -1008,6 +1622,33 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Системная"
+          }
+        }
+      }
+    },
+    "Template limit reached" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Достигнут предел шаблонов"
+          }
+        }
+      }
+    },
+    "template.notDone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not done yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ещё не выполнялась"
           }
         }
       }
@@ -1042,6 +1683,16 @@
         }
       }
     },
+    "These exercises already form a superset." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эти упражнения уже составляют суперсет."
+          }
+        }
+      }
+    },
     "Traps" : {
       "localizations" : {
         "ru" : {
@@ -1072,6 +1723,16 @@
         }
       }
     },
+    "Unknown Exercise" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неизвестное упражнение"
+          }
+        }
+      }
+    },
     "Version" : {
       "localizations" : {
         "ru" : {
@@ -1098,6 +1759,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Голосовые подсказки"
+          }
+        }
+      }
+    },
+    "Weight" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вес"
           }
         }
       }
@@ -1152,6 +1823,16 @@
         }
       }
     },
+    "Workouts in History stay." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировки в Истории останутся."
+          }
+        }
+      }
+    },
     "Yes" : {
       "localizations" : {
         "ru" : {
@@ -1168,6 +1849,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Можно хранить до %lld своих упражнений. Удалите ненужные, чтобы добавить новое."
+          }
+        }
+      }
+    },
+    "You can keep up to %lld templates. Delete old ones to add a new one." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Можно хранить до %lld шаблонов. Удалите старые, чтобы добавить новый."
+          }
+        }
+      }
+    },
+    "~%lld min" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "~%lld мин"
+          }
+        }
+      }
+    },
+    "…%lld more" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "…ещё %lld"
           }
         }
       }
