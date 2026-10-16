@@ -83,6 +83,8 @@ private struct RunningWorkoutBar: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding(.horizontal, 16)
+                // The whole capsule opens the workout, not just its text.
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
