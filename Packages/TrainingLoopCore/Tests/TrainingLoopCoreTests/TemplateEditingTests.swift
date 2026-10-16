@@ -51,6 +51,69 @@ struct TemplateEditingTests {
         #expect(merged.restAfterSeconds == 120)
     }
 
+    @Test func mergeBySelectedExercisesTakesWholeSupersets() throws {
+        let a = plain(squat), b = plain(pullUp), c = plain(deadlift)
+        let superset = TemplateSuperset(exercises: [a, b], restWithinSeconds: 15, restAfterSeconds: 120)
+        var definition = TemplateDefinition(items: [.superset(superset), .exercise(c)])
+        #expect(throws: TemplateDefinition.MergeError.alreadySuperset) {
+            try definition.mergeIntoSuperset(exerciseIDs: [a.id, b.id], restWithinSeconds: 0, restAfterSeconds: 0)
+        }
+        try definition.mergeIntoSuperset(exerciseIDs: [b.id, c.id], restWithinSeconds: 30, restAfterSeconds: 90)
+        #expect(definition.items.count == 1)
+        #expect(definition.exercises.map(\.id) == [a.id, b.id, c.id])
+        #expect(definition.supersetID(containing: c.id) == superset.id)
+    }
+
+    @Test func appendToSuperset() {
+        let a = plain(squat), b = plain(pullUp), c = plain(deadlift)
+        let superset = TemplateSuperset(exercises: [a, b], restWithinSeconds: 15, restAfterSeconds: 120)
+        var definition = TemplateDefinition(items: [.superset(superset)])
+        definition.appendExercises([c], toSuperset: superset.id)
+        #expect(definition.items.count == 1)
+        #expect(definition.exercises.map(\.id) == [a.id, b.id, c.id])
+    }
+
+    @Test func dragReordersInsideASuperset() {
+        let a = plain(squat), b = plain(pullUp), c = plain(deadlift)
+        let superset = TemplateSuperset(exercises: [a, b], restWithinSeconds: 15, restAfterSeconds: 120)
+        var definition = TemplateDefinition(items: [.superset(superset), .exercise(c)])
+        definition.moveExercises(fromOffsets: [1], toOffset: 0)
+        guard case .superset(let moved) = definition.items[0] else { Issue.record("no superset"); return }
+        #expect(moved.id == superset.id)
+        #expect(moved.exercises.map(\.id) == [b.id, a.id])
+        #expect(moved.restAfterSeconds == 120)
+        #expect(definition.items[1] == .exercise(c))
+    }
+
+    @Test func dragOutOfAndIntoASuperset() {
+        let a = plain(squat), b = plain(pullUp), c = plain(deadlift)
+        let superset = TemplateSuperset(exercises: [a, b], restWithinSeconds: 15, restAfterSeconds: 120)
+        var out = TemplateDefinition(items: [.superset(superset), .exercise(c)])
+        out.moveExercises(fromOffsets: [1], toOffset: 3)
+        #expect(out.items == [.exercise(a), .exercise(c), .exercise(b)])
+
+        var into = TemplateDefinition(items: [.superset(superset), .exercise(c)])
+        into.moveExercises(fromOffsets: [2], toOffset: 1)
+        #expect(into.items.count == 1)
+        #expect(into.exercises.map(\.id) == [a.id, c.id, b.id])
+
+        // Next to a superset but not inside it: stays plain.
+        var beside = TemplateDefinition(items: [.exercise(c), .superset(superset)])
+        beside.moveExercises(fromOffsets: [0], toOffset: 3)
+        #expect(beside.items == [.superset(superset), .exercise(c)])
+    }
+
+    @Test func takeOutGoesRightAfterTheSuperset() {
+        let a = plain(squat), b = plain(pullUp), c = plain(deadlift)
+        let superset = TemplateSuperset(exercises: [a, b, c], restWithinSeconds: 15, restAfterSeconds: 120)
+        var definition = TemplateDefinition(items: [.superset(superset)])
+        definition.takeOutOfSuperset(a.id)
+        #expect(definition.items.count == 2)
+        #expect(definition.exercises.map(\.id) == [b.id, c.id, a.id])
+        definition.takeOutOfSuperset(b.id)
+        #expect(definition.items == [.exercise(c), .exercise(b), .exercise(a)])
+    }
+
     @Test func splitAndRemoveUnwrapSupersets() {
         let a = plain(squat), b = plain(pullUp), c = plain(deadlift)
         let superset = TemplateSuperset(exercises: [a, b, c], restWithinSeconds: 15, restAfterSeconds: 90)

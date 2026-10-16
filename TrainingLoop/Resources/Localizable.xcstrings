@@ -1258,6 +1258,16 @@
         }
       }
     },
+    "Remove from Superset" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убрать из суперсета"
+          }
+        }
+      }
+    },
     "Replace" : {
       "localizations" : {
         "ru" : {
@@ -1398,12 +1408,12 @@
         }
       }
     },
-    "Select neighbouring exercises to merge them into a superset. Drag to reorder." : {
+    "Select neighbouring exercises to merge them into a superset. Drag to reorder; drop an exercise between two of a superset to add it there, or away from it to take it out." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выберите соседние упражнения, чтобы объединить их в суперсет. Перетаскивайте, чтобы поменять порядок."
+            "value" : "Выберите соседние упражнения, чтобы объединить их в суперсет. Перетаскивайте, чтобы поменять порядок: между упражнениями суперсета — чтобы добавить в него, в сторону от него — чтобы убрать."
           }
         }
       }

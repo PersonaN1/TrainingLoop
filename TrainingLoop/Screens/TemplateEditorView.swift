@@ -128,6 +128,7 @@ struct TemplateEditorView: View {
                     Text("Superset")
                     Spacer()
                     Menu {
+                        Button("Add Exercises", systemImage: "plus") { picker = .addToSuperset(superset.id) }
                         Button("Split Superset", systemImage: "rectangle.split.1x2") {
                             withAnimation { draft.splitSuperset(superset.id) }
                         }
@@ -152,6 +153,11 @@ struct TemplateEditorView: View {
                 Button("Replace", systemImage: "arrow.left.arrow.right") { picker = .replace(item.id) }
                 Button("Duplicate", systemImage: "plus.square.on.square") {
                     withAnimation { draft.duplicateExercise(item.id) }
+                }
+                if inSuperset {
+                    Button("Remove from Superset", systemImage: "arrow.down.right.square") {
+                        withAnimation { draft.takeOutOfSuperset(item.id) }
+                    }
                 }
                 Button("Delete", systemImage: "trash", role: .destructive) {
                     withAnimation { draft.removeExercise(item.id) }
@@ -196,31 +202,29 @@ struct TemplateEditorView: View {
         .tint(.primary)
     }
 
-    /// Select mode: one row per exercise or superset, to reorder and to merge (DESIGN V6).
+    /// Select mode: one row per exercise, with a stripe on superset ones, to reorder and to merge (DESIGN V6).
     private var reorderSection: some View {
         Section {
-            ForEach(draft.items) { item in
-                VStack(alignment: .leading, spacing: 4) {
-                    if case .superset = item {
-                        Text("Superset").font(.caption).foregroundStyle(.secondary)
-                    }
-                    // No inner ForEach: its rows would take over the list selection from this row.
-                    HStack(alignment: .top) {
-                        Text(item.exercises.map { lookup.name($0.exerciseID) }.joined(separator: "\n"))
-                        Spacer()
-                        Text(item.exercises.map { SetsSummary($0.sets).cardText }.joined(separator: "\n"))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                            .multilineTextAlignment(.trailing)
-                    }
+            ForEach(draft.exercises) { exercise in
+                let supersetID = draft.supersetID(containing: exercise.id)
+                HStack {
+                    Text(lookup.name(exercise.exerciseID))
+                    Spacer()
+                    Text(SetsSummary(exercise.sets).cardText)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
                 }
-                .tag(item.id)
-                .listRowBackground(item.isSuperset ? AnyView(SupersetRowBackground()) : AnyView(Color(.secondarySystemGroupedBackground)))
+                .listRowBackground(supersetID == nil
+                                   ? AnyView(Color(.secondarySystemGroupedBackground))
+                                   : AnyView(SupersetRowBackground()))
                 .deleteDisabled(true)
+                // A dropped row keeps its old background unless it becomes a new row.
+                .id("\(exercise.id)-\(supersetID?.uuidString ?? "")")
+                .tag(exercise.id)
             }
-            .onMove { draft.items.move(fromOffsets: $0, toOffset: $1) }
+            .onMove { draft.moveExercises(fromOffsets: $0, toOffset: $1) }
         } footer: {
-            Text("Select neighbouring exercises to merge them into a superset. Drag to reorder.")
+            Text("Select neighbouring exercises to merge them into a superset. Drag to reorder; drop an exercise between two of a superset to add it there, or away from it to take it out.")
         }
     }
 
@@ -287,11 +291,9 @@ struct TemplateEditorView: View {
     private func apply(_ target: PickerTarget, picked: [Exercise]) {
         switch target {
         case .add:
-            let added = picked.map { exercise in
-                TemplateItem.exercise(.new(exerciseID: exercise.id, measure: exercise.measure,
-                                           restSeconds: settings.defaultRestSeconds))
-            }
-            draft.items.append(contentsOf: added)
+            draft.items.append(contentsOf: newExercises(picked).map(TemplateItem.exercise))
+        case .addToSuperset(let id):
+            draft.appendExercises(newExercises(picked), toSuperset: id)
         case .replace(let id):
             guard let exercise = picked.first else { return }
             draft.replaceExercise(id, with: exercise.id, measure: exercise.measure)
@@ -301,6 +303,10 @@ struct TemplateEditorView: View {
                 }
             }
         }
+    }
+
+    private func newExercises(_ picked: [Exercise]) -> [TemplateExercise] {
+        picked.map { .new(exerciseID: $0.id, measure: $0.measure, restSeconds: settings.defaultRestSeconds) }
     }
 
     private func restSeconds(_ kind: RestEditing.Kind) -> Int {
@@ -333,7 +339,7 @@ struct TemplateEditorView: View {
     private func merge() {
         do {
             // 30 s between exercises as in the examples (SPEC D18); the usual rest after a round.
-            try draft.mergeIntoSuperset(itemIDs: selection, restWithinSeconds: 30,
+            try draft.mergeIntoSuperset(exerciseIDs: selection, restWithinSeconds: 30,
                                         restAfterSeconds: settings.defaultRestSeconds)
             setSelecting(false)
         } catch {
@@ -403,26 +409,22 @@ struct SetLine: View {
     }
 }
 
-extension TemplateItem {
-    var isSuperset: Bool {
-        if case .superset = self { true } else { false }
-    }
-}
-
 private enum PickerTarget: Identifiable {
     case add
+    case addToSuperset(UUID)
     /// A template exercise's ID.
     case replace(UUID)
 
     var id: String {
         switch self {
         case .add: "add"
+        case .addToSuperset(let id): "superset-\(id)"
         case .replace(let id): id.uuidString
         }
     }
 
     var mode: ExercisePickerView.Mode {
-        if case .add = self { .add } else { .replace }
+        if case .replace = self { .replace } else { .add }
     }
 }
 

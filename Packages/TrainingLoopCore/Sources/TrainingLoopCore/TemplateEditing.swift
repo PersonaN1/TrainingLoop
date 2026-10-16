@@ -9,6 +9,10 @@ extension TemplateItem: Identifiable {
         }
     }
 
+    public var isSuperset: Bool {
+        if case .superset = self { true } else { false }
+    }
+
     public var exercises: [TemplateExercise] {
         switch self {
         case .exercise(let exercise): [exercise]
@@ -156,6 +160,91 @@ extension TemplateDefinition {
               case .superset(var superset) = items[index] else { return }
         change(&superset)
         items[index] = .superset(superset)
+    }
+
+    /// "Add Exercises" from a superset's menu: they go to the end of it.
+    public mutating func appendExercises(_ exercises: [TemplateExercise], toSuperset id: UUID) {
+        updateSuperset(id) { $0.exercises.append(contentsOf: exercises) }
+    }
+
+    /// "Remove from Superset": the exercise goes right after its superset as a plain one.
+    public mutating func takeOutOfSuperset(_ exerciseID: UUID) {
+        guard let index = items.firstIndex(where: { $0.isSuperset && $0.exercises.contains { $0.id == exerciseID } }),
+              case .superset(var superset) = items[index],
+              let exercise = superset.exercises.first(where: { $0.id == exerciseID }) else { return }
+        superset.exercises.removeAll { $0.id == exerciseID }
+        let rest: TemplateItem = superset.exercises.count == 1 ? .exercise(superset.exercises[0]) : .superset(superset)
+        items.replaceSubrange(index...index, with: [rest, .exercise(exercise)])
+    }
+
+    /// The superset an exercise is in; nil for a plain exercise.
+    public func supersetID(containing exerciseID: UUID) -> UUID? {
+        items.first { $0.isSuperset && $0.exercises.contains { $0.id == exerciseID } }?.id
+    }
+
+    /// "Merge into Superset" with exercises selected one by one (select mode, DESIGN V6).
+    /// An exercise of a superset brings the whole superset.
+    public mutating func mergeIntoSuperset(exerciseIDs: Set<UUID>, restWithinSeconds: Int,
+                                           restAfterSeconds: Int) throws(MergeError) {
+        let itemIDs = Set(items.filter { item in item.exercises.contains { exerciseIDs.contains($0.id) } }.map(\.id))
+        try mergeIntoSuperset(itemIDs: itemIDs, restWithinSeconds: restWithinSeconds,
+                              restAfterSeconds: restAfterSeconds)
+    }
+
+    /// Drag in select mode, where every exercise is its own row (DESIGN V6).
+    /// Moved exercises keep their superset while they stay next to it, so a superset can be reordered;
+    /// dropped between two exercises of a superset, they join it; anywhere else they become plain.
+    public mutating func moveExercises(fromOffsets source: IndexSet, toOffset destination: Int) {
+        var rows = items.flatMap { item in
+            item.exercises.map { (exercise: $0, group: item.isSuperset ? item.id : nil) }
+        }
+        let ownGroups = Set(source.map { rows[$0].group })
+        let start = destination - source.filter { $0 < destination }.count
+        let moved = source.map { rows[$0] }
+        for index in source.reversed() { rows.remove(at: index) }
+        rows.insert(contentsOf: moved, at: start)
+        let end = start + source.count
+        let before = start > 0 ? rows[start - 1].group : nil
+        let after = end < rows.count ? rows[end].group : nil
+        let group: UUID?
+        if ownGroups.count == 1, let own = ownGroups.first ?? nil, before == own || after == own {
+            group = own
+        } else if let before, before == after {
+            group = before
+        } else {
+            group = nil
+        }
+        for index in start..<end { rows[index].group = group }
+
+        let supersets = Dictionary(uniqueKeysWithValues: items.compactMap { item -> (UUID, TemplateSuperset)? in
+            if case .superset(let superset) = item { (superset.id, superset) } else { nil }
+        })
+        var rebuilt: [TemplateItem] = []
+        var used = Set<UUID>()
+        var index = 0
+        while index < rows.count {
+            guard let id = rows[index].group, let template = supersets[id] else {
+                rebuilt.append(.exercise(rows[index].exercise))
+                index += 1
+                continue
+            }
+            var run: [TemplateExercise] = []
+            while index < rows.count, rows[index].group == id {
+                run.append(rows[index].exercise)
+                index += 1
+            }
+            if run.count == 1 {
+                rebuilt.append(.exercise(run[0]))
+            } else {
+                // A superset split in two by a drag keeps its ID only once.
+                let superset = TemplateSuperset(id: used.contains(id) ? UUID() : id, exercises: run,
+                                                restWithinSeconds: template.restWithinSeconds,
+                                                restAfterSeconds: template.restAfterSeconds)
+                used.insert(id)
+                rebuilt.append(.superset(superset))
+            }
+        }
+        items = rebuilt
     }
 }
 
