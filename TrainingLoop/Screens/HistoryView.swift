@@ -74,7 +74,8 @@ struct HistoryView: View {
             }
             ForEach(days, id: \.date) { day in
                 Section(HistoryFormat.day(day.date)) {
-                    ForEach(day.workouts) { workout in
+                    // Tagged by persistent ID to match the selection (the model's own `id` is a UUID).
+                    ForEach(day.workouts, id: \.persistentModelID) { workout in
                         NavigationLink(value: Route(id: workout.persistentModelID)) { row(workout) }
                             .swipeActions {
                                 Button("Delete", systemImage: "trash") { deleting = workout }
