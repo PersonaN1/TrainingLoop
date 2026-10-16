@@ -185,5 +185,6 @@ extension Bundle {
 #Preview {
     SettingsView()
         .environment(AppSettings())
+        .environment(WorkoutController(settings: AppSettings()))
         .modelContainer(for: Exercise.self, inMemory: true)
 }

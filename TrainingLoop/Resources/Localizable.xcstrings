@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "#" : {
+      "comment" : "Set number column",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "№"
+          }
+        }
+      }
+    },
     "%@ kg" : {
       "localizations" : {
         "ru" : {
@@ -283,6 +294,16 @@
         }
       }
     },
+    "+10" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+10"
+          }
+        }
+      }
+    },
     "A template is a plan of one workout: exercises, sets and rest." : {
       "localizations" : {
         "ru" : {
@@ -343,6 +364,16 @@
         }
       }
     },
+    "Add exercises to start." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте упражнения, чтобы начать."
+          }
+        }
+      }
+    },
     "Add Set" : {
       "localizations" : {
         "ru" : {
@@ -389,6 +420,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Спина"
+          }
+        }
+      }
+    },
+    "Back to Workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "К тренировке"
           }
         }
       }
@@ -489,6 +530,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Грудь"
+          }
+        }
+      }
+    },
+    "Collapse" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свернуть"
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжить"
           }
         }
       }
@@ -737,12 +798,42 @@
         }
       }
     },
+    "Discard Workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить тренировку"
+          }
+        }
+      }
+    },
     "Display" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Экран"
+          }
+        }
+      }
+    },
+    "Don't Save" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не сохранять"
+          }
+        }
+      }
+    },
+    "Don't save this workout?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не сохранять тренировку?"
           }
         }
       }
@@ -897,6 +988,16 @@
         }
       }
     },
+    "Finish" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завершить"
+          }
+        }
+      }
+    },
     "For Reps" : {
       "localizations" : {
         "ru" : {
@@ -923,6 +1024,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Предплечья"
+          }
+        }
+      }
+    },
+    "Free Workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свободная тренировка"
           }
         }
       }
@@ -1024,6 +1135,16 @@
         }
       }
     },
+    "History is full: the workout of %@ will be deleted." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "История заполнена: будет удалена тренировка от %@."
+          }
+        }
+      }
+    },
     "Home, No Equipment" : {
       "localizations" : {
         "ru" : {
@@ -1044,6 +1165,16 @@
         }
       }
     },
+    "Is the workout still going?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировка ещё идёт?"
+          }
+        }
+      }
+    },
     "It's used in your history or templates, so it moves to the archive. You can restore it in Settings." : {
       "localizations" : {
         "ru" : {
@@ -1060,6 +1191,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Её подходы пропадут из статистики упражнений."
+          }
+        }
+      }
+    },
+    "Its sets will be lost." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Её подходы пропадут."
           }
         }
       }
@@ -1100,6 +1241,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Килограммы"
+          }
+        }
+      }
+    },
+    "Last Time" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прошлый раз"
           }
         }
       }
@@ -1174,12 +1325,32 @@
         }
       }
     },
+    "Mark Done" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отметить выполненным"
+          }
+        }
+      }
+    },
     "Merge into Superset" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Объединить в суперсет"
+          }
+        }
+      }
+    },
+    "Minus 10 seconds" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Минус 10 секунд"
           }
         }
       }
@@ -1274,12 +1445,32 @@
         }
       }
     },
+    "Next: %@, set %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Далее: %1$@, подход %2$lld"
+          }
+        }
+      }
+    },
     "No" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет"
+          }
+        }
+      }
+    },
+    "No Exercises" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет упражнений"
           }
         }
       }
@@ -1304,12 +1495,32 @@
         }
       }
     },
+    "No sets are marked" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет отмеченных подходов"
+          }
+        }
+      }
+    },
     "No sets done" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подходов нет"
+          }
+        }
+      }
+    },
+    "No sets have been marked for over two hours." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Больше двух часов не отмечено ни одного подхода."
           }
         }
       }
@@ -1464,6 +1675,16 @@
         }
       }
     },
+    "Plus 10 seconds" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плюс 10 секунд"
+          }
+        }
+      }
+    },
     "Pounds" : {
       "localizations" : {
         "ru" : {
@@ -1510,6 +1731,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Записи"
+          }
+        }
+      }
+    },
+    "Remove Exercise" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить упражнение"
           }
         }
       }
@@ -1610,6 +1841,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вернуть"
+          }
+        }
+      }
+    },
+    "Results" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Итоги"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить"
+          }
+        }
+      }
+    },
+    "Save as Template" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить как шаблон"
+          }
+        }
+      }
+    },
+    "Sec" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сек"
           }
         }
       }
@@ -1774,6 +2045,16 @@
         }
       }
     },
+    "Skip" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить"
+          }
+        }
+      }
+    },
     "Sound and Haptics" : {
       "localizations" : {
         "ru" : {
@@ -1820,12 +2101,32 @@
         }
       }
     },
+    "Start" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Старт"
+          }
+        }
+      }
+    },
     "Start a workout — it will appear here" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Начните тренировку — она появится здесь"
+          }
+        }
+      }
+    },
+    "Start Free Workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать свободную тренировку"
           }
         }
       }
@@ -1932,6 +2233,16 @@
         }
       }
     },
+    "Superset · round %lld of %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Суперсет · круг %1$lld из %2$lld"
+          }
+        }
+      }
+    },
     "Support" : {
       "localizations" : {
         "ru" : {
@@ -1989,6 +2300,16 @@
         }
       }
     },
+    "The exercises or sets differ from “%@”. Changed weights and reps don't count." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упражнения или подходы отличаются от «%@». Изменения веса и повторов не учитываются."
+          }
+        }
+      }
+    },
     "The type can't change: the exercise is already in your history." : {
       "localizations" : {
         "ru" : {
@@ -2005,6 +2326,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тема"
+          }
+        }
+      }
+    },
+    "There is nothing to save." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранять нечего."
           }
         }
       }
@@ -2075,6 +2406,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Неизвестное упражнение"
+          }
+        }
+      }
+    },
+    "Update Template" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновить шаблон"
           }
         }
       }
@@ -2315,6 +2656,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "…ещё %lld"
+          }
+        }
+      }
+    },
+    "−10" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "−10"
           }
         }
       }

@@ -104,5 +104,6 @@ struct ExercisesView: View {
 #Preview {
     ExercisesView()
         .environment(AppSettings())
+        .environment(WorkoutController(settings: AppSettings()))
         .modelContainer(for: Exercise.self, inMemory: true)
 }
