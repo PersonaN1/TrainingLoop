@@ -4,11 +4,13 @@ import SwiftUI
 @main
 struct TrainingLoopApp: App {
     @State private var settings = AppModel.settings
+    @State private var workouts = AppModel.workouts
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(settings)
+                .environment(workouts)
                 .preferredColorScheme(settings.theme.colorScheme)
         }
         .modelContainer(AppModel.container)
@@ -20,6 +22,7 @@ struct TrainingLoopApp: App {
 @MainActor
 enum AppModel {
     static let settings = AppSettings()
+    static let workouts = WorkoutController(settings: settings)
 
     static let container: ModelContainer = {
         let container: ModelContainer

@@ -5,6 +5,7 @@ import TrainingLoopCore
 /// The Workouts tab: template cards (SPEC D13, DESIGN V5), as SetLoop's timer list.
 struct TemplateListView: View {
     @Environment(\.modelContext) private var context
+    @Environment(WorkoutController.self) private var workouts
     @Query(sort: \Template.sortIndex) private var templates: [Template]
     @Query private var allExercises: [Exercise]
 
@@ -18,10 +19,18 @@ struct TemplateListView: View {
     var body: some View {
         NavigationStack {
             List(selection: $selection) {
+                if !editMode.isEditing {
+                    Section {
+                        Button("Start Free Workout", systemImage: "play.fill") { workouts.startFree() }
+                            .fontWeight(.semibold)
+                    }
+                }
                 // Rows are tagged by persistent ID to match the selection (the model's own `id` is a UUID).
                 ForEach(templates, id: \.persistentModelID) { template in
                     NavigationLink(value: template) {
-                        TemplateCard(template: template, lookup: ExerciseLookup(allExercises))
+                        TemplateCard(template: template, lookup: ExerciseLookup(allExercises)) {
+                            workouts.start(template, context: context)
+                        }
                     }
                     .swipeActions {
                         // No destructive role: it would remove the row before the confirmation.
@@ -116,12 +125,26 @@ struct TemplateListView: View {
 private struct TemplateCard: View {
     let template: Template
     let lookup: ExerciseLookup
+    let start: () -> Void
     private static let maxRows = 6
 
     var body: some View {
         let definition = template.definition
         VStack(alignment: .leading, spacing: 10) {
-            Text(template.name).font(.headline)
+            HStack {
+                Text(template.name).font(.headline)
+                Spacer()
+                // ▶ starts at once; a tap elsewhere opens the preview (DESIGN V5).
+                Button(action: start) {
+                    Image(systemName: "play.fill")
+                        .font(.footnote)
+                        .foregroundStyle(.white)
+                        .frame(width: 32, height: 32)
+                        .background(Color.accentColor, in: .circle)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Start")
+            }
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(visibleGroups(definition), id: \.id) { group in
                     HStack(spacing: 8) {

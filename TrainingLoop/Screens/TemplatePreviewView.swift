@@ -7,6 +7,7 @@ struct TemplatePreviewView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @Environment(AppSettings.self) private var settings
+    @Environment(WorkoutController.self) private var workouts
     @Query private var allExercises: [Exercise]
     let template: Template
     @State private var editing = false
@@ -48,6 +49,17 @@ struct TemplatePreviewView: View {
                     .listRowBackground(SupersetRowBackground())
                 }
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            Button {
+                workouts.start(template, context: context)
+            } label: {
+                Label("Start", systemImage: "play.fill")
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity, minHeight: 34)
+            }
+            .buttonStyle(.borderedProminent)
+            .padding()
         }
         .navigationTitle(template.name)
         .toolbar {

@@ -150,5 +150,6 @@ struct HistoryView: View {
 #Preview {
     HistoryView()
         .environment(AppSettings())
+        .environment(WorkoutController(settings: AppSettings()))
         .modelContainer(for: [Workout.self, Exercise.self], inMemory: true)
 }
