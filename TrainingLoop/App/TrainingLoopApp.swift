@@ -22,7 +22,7 @@ struct TrainingLoopApp: App {
 @MainActor
 enum AppModel {
     static let settings = AppSettings()
-    static let workouts = WorkoutController(settings: settings)
+    static let workouts = WorkoutController(settings: settings, context: container.mainContext)
 
     static let container: ModelContainer = {
         let container: ModelContainer

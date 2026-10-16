@@ -4,6 +4,7 @@ import SwiftUI
 /// when collapsed, stays as a bar above the tabs.
 struct RootView: View {
     @Environment(WorkoutController.self) private var workouts
+    @Environment(AppSettings.self) private var settings
     @Environment(\.scenePhase) private var scenePhase
     @State private var askingIfForgotten = false
 
@@ -26,7 +27,13 @@ struct RootView: View {
             WorkoutView()
         }
         .onChange(of: scenePhase, initial: true) { _, phase in
-            if phase == .active, workouts.isForgotten { askingIfForgotten = true }
+            guard phase == .active else { return }
+            workouts.appDidBecomeActive()
+            if workouts.isForgotten { askingIfForgotten = true }
+        }
+        // "Keep Screen On" holds only while a workout runs (D20).
+        .onChange(of: workouts.workout != nil && settings.keepScreenOn, initial: true) { _, keepOn in
+            UIApplication.shared.isIdleTimerDisabled = keepOn
         }
         .alert("Is the workout still going?", isPresented: $askingIfForgotten) {
             Button("Continue") { workouts.isPresented = true }
