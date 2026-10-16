@@ -378,7 +378,7 @@ struct TemplateEditorView: View {
     }
 }
 
-/// "1 · 8 reps · 60 kg"; an empty weight reads "previous" in gray (DESIGN V6).
+/// "1 · 8 reps · 60 kg"; an empty weight reads "last time's weight" in gray (DESIGN V6).
 struct SetLine: View {
     let number: Int
     let set: PlannedSet
@@ -400,8 +400,10 @@ struct SetLine: View {
                 if let weight = set.weightKg {
                     Text(unit.weightText(weight))
                 } else {
-                    Text("previous", comment: "Empty planned weight: the previous time's weight is used")
+                    Text("last time's weight", comment: "Empty planned weight; the previous time's weight is used")
                         .foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
             }
         }

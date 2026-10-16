@@ -908,6 +908,16 @@
         }
       }
     },
+    "last time's weight" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вес в прошлый раз"
+          }
+        }
+      }
+    },
     "lb" : {
       "localizations" : {
         "ru" : {
@@ -1204,16 +1214,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Прошлый"
-          }
-        }
-      }
-    },
-    "previous" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "прошлый"
           }
         }
       }
