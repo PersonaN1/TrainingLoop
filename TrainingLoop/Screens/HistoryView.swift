@@ -12,7 +12,7 @@ struct HistoryView: View {
     @State private var mode = Mode.records
     @State private var editMode = EditMode.inactive
     @State private var selection = Set<PersistentIdentifier>()
-    @State private var deleting: Workout?
+    @State private var deleting: PersistentIdentifier?
     @State private var path: [Route] = []
 
     private enum Mode: Hashable { case records, summary }
@@ -78,8 +78,21 @@ struct HistoryView: View {
                     ForEach(day.workouts, id: \.persistentModelID) { workout in
                         NavigationLink(value: Route(id: workout.persistentModelID)) { row(workout) }
                             .swipeActions {
-                                Button("Delete", systemImage: "trash") { deleting = workout }
+                                Button("Delete", systemImage: "trash") { deleting = workout.persistentModelID }
                                     .tint(.red)
+                            }
+                            // On the row, so the iOS 26+ popover points at the workout being deleted.
+                            .confirmationDialog(
+                                "Delete this workout?",
+                                isPresented: Binding(
+                                    get: { deleting == workout.persistentModelID },
+                                    set: { if !$0 { deleting = nil } }
+                                ),
+                                titleVisibility: .visible
+                            ) {
+                                Button("Delete", role: .destructive) { context.deleteWorkouts([workout]) }
+                            } message: {
+                                Text("Its sets leave the exercise statistics.")
                             }
                     }
                 }
@@ -93,15 +106,6 @@ struct HistoryView: View {
                     Text("Start a workout — it will appear here")
                 }
             }
-        }
-        .confirmationDialog("Delete this workout?", isPresented: Binding(
-            get: { deleting != nil }, set: { if !$0 { deleting = nil } }
-        ), titleVisibility: .visible, presenting: deleting) { workout in
-            Button("Delete", role: .destructive) {
-                context.deleteWorkouts([workout])
-            }
-        } message: { _ in
-            Text("Its sets leave the exercise statistics.")
         }
     }
 
