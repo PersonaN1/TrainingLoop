@@ -4,7 +4,7 @@ import SwiftUI
 struct RootView: View {
     var body: some View {
         TabView {
-            PlaceholderTab(title: "Workouts", systemImage: "figure.strengthtraining.traditional")
+            TemplateListView()
                 .tabItem { Label("Workouts", systemImage: "figure.strengthtraining.traditional") }
             PlaceholderTab(title: "History", systemImage: "clock.arrow.circlepath",
                            hint: "Start a workout — it will appear here")
