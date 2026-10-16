@@ -24,6 +24,7 @@ struct TemplateEditorView: View {
     @State private var restEditing: RestEditing?
     @State private var mergeError: TemplateDefinition.MergeError?
     @State private var confirmingDiscard = false
+    @State private var weightHistory = Set<UUID>()
 
     init(template: Template?) {
         self.template = template
@@ -103,6 +104,7 @@ struct TemplateEditorView: View {
             }
         }
         .interactiveDismissDisabled(hasChanges)
+        .onAppear { weightHistory = context.exerciseIDsWithWeightHistory() }
     }
 
     // MARK: Sections
@@ -172,7 +174,7 @@ struct TemplateEditorView: View {
                 setEditing = SetEditing(exerciseID: item.id, index: index)
             } label: {
                 SetLine(number: index + 1, set: set, weighted: exercise?.weighted ?? (set.weightKg != nil),
-                        unit: settings.weightUnit)
+                        lastWeightKnown: weightHistory.contains(item.exerciseID), unit: settings.weightUnit)
             }
             .tint(.primary)
             .deleteDisabled(item.sets.count == 1)
@@ -272,7 +274,8 @@ struct TemplateEditorView: View {
            item.sets.indices.contains(editing.index) {
             let exercise = lookup[item.exerciseID]
             SetSheet(number: editing.index + 1, set: item.sets[editing.index], measure: measure(of: item),
-                     weighted: exercise?.weighted ?? true, unit: settings.weightUnit,
+                     weighted: exercise?.weighted ?? true,
+                     lastWeightKnown: weightHistory.contains(item.exerciseID), unit: settings.weightUnit,
                      canDelete: item.sets.count > 1) { result in
                 draft.updateExercise(item.id) { exercise in
                     guard exercise.sets.indices.contains(editing.index) else { return }
@@ -378,11 +381,14 @@ struct TemplateEditorView: View {
     }
 }
 
-/// "1 · 8 reps · 60 kg"; an empty weight reads "last time's weight" in gray (DESIGN V6).
+/// "1 · 8 reps · 60 kg"; an empty weight reads "last time's weight" in gray (DESIGN V6),
+/// when there is one.
 struct SetLine: View {
     let number: Int
     let set: PlannedSet
     let weighted: Bool
+    /// Whether the exercise has a recorded weight to fill an empty one in with.
+    let lastWeightKnown: Bool
     let unit: WeightUnit
 
     var body: some View {
@@ -399,7 +405,7 @@ struct SetLine: View {
             if weighted {
                 if let weight = set.weightKg {
                     Text(unit.weightText(weight))
-                } else {
+                } else if lastWeightKnown {
                     Text("last time's weight", comment: "Empty planned weight; the previous time's weight is used")
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)

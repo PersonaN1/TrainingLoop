@@ -157,6 +157,7 @@ struct SetSheet: View {
     let number: Int
     let measure: Measure
     let weighted: Bool
+    let lastWeightKnown: Bool
     let canDelete: Bool
     /// nil deletes the set.
     let save: (PlannedSet?) -> Void
@@ -166,11 +167,12 @@ struct SetSheet: View {
     @State private var weightText: String
     @FocusState private var weightFocused: Bool
 
-    init(number: Int, set: PlannedSet, measure: Measure, weighted: Bool, unit: WeightUnit, canDelete: Bool,
-         save: @escaping (PlannedSet?) -> Void) {
+    init(number: Int, set: PlannedSet, measure: Measure, weighted: Bool, lastWeightKnown: Bool, unit: WeightUnit,
+         canDelete: Bool, save: @escaping (PlannedSet?) -> Void) {
         self.number = number
         self.measure = measure
         self.weighted = weighted
+        self.lastWeightKnown = lastWeightKnown
         self.canDelete = canDelete
         self.save = save
         _reps = State(initialValue: set.reps ?? 10)
@@ -214,7 +216,8 @@ struct SetSheet: View {
                     Section {
                         HStack {
                             Text("Weight")
-                            TextField("Previous", text: $weightText)
+                            TextField("Weight", text: $weightText,
+                                      prompt: lastWeightKnown ? Text("last time's weight") : Text(verbatim: ""))
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
                                 .focused($weightFocused)

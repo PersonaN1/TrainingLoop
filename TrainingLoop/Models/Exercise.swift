@@ -88,6 +88,12 @@ extension ModelContext {
         return ((try? fetchCount(descriptor)) ?? 0) > 0
     }
 
+    /// Exercises with a recorded weight: only these have a "last time's weight" to fill in (SPEC D7).
+    func exerciseIDsWithWeightHistory() -> Set<UUID> {
+        let descriptor = FetchDescriptor<WorkoutSet>(predicate: #Predicate { $0.weightKg != nil })
+        return Set(((try? fetch(descriptor)) ?? []).map(\.exerciseID))
+    }
+
     /// Whether a template refers to the exercise; deleting it would leave a gap in the template.
     func isInTemplate(_ exercise: Exercise) -> Bool {
         let templates = (try? fetch(FetchDescriptor<Template>())) ?? []

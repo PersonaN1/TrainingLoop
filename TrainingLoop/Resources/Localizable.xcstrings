@@ -1208,16 +1208,6 @@
         }
       }
     },
-    "Previous" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Прошлый"
-          }
-        }
-      }
-    },
     "Primary Group" : {
       "localizations" : {
         "ru" : {
