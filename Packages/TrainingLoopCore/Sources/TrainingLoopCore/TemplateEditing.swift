@@ -318,13 +318,18 @@ public struct SetsSummary: Equatable, Sendable {
 }
 
 public enum TemplateNaming {
-    /// "New Workout", then "New Workout 2", "New Workout 3"… among the other templates' names.
+    /// "New Workout", then "New Workout 2", "New Workout 3"… among the other templates' names,
+    /// cut so the number fits in the name limit.
     public static func unique(_ base: String, among names: some Sequence<String>) -> String {
         let taken = Set(names.map(ExerciseName.key))
         if !taken.contains(ExerciseName.key(base)) { return base }
         var number = 2
-        while taken.contains(ExerciseName.key("\(base) \(number)")) { number += 1 }
-        return "\(base) \(number)"
+        while true {
+            let suffix = " \(number)"
+            let candidate = String(base.prefix(Limits.maxNameLength - suffix.count)) + suffix
+            if !taken.contains(ExerciseName.key(candidate)) { return candidate }
+            number += 1
+        }
     }
 }
 

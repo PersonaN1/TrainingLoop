@@ -6,7 +6,6 @@ struct RootView: View {
     @Environment(WorkoutController.self) private var workouts
     @Environment(AppSettings.self) private var settings
     @Environment(\.scenePhase) private var scenePhase
-    @State private var askingIfForgotten = false
 
     var body: some View {
         @Bindable var workouts = workouts
@@ -29,15 +28,42 @@ struct RootView: View {
         .onChange(of: scenePhase, initial: true) { _, phase in
             guard phase == .active else { return }
             workouts.appDidBecomeActive()
-            if workouts.isForgotten { askingIfForgotten = true }
+            workouts.checkForgotten()
         }
+        // The lock screen follows Settings at once, not at the next tick.
+        .onChange(of: settings.showOnLockScreen) { workouts.refreshActivity() }
+        .onChange(of: settings.weightUnit) { workouts.refreshActivity() }
         // "Keep Screen On" holds only while a workout runs (D20).
         .onChange(of: workouts.workout != nil && settings.keepScreenOn, initial: true) { _, keepOn in
             UIApplication.shared.isIdleTimerDisabled = keepOn
         }
-        .alert("Is the workout still going?", isPresented: $askingIfForgotten) {
-            Button("Continue") { workouts.isPresented = true }
-            Button("Finish") { workouts.finishForgotten() }
+        .forgottenWorkoutAlert(whileOpen: false)
+    }
+}
+
+extension View {
+    /// "Is the workout still going?" (D19), from the root while the workout is collapsed and from the
+    /// workout screen while it is open: an alert of a view under a full-screen cover never shows.
+    func forgottenWorkoutAlert(whileOpen: Bool) -> some View {
+        modifier(ForgottenWorkoutAlert(whileOpen: whileOpen))
+    }
+}
+
+private struct ForgottenWorkoutAlert: ViewModifier {
+    @Environment(WorkoutController.self) private var workouts
+    let whileOpen: Bool
+
+    func body(content: Content) -> some View {
+        content.alert("Is the workout still going?",
+                      isPresented: Binding(get: { workouts.asksIfForgotten && workouts.isPresented == whileOpen },
+                                           set: { if !$0 { workouts.asksIfForgotten = false } })) {
+            Button("Continue") { workouts.keepGoing() }
+            if (workouts.workout?.doneSetCount ?? 0) > 0 {
+                Button("Finish") { workouts.finishForgotten() }
+            } else {
+                // Nothing to save, so no summary.
+                Button("Discard Workout", role: .destructive) { workouts.discard() }
+            }
         } message: {
             Text("No sets have been marked for over two hours.")
         }

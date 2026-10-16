@@ -16,6 +16,7 @@ struct WorkoutSummaryView: View {
     @State private var updateTemplate = false
     @State private var saveAsTemplate = false
     @State private var confirmingDiscard = false
+    @State private var saveFailed = false
     @State private var loaded = false
 
     var body: some View {
@@ -123,9 +124,14 @@ struct WorkoutSummaryView: View {
             }
             Section {
                 Button {
-                    workouts.save(name: trimmedName(workout), note: note.trimmingCharacters(in: .whitespacesAndNewlines),
-                                  endedAt: endedAt, updateTemplate: updateTemplate, saveAsTemplate: saveAsTemplate,
-                                  context: context)
+                    do {
+                        try workouts.save(name: trimmedName(workout),
+                                          note: note.trimmingCharacters(in: .whitespacesAndNewlines),
+                                          endedAt: endedAt, updateTemplate: updateTemplate,
+                                          saveAsTemplate: saveAsTemplate, context: context)
+                    } catch {
+                        saveFailed = true
+                    }
                 } label: {
                     Text("Save")
                         .fontWeight(.semibold)
@@ -144,6 +150,11 @@ struct WorkoutSummaryView: View {
                         Text("Its sets will be lost.")
                     }
             }
+        }
+        .alert("Couldn't save the workout", isPresented: $saveFailed) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Nothing is lost: the workout stays open. Try again.")
         }
         .navigationTitle("Results")
         .navigationBarTitleDisplayMode(.inline)

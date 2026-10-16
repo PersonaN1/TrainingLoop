@@ -131,6 +131,74 @@ struct ActiveWorkoutTests {
         #expect(other.items[2].exercises[0].restSeconds == 90)
     }
 
+    @Test func replaceKeepsDoneSetsWithTheOldExercise() {
+        var workout = workout()
+        let deadliftRow = workout.items[1].exercises[0]
+        workout.updateSet(deadliftRow.sets[0].id) { $0.doneAt = start }
+        let rackPull = UUID()
+        workout.replaceExercise(deadliftRow.id, with: rackPull, previous: [PlannedSet(reps: 5, weightKg: 140)])
+        #expect(workout.doneSetCount == 1)
+        #expect(workout.items.count == 3)
+        #expect(workout.items[1].exercises[0].exerciseID == deadlift)
+        #expect(workout.items[1].exercises[0].sets.count == 1)
+        let fresh = workout.items[2].exercises[0]
+        #expect(fresh.exerciseID == rackPull)
+        #expect(fresh.sets.map(\.planned) == [PlannedSet(reps: 10)])
+        #expect(fresh.sets[0].previous == PlannedSet(reps: 5, weightKg: 140))
+        #expect(fresh.restSeconds == 120)
+
+        // In a superset the new exercise stays in it, right after the old one.
+        let squatRow = workout.items[0].exercises[0]
+        workout.updateSet(squatRow.sets[0].id) { $0.doneAt = start }
+        workout.replaceExercise(squatRow.id, with: rackPull, previous: [])
+        #expect(workout.items[0].exercises.map(\.exerciseID) == [squat, rackPull, pullUp])
+        #expect(workout.items[0].exercises[1].sets.count == 3)
+    }
+
+    @Test func replaceWithoutDoneSetsSwapsInPlace() {
+        var workout = workout()
+        let deadliftRow = workout.items[1].exercises[0]
+        let rackPull = UUID()
+        workout.replaceExercise(deadliftRow.id, with: rackPull, previous: [])
+        #expect(workout.items.count == 2)
+        #expect(workout.items[1].exercises[0].id == deadliftRow.id)
+        #expect(workout.items[1].exercises[0].exerciseID == rackPull)
+        #expect(workout.items[1].exercises[0].sets.count == 2)
+    }
+
+    @Test func fittingDropsWhatTheExerciseDoesNotRecord() {
+        var workout = workout(previous: [squat: [PlannedSet(reps: 8, weightKg: 70)]])
+        let plank = UUID()
+        workout.replaceExercise(workout.items[1].exercises[0].id, with: plank,
+                                previous: [PlannedSet(seconds: 60, weightKg: 10)])
+        workout.fitSets { id in
+            switch id {
+            case plank: (measure: .time, weighted: false)
+            case squat: (measure: .reps, weighted: false)
+            default: nil
+            }
+        }
+        let plankSet = workout.items[1].exercises[0].sets[0]
+        #expect(plankSet.value == PlannedSet(seconds: 60))
+        #expect(!plankSet.canTick(measure: .reps))
+        #expect(plankSet.canTick(measure: .time))
+        #expect(workout.items[0].exercises[0].sets[0].value == PlannedSet(reps: 8))
+        // Pull-ups are unknown here and keep their values.
+        #expect(workout.items[0].exercises[1].sets[0].value == PlannedSet(reps: 6))
+    }
+
+    @Test func addedSetCopiesTheShownValues() {
+        var workout = workout(previous: [deadlift: [PlannedSet(reps: 10, weightKg: 120)]])
+        let deadliftID = workout.items[1].exercises[0].id
+        workout.updateSet(workout.items[1].exercises[0].sets[1].id) { $0.entered.reps = 9 }
+        workout.addSet(to: deadliftID)
+        let added = workout.items[1].exercises[0].sets[2]
+        #expect(added.previous == nil)
+        #expect(added.value == PlannedSet(reps: 9))
+        workout.addSet(to: workout.items[0].exercises[0].id)
+        #expect(workout.items[0].exercises[0].sets[4].value == PlannedSet(reps: 8, weightKg: 60))
+    }
+
     @Test func survivesJSON() throws {
         var workout = workout()
         workout.rest = .init(endsAt: start.addingTimeInterval(90), totalSeconds: 90)

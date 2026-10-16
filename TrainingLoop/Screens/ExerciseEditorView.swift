@@ -41,10 +41,16 @@ struct ExerciseDraft: Identifiable {
 struct ExerciseEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(WorkoutController.self) private var workouts
     @Query private var allExercises: [Exercise]
     @State private var draft: ExerciseDraft
-    /// The type can't change once the exercise is in history (SPEC D8).
-    @State private var measureLocked = false
+    /// The type can't change once the exercise is in history (SPEC D8), nor while the running workout
+    /// has it: its sets would then be saved with the other type's values.
+    @State private var measureLock: MeasureLock?
+
+    private enum MeasureLock { case history, workout }
+
+    private var measureLocked: Bool { measureLock != nil }
 
     init(draft: ExerciseDraft) {
         _draft = State(initialValue: draft)
@@ -75,8 +81,10 @@ struct ExerciseEditorView: View {
                 } header: {
                     Text("What to Record in a Set")
                 } footer: {
-                    if measureLocked {
+                    if measureLock == .history {
                         Text("The type can't change: the exercise is already in your history.")
+                    } else if measureLock == .workout {
+                        Text("The type can't change while the exercise is in the running workout.")
                     } else {
                         Text("Weight can be left empty — for example, pull-ups without a belt.")
                     }
@@ -110,7 +118,12 @@ struct ExerciseEditorView: View {
                 }
             }
             .onAppear {
-                if let exercise = draft.exercise { measureLocked = context.hasHistory(exercise) }
+                guard let exercise = draft.exercise else { return }
+                if context.hasHistory(exercise) {
+                    measureLock = .history
+                } else if workouts.uses(exercise.id) {
+                    measureLock = .workout
+                }
             }
             // The primary group is never also a secondary one.
             .onChange(of: draft.primaryGroup) { _, primary in draft.secondaryGroups.remove(primary) }

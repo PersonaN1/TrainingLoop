@@ -86,6 +86,6 @@ extension View {
 extension ModelContext {
     func delete(ids: Set<PersistentIdentifier>) {
         for id in ids { delete(model(for: id)) }
-        try? save()
+        saveOrReport()
     }
 }

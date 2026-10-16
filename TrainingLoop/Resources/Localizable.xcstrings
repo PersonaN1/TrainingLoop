@@ -204,6 +204,34 @@
         }
       }
     },
+    "%lld reps" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld rep"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld reps"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld повт"
+          }
+        }
+      }
+    },
     "%lld s" : {
       "localizations" : {
         "ru" : {
@@ -570,6 +598,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Продолжить"
+          }
+        }
+      }
+    },
+    "Couldn't save the workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось сохранить тренировку"
           }
         }
       }
@@ -1665,6 +1703,16 @@
         }
       }
     },
+    "Nothing is lost: the workout stays open. Try again." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ничего не потеряно: тренировка осталась открытой. Попробуйте ещё раз."
+          }
+        }
+      }
+    },
     "now" : {
       "localizations" : {
         "ru" : {
@@ -2436,6 +2484,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Упражнения или подходы отличаются от «%@». Изменения веса и повторов не учитываются."
+          }
+        }
+      }
+    },
+    "The type can't change while the exercise is in the running workout." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тип нельзя изменить, пока упражнение есть в идущей тренировке."
           }
         }
       }

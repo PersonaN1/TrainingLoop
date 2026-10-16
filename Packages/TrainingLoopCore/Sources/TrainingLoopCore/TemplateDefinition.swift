@@ -85,6 +85,12 @@ public struct PlannedSet: Codable, Hashable, Sendable {
         self.seconds = seconds
         self.weightKg = weightKg
     }
+
+    /// Only what an exercise records (D2): reps or seconds by its measure, the weight when it is weighted.
+    public func fitted(measure: Measure, weighted: Bool) -> PlannedSet {
+        PlannedSet(reps: measure == .reps ? reps : nil, seconds: measure == .time ? seconds : nil,
+                   weightKg: weighted ? weightKg : nil)
+    }
 }
 
 /// Two or more neighbouring exercises done in rounds (SPEC D3).

@@ -107,15 +107,21 @@ public struct HistorySummary: Sendable {
         let weeks = Set(dates.compactMap { calendar.dateInterval(of: .weekOfYear, for: $0)?.start })
         guard var week = calendar.dateInterval(of: .weekOfYear, for: now)?.start else { return 0 }
         if !weeks.contains(week) {
-            guard let previous = calendar.date(byAdding: .weekOfYear, value: -1, to: week) else { return 0 }
+            guard let previous = previousWeek(week, calendar: calendar) else { return 0 }
             week = previous
         }
         var count = 0
         while weeks.contains(week) {
             count += 1
-            guard let previous = calendar.date(byAdding: .weekOfYear, value: -1, to: week) else { break }
+            guard let previous = previousWeek(week, calendar: calendar) else { break }
             week = previous
         }
         return count
+    }
+
+    /// The start of the week before: found from the instant before, since a week shifted back by seven days
+    /// may start at 01:00 when a clock change falls on midnight.
+    private static func previousWeek(_ start: Date, calendar: Calendar) -> Date? {
+        calendar.dateInterval(of: .weekOfYear, for: start.addingTimeInterval(-1))?.start
     }
 }

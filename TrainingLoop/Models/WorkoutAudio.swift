@@ -39,7 +39,7 @@ final class WorkoutAudio {
     /// A rest started or resumed. Without sound and voice nothing is played, not even silence;
     /// vibration alone needs no session.
     func begin() {
-        endTask?.cancel()
+        cancelRelease()
         guard settings.soundSet != nil || settings.voicePrompts else { return end() }
         guard !isActive else { return }
         isActive = true
@@ -50,7 +50,7 @@ final class WorkoutAudio {
 
     /// The rest was skipped or paused: release the audio at once.
     func end() {
-        endTask?.cancel()
+        cancelRelease()
         unduckTask?.cancel()
         guard isActive else { return }
         isActive = false
@@ -86,7 +86,8 @@ final class WorkoutAudio {
         releaseLater(after: play(.finish))
     }
 
-    /// Sample of a sound set in Settings.
+    /// Sample of a sound set in Settings. During a rest the session stays for its signals;
+    /// otherwise it goes once the sample has played.
     func preview(_ set: SoundSet) {
         let temporary = !isActive || endTask != nil
         if !isActive {
@@ -101,6 +102,12 @@ final class WorkoutAudio {
     func resumeIfNeeded() {
         guard isActive, !engine.isRunning || isDucked else { return }
         configure(ducked: false)
+    }
+
+    /// `endTask` is nil while a rest holds the session, set only while a release is pending.
+    private func cancelRelease() {
+        endTask?.cancel()
+        endTask = nil
     }
 
     private func releaseLater(after seconds: TimeInterval) {

@@ -72,7 +72,8 @@ public struct PersonalBests: Equatable, Sendable {
         guard volume > 0 else { return false }
         defer { values[.volume] = max(values[.volume] ?? 0, volume) }
         guard let best = values[.volume] else { return false }
-        return volume > best
+        // Sums of the same sets in another order may differ in the last bits of a Double.
+        return volume > best + 1e-6
     }
 
     static func volume(of sets: [PlannedSet]) -> Double {

@@ -16,6 +16,8 @@ final class WorkoutController {
     var finishingAt: Date?
     /// A workout untouched for this long asks whether it is still going (D19).
     static let forgottenAfter: TimeInterval = 2 * 60 * 60
+    /// "Is the workout still going?" is showing (D19).
+    var asksIfForgotten = false
 
     /// Earlier workouts of the exercises in this one, for the records (D10); loaded as exercises come in.
     private var history: [UUID: [[PlannedSet]]] = [:]
@@ -38,8 +40,9 @@ final class WorkoutController {
         // The lock screen buttons reach the workout through here, even when they woke the app.
         WorkoutCommands.handler = { [weak self] in self?.perform($0) }
         WorkoutCommands.flush = { [weak self] in await self?.liveActivity.flush() }
-        // A workout restored after the app was closed gets its activity back; a stale one goes.
-        LiveActivityManager.endExisting()
+        // A restored workout keeps its activity: its button may be what woke the app, and a new one
+        // can't be requested in the background. Activities of earlier runs go.
+        liveActivity.adoptExisting(keep: workout != nil && settings.showOnLockScreen)
         syncActivity()
         scheduleRestEnd()
     }
@@ -54,7 +57,7 @@ final class WorkoutController {
         let definition = template.definition
         let workout = ActiveWorkout(template: definition, name: template.name, templateID: template.id,
                                     startedAt: .now, previous: context.lastSets(of: definition.exerciseIDs))
-        begin(workout)
+        begin(fitted(workout, context: context))
     }
 
     func startFree() {
@@ -74,14 +77,24 @@ final class WorkoutController {
 
     // MARK: Changing
 
-    /// Every change goes through here: it counts as activity and is saved at once.
+    /// Every change by the user goes through here: it counts as activity and is saved at once.
     func change(_ edit: (inout ActiveWorkout) -> Void) {
+        apply(edit, isActivity: true)
+    }
+
+    /// A rest running out is not the user's doing, so it doesn't keep a forgotten workout going (D19).
+    private func apply(_ edit: (inout ActiveWorkout) -> Void, isActivity: Bool) {
         guard var workout else { return }
         edit(&workout)
-        workout.lastActivityAt = .now
+        if isActivity { workout.lastActivityAt = .now }
         self.workout = workout
         persist()
         syncActivity()
+    }
+
+    /// Whether the running workout has the exercise: it then keeps its measure and can't be deleted (D8).
+    func uses(_ exerciseID: UUID) -> Bool {
+        workout?.items.contains { $0.exercises.contains { $0.exerciseID == exerciseID } } ?? false
     }
 
     /// The tick (D7): records the shown values and starts the rest when there is a set to rest for (D5).
@@ -110,12 +123,28 @@ final class WorkoutController {
                 workout.items.append(.exercise(ActiveWorkout.newExercise(
                     id, restSeconds: settings.defaultRestSeconds, previous: previous[id] ?? [])))
             }
+            workout = fitted(workout, context: context)
         }
     }
 
     func replaceExercise(_ id: UUID, with exerciseID: UUID, context: ModelContext) {
         let previous = context.lastSets(of: [exerciseID])[exerciseID] ?? []
-        change { $0.replaceExercise(id, with: exerciseID, previous: previous) }
+        change { workout in
+            workout.replaceExercise(id, with: exerciseID, previous: previous)
+            workout = fitted(workout, context: context)
+        }
+    }
+
+    /// Sets with only what their exercises record (D2): a timed exercise gets no reps from the one it
+    /// replaced, an exercise without weight no weight from its history or template.
+    private func fitted(_ workout: ActiveWorkout, context: ModelContext) -> ActiveWorkout {
+        let ids = Array(Set(workout.items.flatMap(\.exercises).map(\.exerciseID)))
+        let exercises = (try? context.fetch(FetchDescriptor<Exercise>(predicate: #Predicate { ids.contains($0.id) }))) ?? []
+        let kinds = Dictionary(exercises.map { ($0.id, (measure: $0.measure, weighted: $0.weighted)) },
+                               uniquingKeysWith: { first, _ in first })
+        var workout = workout
+        workout.fitSets { kinds[$0] }
+        return workout
     }
 
     // MARK: Records (D10)
@@ -144,6 +173,8 @@ final class WorkoutController {
     /// "+10 / −10": moves the end; below zero the rest is over.
     func adjustRest(by seconds: Int) {
         guard var rest else { return }
+        // A rest that ran out while the app was frozen is over, not ten seconds longer.
+        guard rest.isPaused || rest.endsAt > .now else { return skipRest() }
         let left = rest.left(at: .now) + TimeInterval(seconds)
         if left <= 0 {
             skipRest()
@@ -189,30 +220,35 @@ final class WorkoutController {
         let endsAt = rest.endsAt
         // A rest that ended while the app was closed is cleared without a late signal.
         guard endsAt.timeIntervalSinceNow > -2 else {
-            change { $0.rest = nil }
+            apply({ $0.rest = nil }, isActivity: false)
             return
         }
         audio.begin()
         restTask = Task { [weak self] in
             for secondsLeft in [3, 2, 1] {
-                let delay = endsAt.addingTimeInterval(-TimeInterval(secondsLeft)).timeIntervalSinceNow
+                let cueAt = endsAt.addingTimeInterval(-TimeInterval(secondsLeft))
                 // Too late for this one: a short rest or a resume near the end.
-                guard delay > -0.5 else { continue }
-                if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
+                guard cueAt.timeIntervalSinceNow > -0.5 else { continue }
+                if cueAt.timeIntervalSinceNow > 0 { try? await Task.sleep(for: .seconds(cueAt.timeIntervalSinceNow)) }
                 guard !Task.isCancelled, let self else { return }
+                // A frozen app wakes late: a tick for a moment long gone would only puzzle.
+                guard Date.now.timeIntervalSince(cueAt) < 1 else { continue }
                 self.audio.countdown(secondsLeft)
             }
             let delay = endsAt.timeIntervalSinceNow
             if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
             guard !Task.isCancelled, let self else { return }
-            self.change { $0.rest = nil }
-            self.audio.restEnded()
+            let onTime = Date.now.timeIntervalSince(endsAt) < 2
+            self.apply({ $0.rest = nil }, isActivity: false)
+            if onTime { self.audio.restEnded() } else { self.audio.end() }
         }
     }
 
-    /// The app is back in front: restart audio an interruption may have stopped.
+    /// The app is back in front: restart audio an interruption may have stopped, and bring back an
+    /// activity that couldn't be requested in the background or that the system ended.
     func appDidBecomeActive() {
         audio.resumeIfNeeded()
+        refreshActivity()
     }
 
     /// A sample of the chosen set in Settings.
@@ -222,20 +258,27 @@ final class WorkoutController {
 
     // MARK: Finishing
 
-    var isForgotten: Bool {
-        guard let workout else { return false }
-        return Date.now.timeIntervalSince(workout.lastActivityAt) > Self.forgottenAfter
+    /// Asks "Is the workout still going?" when nothing was done for two hours (D19).
+    func checkForgotten() {
+        guard let workout, Date.now.timeIntervalSince(workout.lastActivityAt) > Self.forgottenAfter else { return }
+        asksIfForgotten = true
+    }
+
+    /// "Continue": the workout counts as going from now, so the question doesn't come back at once.
+    func keepGoing() {
+        change { _ in }
+        isPresented = true
     }
 
     /// Writes the ticked sets as a history record (D7, D16). `endedAt` is now, or the last tick for a
-    /// forgotten workout (D19). When History is full, the oldest record goes first, named on the summary screen.
-    @discardableResult
+    /// forgotten workout (D19). When History is full, the oldest record goes, named on the summary screen.
+    /// All in one save: if it fails, the store is rolled back and the workout stays open to try again.
     func save(name: String, note: String, endedAt: Date, updateTemplate: Bool, saveAsTemplate: Bool,
-              context: ModelContext) -> Workout? {
-        guard let active = workout else { return nil }
-        if let oldest = context.oldestWorkoutIfFull() {
-            context.deleteWorkouts([oldest])
-        }
+              context: ModelContext) throws {
+        guard let active = workout, active.doneSetCount > 0 else { return }
+        let oldest = context.oldestWorkoutIfFull()
+        let oldestTemplateID = oldest?.templateID
+        if let oldest { context.delete(oldest) }
         let record = Workout(name: name, startedAt: active.startedAt, templateID: active.templateID)
         record.isActive = false
         record.note = note
@@ -274,10 +317,16 @@ final class WorkoutController {
             template.lastPerformedAt = active.startedAt
             context.insert(template)
         }
-        context.saveOrReport()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            Persistence.logger.error("Saving the workout failed: \(String(describing: error), privacy: .public)")
+            throw error
+        }
+        if let oldestTemplateID { context.refreshLastPerformed(of: [oldestTemplateID]) }
         end()
         audio.finished()
-        return record
     }
 
     /// "Finish": the summary, timed to now.
@@ -313,13 +362,22 @@ final class WorkoutController {
     private func perform(_ command: WorkoutCommand) {
         switch command {
         case .completeSet:
-            guard let workout, let position = workout.nextPosition, workout[position].value.hasValue else { return }
+            // Not from the summary: the workout is over and a tick would start a rest.
+            guard finishingAt == nil, let workout, let position = workout.nextPosition else { return }
+            let measure = exerciseModel(workout.exercise(at: position).exerciseID)?.measure ?? .reps
+            guard workout[position].canTick(measure: measure) else { return }
             toggle(workout[position].id)
         case .addRest:
             adjustRest(by: 10)
         case .skipRest:
             skipRest()
         }
+    }
+
+    /// After a change in Settings or a return to the app: the lock screen shows the current state.
+    func refreshActivity() {
+        liveActivity.forgetIfEnded()
+        syncActivity()
     }
 
     /// Starts, updates or ends the activity to match the workout and the setting.
@@ -363,7 +421,8 @@ final class WorkoutController {
         return .init(rest: rest, exerciseName: model?.name ?? String(localized: "Exercise"),
                      setNumber: position.set + 1, setCount: exercise.sets.count,
                      plan: planText(value, weighted: model?.weighted ?? true),
-                     supersetNext: supersetNext, canComplete: value.hasValue)
+                     supersetNext: supersetNext,
+                     canComplete: workout[position].canTick(measure: model?.measure ?? .reps))
     }
 
     /// "62.5 kg × 8", "× 12", "45 s".
@@ -399,6 +458,10 @@ final class WorkoutController {
             return try JSONDecoder().decode(ActiveWorkout.self, from: data)
         } catch {
             Persistence.logger.error("The workout in progress can't be read: \(String(describing: error), privacy: .public)")
+            // Kept aside, so the next workout doesn't write over what may still be recovered.
+            let aside = url.deletingPathExtension().appendingPathExtension("unreadable.json")
+            try? FileManager.default.removeItem(at: aside)
+            try? FileManager.default.moveItem(at: url, to: aside)
             return nil
         }
     }
@@ -414,7 +477,10 @@ extension ModelContext {
                 sortBy: [SortDescriptor(\.workoutStartedAt, order: .reverse), SortDescriptor(\.order)])
             descriptor.fetchLimit = 60
             guard let sets = try? fetch(descriptor), let latest = sets.first?.workoutStartedAt else { continue }
-            result[id] = sets.filter { $0.workoutStartedAt == latest }.map(\.planned)
+            // An exercise done twice in that workout: its entries one after another, not mixed by set number.
+            result[id] = sets.filter { $0.workoutStartedAt == latest }
+                .sorted { ($0.entry?.order ?? 0, $0.order) < ($1.entry?.order ?? 0, $1.order) }
+                .map(\.planned)
         }
         return result
     }
