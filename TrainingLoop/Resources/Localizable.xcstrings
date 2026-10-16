@@ -344,6 +344,16 @@
         }
       }
     },
+    "Add 10 Seconds of Rest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить 10 секунд отдыха"
+          }
+        }
+      }
+    },
     "Add Exercises" : {
       "localizations" : {
         "ru" : {
@@ -948,6 +958,16 @@
         }
       }
     },
+    "Exercise" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упражнение"
+          }
+        }
+      }
+    },
     "Exercise limit reached" : {
       "localizations" : {
         "ru" : {
@@ -1351,6 +1371,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отметить выполненным"
+          }
+        }
+      }
+    },
+    "Mark Set Done" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отметить подход"
           }
         }
       }
@@ -1875,6 +1905,16 @@
         }
       }
     },
+    "Rest is over" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отдых окончен"
+          }
+        }
+      }
+    },
     "Rest Within Round" : {
       "localizations" : {
         "ru" : {
@@ -2125,6 +2165,16 @@
         }
       }
     },
+    "Skip Rest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить отдых"
+          }
+        }
+      }
+    },
     "Sound and Haptics" : {
       "localizations" : {
         "ru" : {
@@ -2299,6 +2349,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "Superset · next %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Суперсет · далее %@"
           }
         }
       }

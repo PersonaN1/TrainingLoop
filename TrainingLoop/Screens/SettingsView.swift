@@ -5,6 +5,7 @@ import TrainingLoopCore
 /// Groups: Workout / Sound and Haptics / Display / Exercises / About (SPEC D20, DESIGN V12).
 struct SettingsView: View {
     @Environment(AppSettings.self) private var settings
+    @Environment(WorkoutController.self) private var workouts
     @Query(filter: #Predicate<Exercise> { $0.isHidden && $0.builtinKey != nil })
     private var hidden: [Exercise]
     @Query(filter: #Predicate<Exercise> { $0.isArchived && $0.builtinKey == nil })
@@ -34,6 +35,10 @@ struct SettingsView: View {
                         ForEach(SoundSet.allCases, id: \.self) { set in
                             Text(set.title).tag(SoundSet?.some(set))
                         }
+                    }
+                    // A sample of the chosen set (TECH T7).
+                    .onChange(of: settings.soundSet) { _, set in
+                        if let set { workouts.previewSound(set) }
                     }
                     Toggle("Vibration", isOn: $settings.vibration)
                     Toggle("Voice Prompts", isOn: $settings.voicePrompts)

@@ -2,11 +2,10 @@ import Foundation
 import Observation
 import SwiftData
 import TrainingLoopCore
-import UIKit
 
 /// The workout in progress (TECH T5, T6): one at a time, saved to a file after every action so it survives
 /// the app being closed (SPEC D19), turned into a history record on "Save".
-/// Sounds and the Live Activity come next; for now the end of a rest is a vibration.
+/// The end of a rest is signalled by sound, voice and vibration (T7); the lock screen shows a Live Activity (T8).
 @MainActor
 @Observable
 final class WorkoutController {
@@ -23,12 +22,25 @@ final class WorkoutController {
 
     private let settings: AppSettings
     private let fileURL: URL
+    /// Exercise names for the Live Activity; nil in previews, which then stay off the lock screen.
+    private let context: ModelContext?
     private var restTask: Task<Void, Never>?
+    private let audio: WorkoutAudio
+    private let liveActivity = LiveActivityManager()
 
-    init(settings: AppSettings, fileURL: URL = WorkoutController.defaultFileURL) {
+    init(settings: AppSettings, context: ModelContext? = nil, fileURL: URL = WorkoutController.defaultFileURL) {
         self.settings = settings
+        self.context = context
         self.fileURL = fileURL
+        audio = WorkoutAudio(settings: settings)
         workout = Self.load(from: fileURL)
+        guard context != nil else { return }
+        // The lock screen buttons reach the workout through here, even when they woke the app.
+        WorkoutCommands.handler = { [weak self] in self?.perform($0) }
+        WorkoutCommands.flush = { [weak self] in await self?.liveActivity.flush() }
+        // A workout restored after the app was closed gets its activity back; a stale one goes.
+        LiveActivityManager.endExisting()
+        syncActivity()
         scheduleRestEnd()
     }
 
@@ -56,6 +68,7 @@ final class WorkoutController {
         }
         self.workout = workout
         persist()
+        syncActivity()
         isPresented = true
     }
 
@@ -68,6 +81,7 @@ final class WorkoutController {
         workout.lastActivityAt = .now
         self.workout = workout
         persist()
+        syncActivity()
     }
 
     /// The tick (D7): records the shown values and starts the rest when there is a set to rest for (D5).
@@ -160,23 +174,50 @@ final class WorkoutController {
 
     func skipRest() {
         restTask?.cancel()
+        audio.end()
         change { $0.rest = nil }
     }
 
-    /// Sleeps until the end, then clears the rest and signals it.
+    /// Plays the 3-2-1 and, at the end, clears the rest and signals it. The audio session is held
+    /// only while a rest runs (T6), which keeps the app awake on the lock screen for the signals.
     private func scheduleRestEnd() {
         restTask?.cancel()
-        guard let rest, !rest.isPaused else { return }
+        guard let rest, !rest.isPaused else {
+            audio.end()
+            return
+        }
         let endsAt = rest.endsAt
+        // A rest that ended while the app was closed is cleared without a late signal.
+        guard endsAt.timeIntervalSinceNow > -2 else {
+            change { $0.rest = nil }
+            return
+        }
+        audio.begin()
         restTask = Task { [weak self] in
+            for secondsLeft in [3, 2, 1] {
+                let delay = endsAt.addingTimeInterval(-TimeInterval(secondsLeft)).timeIntervalSinceNow
+                // Too late for this one: a short rest or a resume near the end.
+                guard delay > -0.5 else { continue }
+                if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
+                guard !Task.isCancelled, let self else { return }
+                self.audio.countdown(secondsLeft)
+            }
             let delay = endsAt.timeIntervalSinceNow
             if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
             guard !Task.isCancelled, let self else { return }
             self.change { $0.rest = nil }
-            if self.settings.vibration {
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
-            }
+            self.audio.restEnded()
         }
+    }
+
+    /// The app is back in front: restart audio an interruption may have stopped.
+    func appDidBecomeActive() {
+        audio.resumeIfNeeded()
+    }
+
+    /// A sample of the chosen set in Settings.
+    func previewSound(_ set: SoundSet) {
+        audio.preview(set)
     }
 
     // MARK: Finishing
@@ -235,6 +276,7 @@ final class WorkoutController {
         }
         context.saveOrReport()
         end()
+        audio.finished()
         return record
     }
 
@@ -256,11 +298,86 @@ final class WorkoutController {
 
     private func end() {
         restTask?.cancel()
+        audio.end()
+        liveActivity.end()
         workout = nil
         history = [:]
         finishingAt = nil
         isPresented = false
         try? FileManager.default.removeItem(at: fileURL)
+    }
+
+    // MARK: Lock screen (TECH T8)
+
+    /// The buttons on the Live Activity.
+    private func perform(_ command: WorkoutCommand) {
+        switch command {
+        case .completeSet:
+            guard let workout, let position = workout.nextPosition, workout[position].value.hasValue else { return }
+            toggle(workout[position].id)
+        case .addRest:
+            adjustRest(by: 10)
+        case .skipRest:
+            skipRest()
+        }
+    }
+
+    /// Starts, updates or ends the activity to match the workout and the setting.
+    private func syncActivity() {
+        guard context != nil else { return }
+        guard let workout, settings.showOnLockScreen else {
+            liveActivity.end()
+            return
+        }
+        let state = activityState(of: workout)
+        if liveActivity.isRunning {
+            liveActivity.update(state)
+        } else {
+            liveActivity.start(.init(workoutName: workout.name, startedAt: workout.startedAt), state: state)
+        }
+    }
+
+    private func activityState(of workout: ActiveWorkout) -> WorkoutActivityAttributes.ContentState {
+        let rest = workout.rest.map { rest in
+            WorkoutActivityAttributes.ContentState.Rest(
+                start: rest.endsAt.addingTimeInterval(-TimeInterval(rest.totalSeconds)),
+                end: rest.endsAt, pausedLeft: rest.pausedLeft)
+        }
+        guard let position = workout.nextPosition else {
+            return .init(rest: rest, exerciseName: nil, setNumber: 0, setCount: 0, plan: "",
+                         supersetNext: nil, canComplete: false)
+        }
+        let exercise = workout.exercise(at: position)
+        let model = exerciseModel(exercise.exerciseID)
+        let value = workout[position].value
+        // In a superset the set after this one is the next exercise of the round.
+        let order = workout.order
+        let later = order.drop { $0 != position }.dropFirst()
+        var supersetNext: String?
+        if workout.items[position.item].isSuperset,
+           let next = later.first(where: { $0.item == position.item && !workout[$0].isDone }),
+           next.exercise != position.exercise {
+            let name = exerciseModel(workout.exercise(at: next).exerciseID)?.name ?? ""
+            supersetNext = String(localized: "Superset · next \(name)")
+        }
+        return .init(rest: rest, exerciseName: model?.name ?? String(localized: "Exercise"),
+                     setNumber: position.set + 1, setCount: exercise.sets.count,
+                     plan: planText(value, weighted: model?.weighted ?? true),
+                     supersetNext: supersetNext, canComplete: value.hasValue)
+    }
+
+    /// "62.5 kg × 8", "× 12", "45 s".
+    private func planText(_ value: PlannedSet, weighted: Bool) -> String {
+        if let seconds = value.seconds { return String(localized: "\(seconds) s") }
+        guard let reps = value.reps else {
+            return value.weightKg.map(settings.weightUnit.weightText) ?? ""
+        }
+        if weighted, let weight = value.weightKg { return "\(settings.weightUnit.weightText(weight)) × \(reps)" }
+        return "× \(reps)"
+    }
+
+    private func exerciseModel(_ id: UUID) -> Exercise? {
+        try? context?.fetch(FetchDescriptor<Exercise>(predicate: #Predicate { $0.id == id })).first
     }
 
     // MARK: File

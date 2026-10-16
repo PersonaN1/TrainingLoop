@@ -42,6 +42,9 @@ extension PlannedSet {
         case .time: PlannedSet(seconds: 45)
         }
     }
+
+    /// Something to record: an empty set can't be ticked from the lock screen (D7).
+    public var hasValue: Bool { reps != nil || seconds != nil || weightKg != nil }
 }
 
 // MARK: Editing (DESIGN V6)
