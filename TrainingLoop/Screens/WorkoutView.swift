@@ -13,6 +13,8 @@ struct WorkoutView: View {
     @State private var expanded = Set<UUID>()
     @State private var picker: PickerTarget?
     @State private var confirmingFinish = false
+    @State private var reordering = false
+    @State private var restExpanded = false
 
     private enum PickerTarget: Identifiable {
         case add
@@ -36,8 +38,21 @@ struct WorkoutView: View {
                     .toolbar { toolbar(workout) }
                     .safeAreaInset(edge: .bottom, spacing: 0) {
                         if let rest = workouts.rest {
-                            RestPanel(rest: rest, next: nextText(workout))
+                            RestPanel(rest: rest, next: nextText(workout)) { restExpanded = true }
                         }
+                    }
+                    // Tapping the panel opens the rest over the whole screen (DESIGN V3); it closes when it ends.
+                    .fullScreenCover(isPresented: Binding(get: { restExpanded && workouts.rest != nil },
+                                                          set: { restExpanded = $0 })) {
+                        if let rest = workouts.rest {
+                            RestScreen(rest: rest, next: nextText(workout)) { restExpanded = false }
+                        }
+                    }
+                    .sheet(isPresented: $reordering) {
+                        WorkoutOrderView()
+                    }
+                    .task(id: workout.items.flatMap(\.exercises).map(\.exerciseID)) {
+                        workouts.loadHistory(context: context)
                     }
                     .sheet(item: $picker) { target in
                         switch target {
@@ -98,17 +113,20 @@ struct WorkoutView: View {
     private func list(_ workout: ActiveWorkout) -> some View {
         let lookup = ExerciseLookup(allExercises)
         let next = workout.nextPosition.map { workout[$0].id }
+        let records = workouts.records.setIDs
         return ScrollViewReader { proxy in
             List {
                 ForEach(Array(workout.items.enumerated()), id: \.element.id) { itemIndex, item in
                     switch item {
                     case .exercise(let exercise):
                         Section {
-                            exerciseRows(exercise, lookup: lookup, next: next)
+                            exerciseRows(exercise, lookup: lookup, next: next, records: records)
                         }
                     case .superset(let superset):
                         Section {
-                            ForEach(superset.exercises) { exerciseRows($0, lookup: lookup, next: next, inSuperset: true) }
+                            ForEach(superset.exercises) {
+                                exerciseRows($0, lookup: lookup, next: next, records: records, inSuperset: true)
+                            }
                         } header: {
                             Text(supersetTitle(superset, workout: workout, itemIndex: itemIndex))
                         }
@@ -117,6 +135,9 @@ struct WorkoutView: View {
                 }
                 Section {
                     Button("Add Exercises", systemImage: "plus") { picker = .add }
+                    if workout.items.flatMap(\.exercises).count > 1 {
+                        Button("Change Order", systemImage: "arrow.up.arrow.down") { reordering = true }
+                    }
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -155,7 +176,7 @@ struct WorkoutView: View {
 
     @ViewBuilder
     private func exerciseRows(_ exercise: ActiveWorkout.Exercise, lookup: ExerciseLookup, next: UUID?,
-                              inSuperset: Bool = false) -> some View {
+                              records: Set<UUID>, inSuperset: Bool = false) -> some View {
         let stored = lookup[exercise.exerciseID]
         let measure = stored?.measure ?? .reps
         let weighted = stored?.weighted ?? false
@@ -168,6 +189,12 @@ struct WorkoutView: View {
                 HStack {
                     Text(lookup.name(exercise.exerciseID)).font(.headline)
                     Image(systemName: "checkmark").foregroundStyle(Color.accentColor)
+                    if exercise.sets.contains(where: { records.contains($0.id) }) {
+                        Image(systemName: "trophy.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.record)
+                            .accessibilityLabel("Record")
+                    }
                     Spacer()
                     Text("\(exercise.sets.count) sets").foregroundStyle(.secondary)
                 }
@@ -180,6 +207,7 @@ struct WorkoutView: View {
                 Menu {
                     Button("Add Set", systemImage: "plus") { workouts.change { $0.addSet(to: exercise.id) } }
                     Button("Replace", systemImage: "arrow.left.arrow.right") { picker = .replace(exercise.id) }
+                    Button("Change Order", systemImage: "arrow.up.arrow.down") { reordering = true }
                     if finished {
                         Button("Collapse", systemImage: "chevron.up") {
                             withAnimation { _ = expanded.remove(exercise.id) }
@@ -198,7 +226,8 @@ struct WorkoutView: View {
             SetColumnsHeader(measure: measure, weighted: weighted, unit: settings.weightUnit)
             ForEach(Array(exercise.sets.enumerated()), id: \.element.id) { index, set in
                 SetRowView(number: index + 1, row: set, measure: measure, weighted: weighted,
-                           unit: settings.weightUnit, isNext: set.id == next, inSuperset: inSuperset)
+                           unit: settings.weightUnit, isNext: set.id == next, isRecord: records.contains(set.id),
+                           inSuperset: inSuperset)
                     .id(set.id)
                     .swipeActions {
                         Button("Delete", systemImage: "trash", role: .destructive) {
@@ -227,7 +256,7 @@ private struct SetColumnsHeader: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text("#", comment: "Set number column").frame(width: 28, alignment: .leading)
+            Text("#", comment: "Set number column").frame(width: SetRowView.numberWidth, alignment: .leading)
             Text("Last Time").frame(maxWidth: .infinity, alignment: .leading)
             if weighted {
                 Text(unit == .kg ? "kg" : "lb").frame(width: SetRowView.fieldWidth)
@@ -246,6 +275,7 @@ private struct SetRowView: View {
     @Environment(WorkoutController.self) private var workouts
     static let fieldWidth: CGFloat = 64
     static let checkWidth: CGFloat = 36
+    static let numberWidth: CGFloat = 34
 
     let number: Int
     let row: ActiveWorkout.SetRow
@@ -253,13 +283,23 @@ private struct SetRowView: View {
     let weighted: Bool
     let unit: WeightUnit
     let isNext: Bool
+    /// The set beat a record when it was ticked: 🏆 in coral (D10, DESIGN V7).
+    let isRecord: Bool
     let inSuperset: Bool
 
     var body: some View {
         HStack(spacing: 8) {
-            Text(number.formatted())
-                .foregroundStyle(.secondary)
-                .frame(width: 28, alignment: .leading)
+            HStack(spacing: 2) {
+                Text(number.formatted())
+                    .foregroundStyle(.secondary)
+                if isRecord {
+                    Image(systemName: "trophy.fill")
+                        .font(.caption2)
+                        .foregroundStyle(Color.record)
+                        .accessibilityLabel("Record")
+                }
+            }
+            .frame(width: Self.numberWidth, alignment: .leading)
             Text(lastTime)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -351,25 +391,33 @@ private extension View {
 }
 
 /// The rest at the bottom of the workout (DESIGN V3): time left, −10 / +10 / Skip, a green bar, the next set.
+/// A tap on the time opens it over the whole screen.
 private struct RestPanel: View {
     @Environment(WorkoutController.self) private var workouts
     let rest: ActiveWorkout.Rest
     let next: String?
+    let expand: () -> Void
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
-            let left = max(0, rest.endsAt.timeIntervalSince(context.date))
+            let left = rest.left(at: context.date)
             VStack(spacing: 10) {
                 HStack(alignment: .firstTextBaseline) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Rest")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.rest)
-                        Text(Duration.seconds(left.rounded(.up)).formatted(.time(pattern: .minuteSecond)))
-                            .font(.system(size: 40, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .contentTransition(.numericText(countsDown: true))
+                    Button(action: expand) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Label(rest.isPaused ? "Rest · Paused" : "Rest", systemImage: "arrow.up.left.and.arrow.down.right")
+                                .labelStyle(TrailingIconLabelStyle())
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Color.rest)
+                            Text(RestFormat.time(left))
+                                .font(.system(size: 40, weight: .semibold, design: .rounded))
+                                .monospacedDigit()
+                                .contentTransition(.numericText(countsDown: true))
+                        }
+                        .contentShape(.rect)
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Opens the rest full screen")
                     Spacer()
                     HStack(spacing: 8) {
                         Button("−10") { workouts.adjustRest(by: -10) }
@@ -393,6 +441,189 @@ private struct RestPanel: View {
             }
             .padding()
             .background(.regularMaterial)
+        }
+    }
+}
+
+private struct TrailingIconLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 6) {
+            configuration.title
+            configuration.icon.font(.caption.weight(.bold))
+        }
+    }
+}
+
+/// The rest over the whole screen, green like SetLoop's workout screen (DESIGN V3): a ring with large digits,
+/// −10 / pause / +10, Skip and the next set.
+private struct RestScreen: View {
+    @Environment(WorkoutController.self) private var workouts
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    let rest: ActiveWorkout.Rest
+    let next: String?
+    let collapse: () -> Void
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 0.25)) { context in
+            let left = rest.left(at: context.date)
+            ZStack {
+                Color.rest.ignoresSafeArea()
+                Group {
+                    if verticalSizeClass == .compact {
+                        HStack(spacing: 32) {
+                            ring(left, size: 220)
+                            VStack(spacing: 24) {
+                                info
+                                controls
+                                skipButton
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                    } else {
+                        VStack(spacing: 28) {
+                            Spacer()
+                            info
+                            ring(left, size: 280)
+                            controls
+                            Spacer()
+                            skipButton
+                        }
+                    }
+                }
+                .foregroundStyle(.white)
+                .tint(.white)
+                .padding()
+            }
+            .overlay(alignment: .topLeading) {
+                Button(action: collapse) {
+                    Image(systemName: "chevron.down")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .contentShape(.rect)
+                }
+                .accessibilityLabel("Collapse")
+                .padding(.horizontal, 8)
+            }
+        }
+    }
+
+    private var info: some View {
+        VStack(spacing: 6) {
+            Text(rest.isPaused ? "Rest · Paused" : "Rest")
+                .font(.largeTitle.weight(.bold))
+            // Keeps its height when empty, so nothing below jumps.
+            Text(next ?? " ")
+                .font(.headline)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+    }
+
+    private func ring(_ left: TimeInterval, size: CGFloat) -> some View {
+        let progress = rest.totalSeconds > 0 ? left / Double(rest.totalSeconds) : 0
+        return ZStack {
+            Circle().stroke(.white.opacity(0.25), lineWidth: 12)
+            Circle()
+                .trim(from: 0, to: min(1, max(0, progress)))
+                .stroke(.white, style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .animation(.linear(duration: 0.25), value: progress)
+            Text(RestFormat.time(left))
+                .font(.system(size: size * 0.32, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.5)
+                .padding(24)
+                .accessibilityLabel(Duration.seconds(left.rounded(.up)).formatted(.units(allowed: [.minutes, .seconds], width: .wide)))
+        }
+        .frame(width: size, height: size)
+    }
+
+    // The row never changes layout, so a button never moves under the finger.
+    private var controls: some View {
+        HStack(spacing: 32) {
+            Button { workouts.adjustRest(by: -10) } label: { controlCircle(Text("−10")) }
+                .accessibilityLabel("Minus 10 seconds")
+            Button { workouts.toggleRestPause() } label: {
+                controlCircle(Image(systemName: rest.isPaused ? "play.fill" : "pause.fill"), size: 88)
+            }
+            .accessibilityLabel(rest.isPaused ? "Resume" : "Pause")
+            Button { workouts.adjustRest(by: 10) } label: { controlCircle(Text("+10")) }
+                .accessibilityLabel("Plus 10 seconds")
+        }
+    }
+
+    private var skipButton: some View {
+        Button { workouts.skipRest() } label: {
+            Text("Skip")
+                .font(.title3.weight(.semibold))
+                .padding(.horizontal, 36)
+                .frame(minHeight: 56)
+                .background(.white.opacity(0.18), in: Capsule())
+                .contentShape(Capsule())
+        }
+    }
+
+    private func controlCircle(_ content: some View, size: CGFloat = 64) -> some View {
+        content
+            .font(.system(size: size * 0.32, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+            .frame(width: size, height: size)
+            .background(.white.opacity(0.18), in: Circle())
+            .contentShape(Circle())
+    }
+}
+
+enum RestFormat {
+    /// "1:05": whole seconds, rounded up so 0:00 shows only at the end.
+    static func time(_ left: TimeInterval) -> String {
+        Duration.seconds(left.rounded(.up)).formatted(.time(pattern: .minuteSecond))
+    }
+}
+
+/// "Change Order" (D6): drag exercises as in the template editor; supersets keep their stripe.
+private struct WorkoutOrderView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(WorkoutController.self) private var workouts
+    @Query private var allExercises: [Exercise]
+
+    var body: some View {
+        NavigationStack {
+            if let workout = workouts.workout {
+                let lookup = ExerciseLookup(allExercises)
+                List {
+                    Section {
+                        ForEach(workout.items.flatMap { item in item.exercises.map { (exercise: $0, item: item) } },
+                                id: \.exercise.id) { row in
+                            HStack {
+                                Text(lookup.name(row.exercise.exerciseID))
+                                Spacer()
+                                Text(verbatim: "\(row.exercise.sets.filter(\.isDone).count)/\(row.exercise.sets.count)")
+                                    .foregroundStyle(.secondary)
+                                    .monospacedDigit()
+                            }
+                            .listRowBackground(row.item.isSuperset
+                                               ? AnyView(SupersetRowBackground())
+                                               : AnyView(Color(.secondarySystemGroupedBackground)))
+                            // A dropped row keeps its old background unless it becomes a new row.
+                            .id("\(row.exercise.id)-\(row.item.isSuperset ? row.item.id.uuidString : "")")
+                        }
+                        .onMove { source, destination in
+                            workouts.change { $0.moveExercises(fromOffsets: source, toOffset: destination) }
+                        }
+                    } footer: {
+                        Text("Drag to reorder; drop an exercise between two of a superset to add it there, or away from it to take it out.")
+                    }
+                }
+                .environment(\.editMode, .constant(.active))
+                .navigationTitle("Change Order")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { dismiss() }
+                    }
+                }
+            }
         }
     }
 }

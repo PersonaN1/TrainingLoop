@@ -18,6 +18,9 @@ final class WorkoutController {
     /// A workout untouched for this long asks whether it is still going (D19).
     static let forgottenAfter: TimeInterval = 2 * 60 * 60
 
+    /// Earlier workouts of the exercises in this one, for the records (D10); loaded as exercises come in.
+    private var history: [UUID: [[PlannedSet]]] = [:]
+
     private let settings: AppSettings
     private let fileURL: URL
     private var restTask: Task<Void, Never>?
@@ -101,6 +104,20 @@ final class WorkoutController {
         change { $0.replaceExercise(id, with: exerciseID, previous: previous) }
     }
 
+    // MARK: Records (D10)
+
+    /// Records against the history loaded so far; an exercise not loaded yet has none.
+    var records: WorkoutRecords {
+        workout?.records(history: history) ?? WorkoutRecords()
+    }
+
+    func loadHistory(context: ModelContext) {
+        guard let workout else { return }
+        let missing = workout.items.flatMap(\.exercises).map(\.exerciseID).filter { history[$0] == nil }
+        guard !missing.isEmpty else { return }
+        history.merge(context.recordHistory(of: missing)) { $1 }
+    }
+
     // MARK: Rest (TECH T6)
 
     var rest: ActiveWorkout.Rest? { workout?.rest }
@@ -112,13 +129,32 @@ final class WorkoutController {
 
     /// "+10 / −10": moves the end; below zero the rest is over.
     func adjustRest(by seconds: Int) {
-        guard let rest else { return }
-        let endsAt = rest.endsAt.addingTimeInterval(TimeInterval(seconds))
-        if endsAt <= .now {
+        guard var rest else { return }
+        let left = rest.left(at: .now) + TimeInterval(seconds)
+        if left <= 0 {
             skipRest()
             return
         }
-        change { $0.rest = .init(endsAt: endsAt, totalSeconds: max(1, rest.totalSeconds + seconds)) }
+        if rest.isPaused {
+            rest.pausedLeft = left
+        } else {
+            rest.endsAt = .now.addingTimeInterval(left)
+        }
+        rest.totalSeconds = max(1, rest.totalSeconds + seconds)
+        change { $0.rest = rest }
+        scheduleRestEnd()
+    }
+
+    /// The pause stops the countdown only; the workout time runs on (D19).
+    func toggleRestPause() {
+        guard var rest else { return }
+        if let left = rest.pausedLeft {
+            rest.endsAt = .now.addingTimeInterval(left)
+            rest.pausedLeft = nil
+        } else {
+            rest.pausedLeft = rest.left(at: .now)
+        }
+        change { $0.rest = rest }
         scheduleRestEnd()
     }
 
@@ -130,7 +166,8 @@ final class WorkoutController {
     /// Sleeps until the end, then clears the rest and signals it.
     private func scheduleRestEnd() {
         restTask?.cancel()
-        guard let endsAt = rest?.endsAt else { return }
+        guard let rest, !rest.isPaused else { return }
+        let endsAt = rest.endsAt
         restTask = Task { [weak self] in
             let delay = endsAt.timeIntervalSinceNow
             if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
@@ -220,6 +257,7 @@ final class WorkoutController {
     private func end() {
         restTask?.cancel()
         workout = nil
+        history = [:]
         finishingAt = nil
         isPresented = false
         try? FileManager.default.removeItem(at: fileURL)
@@ -260,6 +298,21 @@ extension ModelContext {
             descriptor.fetchLimit = 60
             guard let sets = try? fetch(descriptor), let latest = sets.first?.workoutStartedAt else { continue }
             result[id] = sets.filter { $0.workoutStartedAt == latest }.map(\.planned)
+        }
+        return result
+    }
+
+    /// Each exercise's earlier workouts, for records (D10): one array of sets per workout.
+    func recordHistory(of exerciseIDs: [UUID]) -> [UUID: [[PlannedSet]]] {
+        var result: [UUID: [[PlannedSet]]] = [:]
+        for id in Set(exerciseIDs) {
+            let descriptor = FetchDescriptor<WorkoutSet>(
+                predicate: #Predicate { $0.exerciseID == id },
+                sortBy: [SortDescriptor(\.workoutStartedAt), SortDescriptor(\.order)])
+            guard let sets = try? fetch(descriptor) else { continue }
+            var workouts: [Date: [PlannedSet]] = [:]
+            for set in sets { workouts[set.workoutStartedAt, default: []].append(set.planned) }
+            result[id] = workouts.sorted { $0.key < $1.key }.map(\.value)
         }
         return result
     }
