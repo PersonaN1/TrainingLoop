@@ -8,6 +8,9 @@ public enum Limits {
     public static let maxNameLength = 60
     /// Notes and descriptions (SPEC D15).
     public static let maxNoteLength = 1000
+    /// Finished workouts in the history; a warning shows from `historyWarningFrom` (SPEC D16).
+    public static let maxWorkouts = 3000
+    public static let historyWarningFrom = 2900
 }
 
 extension String {

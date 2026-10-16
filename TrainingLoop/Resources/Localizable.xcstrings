@@ -41,6 +41,16 @@
         }
       }
     },
+    "%@ t" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ т"
+          }
+        }
+      }
+    },
     "%lld exercises" : {
       "localizations" : {
         "en" : {
@@ -75,6 +85,110 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld мин"
+          }
+        }
+      }
+    },
+    "%lld more groups" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld more group"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld more groups"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ещё %lld группа"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ещё %lld группы"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ещё %lld групп"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ещё %lld группы"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld places left: delete old workouts or export them as text." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld place left: delete old workouts or export them as text."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld places left: delete old workouts or export them as text."
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Осталось %lld место: удалите старые записи или выгрузите их текстом."
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Осталось %lld места: удалите старые записи или выгрузите их текстом."
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Осталось %lld мест: удалите старые записи или выгрузите их текстом."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Осталось %lld места: удалите старые записи или выгрузите их текстом."
+                }
+              }
+            }
           }
         }
       }
@@ -471,6 +585,58 @@
         }
       }
     },
+    "Delete %lld workouts?" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Delete %lld workout?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Delete %lld workouts?"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld тренировку?"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld тренировки?"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld тренировок?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Удалить %lld тренировки?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Delete (%lld)" : {
       "localizations" : {
         "ru" : {
@@ -517,6 +683,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Удалить этот шаблон?"
+          }
+        }
+      }
+    },
+    "Delete this workout?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить тренировку?"
           }
         }
       }
@@ -607,6 +783,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дублировать в своё"
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Длительность"
           }
         }
       }
@@ -868,6 +1054,16 @@
         }
       }
     },
+    "Its sets leave the exercise statistics." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Её подходы пропадут из статистики упражнений."
+          }
+        }
+      }
+    },
     "Keep Screen On" : {
       "localizations" : {
         "ru" : {
@@ -998,6 +1194,16 @@
         }
       }
     },
+    "Month" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Месяц"
+          }
+        }
+      }
+    },
     "More" : {
       "localizations" : {
         "ru" : {
@@ -1098,12 +1304,52 @@
         }
       }
     },
+    "No sets done" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подходов нет"
+          }
+        }
+      }
+    },
+    "No sets in this period." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За этот период подходов нет."
+          }
+        }
+      }
+    },
     "No Templates" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет шаблонов"
+          }
+        }
+      }
+    },
+    "no weight" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "без веса"
+          }
+        }
+      }
+    },
+    "No Workouts Yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировок пока нет"
           }
         }
       }
@@ -1158,6 +1404,16 @@
         }
       }
     },
+    "now" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "сейчас"
+          }
+        }
+      }
+    },
     "Off" : {
       "localizations" : {
         "ru" : {
@@ -1198,6 +1454,16 @@
         }
       }
     },
+    "Period" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Период"
+          }
+        }
+      }
+    },
     "Pounds" : {
       "localizations" : {
         "ru" : {
@@ -1234,6 +1500,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Квадрицепсы"
+          }
+        }
+      }
+    },
+    "Records" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записи"
           }
         }
       }
@@ -1418,6 +1694,26 @@
         }
       }
     },
+    "Sets" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подходы"
+          }
+        }
+      }
+    },
+    "Sets by Muscle Group" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подходы по группам мышц"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "ru" : {
@@ -1444,6 +1740,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показать"
+          }
+        }
+      }
+    },
+    "Show Less" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свернуть"
           }
         }
       }
@@ -1530,6 +1836,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Запускать отдых после подхода"
+          }
+        }
+      }
+    },
+    "Started" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начало"
+          }
+        }
+      }
+    },
+    "Summary" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сводка"
           }
         }
       }
@@ -1693,6 +2019,26 @@
         }
       }
     },
+    "Time" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня"
+          }
+        }
+      }
+    },
     "Traps" : {
       "localizations" : {
         "ru" : {
@@ -1753,12 +2099,82 @@
         }
       }
     },
+    "View" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вид"
+          }
+        }
+      }
+    },
     "Voice Prompts" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Голосовые подсказки"
+          }
+        }
+      }
+    },
+    "Volume" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоннаж"
+          }
+        }
+      }
+    },
+    "Volume by Day" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоннаж по дням"
+          }
+        }
+      }
+    },
+    "Volume by Month" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоннаж по месяцам"
+          }
+        }
+      }
+    },
+    "Volume by Week" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоннаж по неделям"
+          }
+        }
+      }
+    },
+    "Week" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неделя"
+          }
+        }
+      }
+    },
+    "Week Streak" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Серия недель"
           }
         }
       }
@@ -1833,12 +2249,32 @@
         }
       }
     },
+    "Year" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Год"
+          }
+        }
+      }
+    },
     "Yes" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Да"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вчера"
           }
         }
       }
