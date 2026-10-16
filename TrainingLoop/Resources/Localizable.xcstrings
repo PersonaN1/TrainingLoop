@@ -524,6 +524,16 @@
         }
       }
     },
+    "Change Order" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменить порядок"
+          }
+        }
+      }
+    },
     "Chest" : {
       "localizations" : {
         "ru" : {
@@ -844,6 +854,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Готово"
+          }
+        }
+      }
+    },
+    "Drag to reorder; drop an exercise between two of a superset to add it there, or away from it to take it out." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетащите, чтобы изменить порядок. Упражнение, брошенное между двумя упражнениями суперсета, войдёт в него; унесённое в сторону — выйдет из него."
           }
         }
       }
@@ -1655,12 +1675,32 @@
         }
       }
     },
+    "Opens the rest full screen" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открывает отдых на весь экран"
+          }
+        }
+      }
+    },
     "Other" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Другое"
+          }
+        }
+      }
+    },
+    "Pause" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пауза"
           }
         }
       }
@@ -1721,6 +1761,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Квадрицепсы"
+          }
+        }
+      }
+    },
+    "Record" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекорд"
           }
         }
       }
@@ -1835,6 +1885,16 @@
         }
       }
     },
+    "Rest · Paused" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отдых · пауза"
+          }
+        }
+      }
+    },
     "Restore" : {
       "localizations" : {
         "ru" : {
@@ -1851,6 +1911,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Итоги"
+          }
+        }
+      }
+    },
+    "Resume" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжить"
           }
         }
       }
@@ -2540,6 +2610,16 @@
         }
       }
     },
+    "Weight for %lld reps" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вес на %lld повт."
+          }
+        }
+      }
+    },
     "What to Record in a Set" : {
       "localizations" : {
         "ru" : {
@@ -2666,6 +2746,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "−10"
+          }
+        }
+      }
+    },
+    "🏆 New Records" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🏆 Новые рекорды"
           }
         }
       }

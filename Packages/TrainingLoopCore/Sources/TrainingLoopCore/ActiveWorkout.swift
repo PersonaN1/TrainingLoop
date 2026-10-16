@@ -116,10 +116,19 @@ public struct ActiveWorkout: Codable, Hashable, Sendable {
     public struct Rest: Codable, Hashable, Sendable {
         public var endsAt: Date
         public var totalSeconds: Int
+        /// Time left when paused (SPEC D19: only the rest has a pause); `endsAt` is moved on resume.
+        public var pausedLeft: TimeInterval?
 
-        public init(endsAt: Date, totalSeconds: Int) {
+        public init(endsAt: Date, totalSeconds: Int, pausedLeft: TimeInterval? = nil) {
             self.endsAt = endsAt
             self.totalSeconds = totalSeconds
+            self.pausedLeft = pausedLeft
+        }
+
+        public var isPaused: Bool { pausedLeft != nil }
+
+        public func left(at date: Date) -> TimeInterval {
+            pausedLeft ?? max(0, endsAt.timeIntervalSince(date))
         }
     }
 }
@@ -303,6 +312,62 @@ extension ActiveWorkout {
                 continue
             }
         }
+    }
+
+    /// "Change Order" (D6), as in the template editor: moved exercises keep their superset while they stay
+    /// next to it; dropped between two exercises of a superset they join it; anywhere else they become plain.
+    public mutating func moveExercises(fromOffsets source: IndexSet, toOffset destination: Int) {
+        var rows = items.flatMap { item in
+            item.exercises.map { (exercise: $0, group: item.isSuperset ? item.id : nil) }
+        }
+        let ownGroups = Set(source.map { rows[$0].group })
+        let start = destination - source.filter { $0 < destination }.count
+        let moved = source.map { rows[$0] }
+        for index in source.reversed() { rows.remove(at: index) }
+        rows.insert(contentsOf: moved, at: start)
+        let end = start + source.count
+        let before = start > 0 ? rows[start - 1].group : nil
+        let after = end < rows.count ? rows[end].group : nil
+        let group: UUID?
+        if ownGroups.count == 1, let own = ownGroups.first ?? nil, before == own || after == own {
+            group = own
+        } else if let before, before == after {
+            group = before
+        } else {
+            group = nil
+        }
+        for index in start..<end { rows[index].group = group }
+
+        let supersets = Dictionary(uniqueKeysWithValues: items.compactMap { item -> (UUID, Superset)? in
+            if case .superset(let superset) = item { (superset.id, superset) } else { nil }
+        })
+        var rebuilt: [Item] = []
+        var used = Set<UUID>()
+        var index = 0
+        while index < rows.count {
+            guard let id = rows[index].group, let old = supersets[id] else {
+                rebuilt.append(.exercise(rows[index].exercise))
+                index += 1
+                continue
+            }
+            var run: [Exercise] = []
+            while index < rows.count, rows[index].group == id {
+                run.append(rows[index].exercise)
+                index += 1
+            }
+            if run.count == 1 {
+                var only = run[0]
+                only.restSeconds = old.restAfterSeconds
+                rebuilt.append(.exercise(only))
+            } else {
+                // A superset split in two by a drag keeps its ID only once.
+                rebuilt.append(.superset(Superset(id: used.contains(id) ? UUID() : id, exercises: run,
+                                                  restWithinSeconds: old.restWithinSeconds,
+                                                  restAfterSeconds: old.restAfterSeconds)))
+                used.insert(id)
+            }
+        }
+        items = rebuilt
     }
 
     /// "Replace": another exercise from the catalog with fresh sets; done sets go with the old one.

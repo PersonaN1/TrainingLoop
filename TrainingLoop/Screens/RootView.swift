@@ -59,10 +59,14 @@ private struct RunningWorkoutBar: View {
                     Spacer()
                     if let rest = workouts.rest {
                         Label {
-                            Text(timerInterval: Date.now...max(rest.endsAt, .now), countsDown: true)
-                                .monospacedDigit()
+                            if rest.isPaused {
+                                Text(RestFormat.time(rest.left(at: .now))).monospacedDigit()
+                            } else {
+                                Text(timerInterval: Date.now...max(rest.endsAt, .now), countsDown: true)
+                                    .monospacedDigit()
+                            }
                         } icon: {
-                            Image(systemName: "timer")
+                            Image(systemName: rest.isPaused ? "pause.fill" : "timer")
                         }
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.rest)
@@ -102,6 +106,14 @@ private extension View {
 extension Color {
     /// Rest is green in both apps (DESIGN V1).
     static let rest = Color(red: 0x1E / 255, green: 0x8E / 255, blue: 0x52 / 255)
+    /// Coral means a record (DESIGN V7): this for icons and 🏆, `recordText` for text on white.
+    static let record = Color(red: 0xFF / 255, green: 0x6B / 255, blue: 0x52 / 255)
+    /// Dark coral keeps ~4.5:1 on white; on a dark background the bright one reads better.
+    static let recordText = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0xFF / 255, green: 0x6B / 255, blue: 0x52 / 255, alpha: 1)
+            : UIColor(red: 0xD2 / 255, green: 0x45 / 255, blue: 0x2E / 255, alpha: 1)
+    })
 }
 
 #Preview {

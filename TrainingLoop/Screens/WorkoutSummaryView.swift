@@ -3,7 +3,7 @@ import SwiftUI
 import TrainingLoopCore
 
 /// After "Finish" (SPEC D6, D11, D16; DESIGN V8): totals, name and note, "Update template" or
-/// "Save as template", then Save or Don't save. Records (🏆) come with the records engine.
+/// "Save as template", new records (🏆), then Save or Don't save.
 struct WorkoutSummaryView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -26,6 +26,7 @@ struct WorkoutSummaryView: View {
         }
         .interactiveDismissDisabled()
         .onAppear {
+            workouts.loadHistory(context: context)
             guard !loaded, let workout = workouts.workout else { return }
             loaded = true
             name = workout.name
@@ -63,6 +64,25 @@ struct WorkoutSummaryView: View {
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
+            }
+            let records = workouts.records.records
+            if !records.isEmpty {
+                let lookup = ExerciseLookup(allExercises)
+                Section {
+                    ForEach(Array(records.enumerated()), id: \.offset) { _, record in
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(verbatim: "\(lookup.name(record.exerciseID)) · \(record.metric.title)")
+                            Spacer()
+                            Text(value(of: record))
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Color.recordText)
+                                .monospacedDigit()
+                        }
+                        .font(.subheadline)
+                    }
+                } header: {
+                    Text("🏆 New Records")
+                }
             }
             if let groups = groupsLine(done) {
                 Section("Sets by Muscle Group") {
@@ -134,6 +154,25 @@ struct WorkoutSummaryView: View {
         }
     }
 
+    /// "100 kg × 5", "100 kg", "12", "1:30", "2,400 kg".
+    private func value(of record: WorkoutRecords.Record) -> String {
+        let unit = settings.weightUnit
+        let set = record.set ?? PlannedSet()
+        switch record.metric {
+        case .weight:
+            let weight = unit.weightText(set.weightKg ?? 0)
+            return set.reps.map { "\(weight) × \($0)" } ?? weight
+        case .weightForReps:
+            return unit.weightText(set.weightKg ?? 0)
+        case .reps:
+            return (set.reps ?? 0).formatted()
+        case .seconds:
+            return RestFormat.time(TimeInterval(set.seconds ?? 0))
+        case .volume:
+            return HistoryFormat.volume(record.volumeKg ?? 0, unit: unit)
+        }
+    }
+
     private func trimmedName(_ workout: ActiveWorkout) -> String {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? workout.name : trimmed
@@ -151,5 +190,17 @@ struct WorkoutSummaryView: View {
         return sets.sorted { $0.value == $1.value ? $0.key.title < $1.key.title : $0.value > $1.value }
             .map { "\($0.key.title) \($0.value)" }
             .joined(separator: " · ")
+    }
+}
+
+extension RecordMetric {
+    var title: String {
+        switch self {
+        case .weight: String(localized: "Weight")
+        case .weightForReps(let reps): String(localized: "Weight for \(reps) reps")
+        case .reps: String(localized: "Reps")
+        case .seconds: String(localized: "Time")
+        case .volume: String(localized: "Volume")
+        }
     }
 }

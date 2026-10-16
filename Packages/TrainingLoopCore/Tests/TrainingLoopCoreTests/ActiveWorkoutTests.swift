@@ -111,6 +111,26 @@ struct ActiveWorkoutTests {
         #expect(definition.exercises[3].sets.count == 3)
     }
 
+    @Test func movingKeepsOrLeavesTheSuperset() {
+        var workout = workout()
+        // Deadlift dropped between squat and pull-ups joins the superset.
+        workout.moveExercises(fromOffsets: [2], toOffset: 1)
+        #expect(workout.items.count == 1)
+        #expect(workout.items[0].exercises.map(\.exerciseID) == [squat, deadlift, pullUp])
+        // Squat moved to the end stays in it.
+        workout.moveExercises(fromOffsets: [0], toOffset: 3)
+        #expect(workout.items[0].exercises.map(\.exerciseID) == [deadlift, pullUp, squat])
+
+        // Moved away from its superset, an exercise leaves it; a superset of one becomes plain.
+        var other = self.workout()
+        other.moveExercises(fromOffsets: [2], toOffset: 0)
+        #expect(other.items.map(\.isSuperset) == [false, true])
+        other.moveExercises(fromOffsets: [1], toOffset: 0)
+        #expect(other.items.map(\.isSuperset) == [false, false, false])
+        #expect(other.items.flatMap(\.exercises).map(\.exerciseID) == [squat, deadlift, pullUp])
+        #expect(other.items[2].exercises[0].restSeconds == 90)
+    }
+
     @Test func survivesJSON() throws {
         var workout = workout()
         workout.rest = .init(endsAt: start.addingTimeInterval(90), totalSeconds: 90)

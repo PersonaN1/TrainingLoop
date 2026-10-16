@@ -1,0 +1,52 @@
+import Foundation
+import Testing
+@testable import TrainingLoopCore
+
+struct PersonalRecordsTests {
+    private let bench = UUID()
+    private let pullUp = UUID()
+    private let start = Date(timeIntervalSince1970: 1_800_000_000)
+
+    private func workout(_ sets: [UUID: [PlannedSet]]) -> ActiveWorkout {
+        var workout = ActiveWorkout(name: "Test", startedAt: start)
+        for (id, values) in sets.sorted(by: { $0.key.uuidString < $1.key.uuidString }) {
+            var exercise = ActiveWorkout.newExercise(id, restSeconds: 60, previous: [], defaultSets: values.count)
+            for index in values.indices {
+                exercise.sets[index].entered = values[index]
+                exercise.sets[index].doneAt = start.addingTimeInterval(Double(index) * 60)
+            }
+            workout.items.append(.exercise(exercise))
+        }
+        return workout
+    }
+
+    @Test func firstTimeSetsNoRecords() {
+        let records = workout([bench: [PlannedSet(reps: 5, weightKg: 100)]]).records(history: [:])
+        #expect(records.setIDs.isEmpty)
+        #expect(records.records.isEmpty)
+    }
+
+    @Test func heavierSetIsOneWeightLine() {
+        let history = [bench: [[PlannedSet(reps: 5, weightKg: 90)]]]
+        let workout = workout([bench: [PlannedSet(reps: 5, weightKg: 95), PlannedSet(reps: 5, weightKg: 100)]])
+        let records = workout.records(history: history)
+        // Both sets beat the weight at the time they were ticked; the list keeps the final one.
+        #expect(records.setIDs.count == 2)
+        #expect(records.records.map(\.metric) == [.weight, .volume])
+        #expect(records.records[0].set == PlannedSet(reps: 5, weightKg: 100))
+        #expect(records.records[1].volumeKg == 975)
+    }
+
+    @Test func repRecordShowsTheMostReps() {
+        // Best ever 100 × 1; now 90 × 8 beats 3, 5 and 8 reps but not the weight, and the volume (720 > 700).
+        let history = [bench: [[PlannedSet(reps: 1, weightKg: 100), PlannedSet(reps: 10, weightKg: 60)]]]
+        let records = workout([bench: [PlannedSet(reps: 8, weightKg: 90)]]).records(history: history)
+        #expect(records.records.map(\.metric) == [.weightForReps(8), .volume])
+    }
+
+    @Test func bodyweightCountsReps() {
+        let history = [pullUp: [[PlannedSet(reps: 10)]]]
+        let records = workout([pullUp: [PlannedSet(reps: 12)]]).records(history: history)
+        #expect(records.records.map(\.metric) == [.reps])
+    }
+}
