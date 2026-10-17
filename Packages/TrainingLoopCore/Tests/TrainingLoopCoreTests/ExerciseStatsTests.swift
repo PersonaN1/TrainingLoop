@@ -18,12 +18,20 @@ struct ExerciseStatsTests {
     @Test func pointsFollowTheDatesAndMarkRecords() {
         let weight = bench.points(.bestWeight)
         #expect(weight.map(\.value) == [70, 70, 80])
-        // The first workout sets no records; day 2 matches the weight, day 3 beats it.
+        // Only the peak is the record.
         #expect(weight.map(\.isRecord) == [false, false, true])
 
         let volume = bench.points(.volume)
         #expect(volume.map(\.value) == [950, 700, 660])
-        #expect(volume.map(\.isRecord) == [false, false, false])
+        #expect(volume.map(\.isRecord) == [true, false, false])
+    }
+
+    @Test func onlyThePeakIsARecordAfterADip() {
+        // Progress, peak, dip, progress again: one record, the earliest of equal peaks.
+        let stats = ExerciseStats(sessions: [60, 70, 80, 65, 75, 80].enumerated().map { day, kg in
+            .init(date: self.day(day), sets: [set(kg, 5)])
+        })
+        #expect(stats.points(.bestWeight).map(\.isRecord) == [false, false, true, false, false, false])
     }
 
     @Test func tilesComeFromRealSets() {

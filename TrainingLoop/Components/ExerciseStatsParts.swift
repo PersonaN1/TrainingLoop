@@ -4,10 +4,11 @@ import TrainingLoopCore
 
 /// The chart's period (DESIGN V7).
 enum ChartPeriod: CaseIterable, Hashable {
-    case month, threeMonths, year, all
+    case week, month, threeMonths, year, all
 
     var title: String {
         switch self {
+        case .week: String(localized: "chart.period.week", defaultValue: "Week")
         case .month: String(localized: "chart.period.month", defaultValue: "Month")
         case .threeMonths: String(localized: "chart.period.threeMonths", defaultValue: "3 Months")
         case .year: String(localized: "chart.period.year", defaultValue: "Year")
@@ -18,6 +19,7 @@ enum ChartPeriod: CaseIterable, Hashable {
     /// "▲ 7.5 kg over 3 months".
     func change(_ text: String) -> String {
         switch self {
+        case .week: String(localized: "\(text) over a week")
         case .month: String(localized: "\(text) over a month")
         case .threeMonths: String(localized: "\(text) over 3 months")
         case .year: String(localized: "\(text) over a year")
@@ -27,6 +29,7 @@ enum ChartPeriod: CaseIterable, Hashable {
 
     func start(now: Date = .now, calendar: Calendar = .current) -> Date? {
         switch self {
+        case .week: calendar.date(byAdding: .day, value: -7, to: now)
         case .month: calendar.date(byAdding: .month, value: -1, to: now)
         case .threeMonths: calendar.date(byAdding: .month, value: -3, to: now)
         case .year: calendar.date(byAdding: .year, value: -1, to: now)
@@ -61,6 +64,27 @@ extension ExerciseStats.Metric {
         case .volume: HistoryFormat.volume(value, unit: unit)
         case .maxReps, .totalReps: TemplateFormat.reps(Int(value)...Int(value))
         case .maxSeconds: TemplateFormat.duration(Int(value))
+        }
+    }
+
+    /// Reps and seconds: whole marks on the axis.
+    var isCount: Bool {
+        switch self {
+        case .bestWeight, .volume: false
+        case .maxReps, .totalReps, .maxSeconds: true
+        }
+    }
+
+    /// A Y-axis label from a shown value: "50 kg", "2.4 t", "15 reps", "1:30". `tonnes`: every
+    /// volume label in tonnes, so one axis doesn't mix "800 kg" with "1 t".
+    func axisText(_ shown: Double, unit: WeightUnit, tonnes: Bool) -> String {
+        switch self {
+        case .bestWeight: unit.weightText(unit.toKilograms(shown))
+        case .volume where tonnes:
+            String(localized: "\((shown / 1000).formatted(.number.precision(.fractionLength(0...1)))) t")
+        case .volume: HistoryFormat.volume(unit.toKilograms(shown), unit: unit)
+        case .maxReps, .totalReps: TemplateFormat.reps(Int(shown)...Int(shown))
+        case .maxSeconds: TemplateFormat.duration(Int(shown))
         }
     }
 
@@ -119,6 +143,20 @@ struct ExerciseChart: View {
         return all.filter { $0.date >= start }
     }
 
+    /// The last point before the period: the change is counted from it, as "over a month" means
+    /// against a month ago.
+    private var before: ExerciseStats.Point? {
+        guard let start = period.start() else { return nil }
+        return stats.points(metric).last { $0.date < start }
+    }
+
+    /// The whole period up to today, so a month looks like a month even with two workouts in it.
+    private var dates: ClosedRange<Date> {
+        let now = Date.now
+        let start = period.start(now: now) ?? stats.sessions.first?.date ?? now
+        return min(start, now)...now
+    }
+
     /// The point nearest the finger.
     private var selected: ExerciseStats.Point? {
         guard let selectedDate else { return nil }
@@ -173,7 +211,7 @@ struct ExerciseChart: View {
                 .opacity(selected == nil ? 0 : 1)
                 .accessibilityHidden(selected == nil)
                 .overlay(alignment: .topLeading) {
-                    if selected == nil, let first = points.first, points.count > 1,
+                    if selected == nil, let first = before ?? (points.count > 1 ? points.first : nil),
                        let change = metric.changeText(point.value - first.value, unit: unit) {
                         Text(period.change(change))
                             .font(.subheadline.weight(.medium))
@@ -186,7 +224,11 @@ struct ExerciseChart: View {
     }
 
     private func chart(_ points: [ExerciseStats.Point]) -> some View {
-        Chart {
+        let tonnes = metric == .volume && unit == .kg && points.contains { $0.value >= 1000 }
+        // Cups overlap on a crowded chart; the coral points still mark records.
+        let showsCups = points.count <= 12
+        let axis = YAxis(points.map { metric.display($0.value, unit: unit) }, whole: metric.isCount)
+        return Chart {
             ForEach(points, id: \.session) { point in
                 let value = metric.display(point.value, unit: unit)
                 LineMark(x: .value("Date", point.date), y: .value(metric.title, value))
@@ -196,7 +238,7 @@ struct ExerciseChart: View {
                     .foregroundStyle(point.isRecord ? Color.record : Color.accentColor)
                     .symbolSize(point.isRecord ? 70 : 30)
                     .annotation(position: .top, spacing: 2) {
-                        if point.isRecord { Text(verbatim: "🏆").font(.caption2) }
+                        if point.isRecord && showsCups { Text(verbatim: "🏆").font(.caption2) }
                     }
             }
             if let selected {
@@ -218,9 +260,57 @@ struct ExerciseChart: View {
                     })
             }
         }
-        .chartYScale(domain: .automatic(includesZero: false))
+        .chartXScale(domain: dates)
+        .chartYScale(domain: axis.domain)
+        // Values with units on the left, as people read charts; dates under the line.
+        .chartYAxis {
+            AxisMarks(position: .leading, values: axis.marks) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let shown = value.as(Double.self) { Text(metric.axisText(shown, unit: unit, tonnes: tonnes)) }
+                }
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                AxisValueLabel {
+                    if let date = value.as(Date.self) { Text(StatsFormat.date(date)) }
+                }
+            }
+        }
         .frame(height: 200)
         .accessibilityLabel(metric.title)
+    }
+}
+
+/// The Y range and its marks, set by hand: Charts draws no axis for a flat line, and counts
+/// shouldn't get "5.5 reps".
+struct YAxis {
+    let domain: ClosedRange<Double>
+    let marks: [Double]
+
+    init(_ values: [Double], whole: Bool) {
+        let low = values.min() ?? 0
+        let high = values.max() ?? 0
+        let span = high - low
+        // A flat line sits in the middle with room around it.
+        let pad = span > 1e-9 ? span * 0.15 : max(whole ? 2 : 1, abs(high) * 0.1)
+        var lower = max(0, low - pad)
+        var upper = high + pad
+        var step = Self.niceStep((upper - lower) / 4)
+        if whole { step = max(1, step.rounded()) }
+        lower = (lower / step).rounded(.down) * step
+        upper = (upper / step).rounded(.up) * step
+        domain = lower...upper
+        marks = Array(stride(from: lower, through: upper + step / 2, by: step))
+    }
+
+    /// 1, 2 or 5 times a power of ten.
+    private static func niceStep(_ raw: Double) -> Double {
+        guard raw > 0 else { return 1 }
+        let magnitude = pow(10, (log10(raw)).rounded(.down))
+        let fraction = raw / magnitude
+        return (fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10) * magnitude
     }
 }
 
