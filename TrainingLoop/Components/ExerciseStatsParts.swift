@@ -132,6 +132,20 @@ struct ExerciseChart: View {
         return all.filter { $0.date >= start }
     }
 
+    /// The last point before the period: the change is counted from it, as "over a month" means
+    /// against a month ago.
+    private var before: ExerciseStats.Point? {
+        guard let start = period.start() else { return nil }
+        return stats.points(metric).last { $0.date < start }
+    }
+
+    /// The whole period up to today, so a month looks like a month even with two workouts in it.
+    private var dates: ClosedRange<Date> {
+        let now = Date.now
+        let start = period.start(now: now) ?? stats.sessions.first?.date ?? now
+        return min(start, now)...now
+    }
+
     /// The point nearest the finger.
     private var selected: ExerciseStats.Point? {
         guard let selectedDate else { return nil }
@@ -186,7 +200,7 @@ struct ExerciseChart: View {
                 .opacity(selected == nil ? 0 : 1)
                 .accessibilityHidden(selected == nil)
                 .overlay(alignment: .topLeading) {
-                    if selected == nil, let first = points.first, points.count > 1,
+                    if selected == nil, let first = before ?? (points.count > 1 ? points.first : nil),
                        let change = metric.changeText(point.value - first.value, unit: unit) {
                         Text(period.change(change))
                             .font(.subheadline.weight(.medium))
@@ -200,6 +214,8 @@ struct ExerciseChart: View {
 
     private func chart(_ points: [ExerciseStats.Point]) -> some View {
         let tonnes = metric == .volume && unit == .kg && points.contains { $0.value >= 1000 }
+        // Cups overlap on a crowded chart; the coral points still mark records.
+        let showsCups = points.count <= 12
         return Chart {
             ForEach(points, id: \.session) { point in
                 let value = metric.display(point.value, unit: unit)
@@ -210,7 +226,7 @@ struct ExerciseChart: View {
                     .foregroundStyle(point.isRecord ? Color.record : Color.accentColor)
                     .symbolSize(point.isRecord ? 70 : 30)
                     .annotation(position: .top, spacing: 2) {
-                        if point.isRecord { Text(verbatim: "🏆").font(.caption2) }
+                        if point.isRecord && showsCups { Text(verbatim: "🏆").font(.caption2) }
                     }
             }
             if let selected {
@@ -232,6 +248,7 @@ struct ExerciseChart: View {
                     })
             }
         }
+        .chartXScale(domain: dates)
         .chartYScale(domain: .automatic(includesZero: false))
         // Values with units on the left, as people read charts; dates under the line.
         .chartYAxis {
