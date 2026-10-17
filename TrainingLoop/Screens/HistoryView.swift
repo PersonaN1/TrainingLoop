@@ -45,6 +45,10 @@ struct HistoryView: View {
             }
             .toolbar {
                 if !editMode.isEditing && mode == .records {
+                    // iOS 26+ merges neighbouring items into one glass capsule; keep Export apart from Select.
+                    if #available(iOS 26, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
                     // Workouts over a period as text (D12).
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Export Workouts", systemImage: "square.and.arrow.up") { exporting = true }
@@ -71,7 +75,10 @@ struct HistoryView: View {
                 editMode: $editMode, selection: $selection,
                 allIDs: mode == .records ? workouts.map(\.persistentModelID) : [],
                 confirmationTitle: { Text("Delete \($0) workouts?") },
-                delete: { ids in context.deleteWorkouts(workouts.filter { ids.contains($0.persistentModelID) }) }
+                delete: { ids in context.deleteWorkouts(workouts.filter { ids.contains($0.persistentModelID) }) },
+                share: { [container = context.container, unit = settings.weightUnit] ids in
+                    DeferredText.workouts(ids, container: container, unit: unit)
+                }
             )
         }
     }

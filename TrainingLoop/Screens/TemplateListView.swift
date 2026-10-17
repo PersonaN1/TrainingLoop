@@ -15,6 +15,8 @@ struct TemplateListView: View {
     @State private var pendingDelete: PersistentIdentifier?
     @State private var editor: TemplateEditorTarget?
     @State private var limitReached = false
+    /// How far "Start Free Workout" sits below the title (DESIGN V5).
+    private static let freeWorkoutShift: CGFloat = 10
 
     var body: some View {
         // Once for all cards: it indexes every exercise.
@@ -26,6 +28,8 @@ struct TemplateListView: View {
                         Button("Start Free Workout", systemImage: "play.fill") { workouts.startFree() }
                             .fontWeight(.semibold)
                     }
+                    // Midway between the title and the templates: the shift below comes off this gap.
+                    .listSectionSpacing(Self.freeWorkoutShift + 14)
                 }
                 // Rows are tagged by persistent ID to match the selection (the model's own `id` is a UUID).
                 ForEach(templates, id: \.persistentModelID) { template in
@@ -67,6 +71,7 @@ struct TemplateListView: View {
                 .onMove(perform: move)
             }
             .listRowSpacing(12)
+            .contentMargins(.top, editMode.isEditing ? 0 : Self.freeWorkoutShift, for: .scrollContent)
             .overlay {
                 if templates.isEmpty {
                     ContentUnavailableView {

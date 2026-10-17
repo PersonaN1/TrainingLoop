@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 import TrainingLoopCore
 
@@ -36,6 +37,26 @@ struct ShareTextButton: View {
     var body: some View {
         ShareLink(item: text) {
             Label("Share", systemImage: "square.and.arrow.up")
+        }
+    }
+}
+
+/// Text made only when the share sheet asks for it: a selection may hold thousands of workouts,
+/// and building their text on every tap would hold up the list.
+struct DeferredText: Transferable, Sendable {
+    let make: @MainActor @Sendable () -> String
+
+    static var transferRepresentation: some TransferRepresentation {
+        ProxyRepresentation { (item: DeferredText) in await item.make() }
+    }
+
+    /// Chosen History workouts as one text, oldest first (SPEC D12).
+    static func workouts(_ ids: Set<PersistentIdentifier>, container: ModelContainer, unit: WeightUnit) -> DeferredText {
+        DeferredText {
+            let context = container.mainContext
+            let workouts = ids.compactMap { context.model(for: $0) as? Workout }.filter { !$0.isDeleted }
+            let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+            return TextExport(exercises: exercises, unit: unit).period(workouts.map(\.exported), interval: nil)
         }
     }
 }
