@@ -71,6 +71,8 @@ struct TemplatePreviewView: View {
                     Button("Duplicate", systemImage: "plus.square.on.square") {
                         if !context.duplicate(template) { limitReached = true }
                     }
+                    ShareTextButton(text: TextExport(exercises: allExercises, unit: settings.weightUnit)
+                        .template(name: template.name, definition: definition))
                     Button("Delete", systemImage: "trash", role: .destructive) { confirmingDelete = true }
                 } label: {
                     Label("More", systemImage: "ellipsis")

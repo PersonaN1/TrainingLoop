@@ -568,6 +568,16 @@
         }
       }
     },
+    "All Time" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всё"
+          }
+        }
+      }
+    },
     "An estimate of the most weight you could lift once, made from a set of several reps." : {
       "localizations" : {
         "ru" : {
@@ -909,6 +919,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дата"
+          }
+        }
+      }
+    },
+    "Dates" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Даты"
           }
         }
       }
@@ -1357,6 +1377,26 @@
         }
       }
     },
+    "Exercises, sets, supersets and totals as plain text: for a coach, a chat or notes." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упражнения, подходы, суперсеты и итоги обычным текстом — для тренера, чата или заметок."
+          }
+        }
+      }
+    },
+    "Export Workouts" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выгрузить тренировки"
+          }
+        }
+      }
+    },
     "Filter" : {
       "localizations" : {
         "ru" : {
@@ -1433,6 +1473,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Свободная тренировка"
+          }
+        }
+      }
+    },
+    "From" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С"
           }
         }
       }
@@ -2574,6 +2624,16 @@
         }
       }
     },
+    "Share" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться"
+          }
+        }
+      }
+    },
     "Shoulders" : {
       "localizations" : {
         "ru" : {
@@ -2976,6 +3036,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Время"
+          }
+        }
+      }
+    },
+    "To" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По"
           }
         }
       }

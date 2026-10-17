@@ -80,6 +80,8 @@ struct WorkoutRecordView: View {
                         workouts.repeatWorkout(workout, context: context)
                     }
                     .disabled(workouts.workout != nil)
+                    ShareTextButton(text: TextExport(exercises: allExercises, unit: settings.weightUnit)
+                        .workout(workout.exported))
                     Button("Delete", systemImage: "trash", role: .destructive) { confirmingDelete = true }
                 } label: {
                     Label("More", systemImage: "ellipsis")
