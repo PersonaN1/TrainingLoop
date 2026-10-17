@@ -31,10 +31,17 @@ jobs:
           xcodebuild test
           -scheme TrainingLoopCore
           -destination 'platform=macOS'
-      - name: Build app
-        run: >
-          xcodebuild build
-          -project TrainingLoop.xcodeproj
-          -scheme TrainingLoop
-          -destination 'generic/platform=iOS Simulator'
-          CODE_SIGNING_ALLOWED=NO
+      # Builds the app and runs its tests (hosted unit tests + the UI smoke test) on the newest
+      # iPhone simulator the runner has. The full-History benchmark stays off: it needs TL_BENCHMARK.
+      - name: App tests
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          runtimes = sorted((k for k in devices if ".iOS-" in k), key=lambda k: [int(p) for p in k.split(".iOS-")[1].split("-")], reverse=True)
+          print(next(d["udid"] for k in runtimes for d in devices[k] if d["name"].startswith("iPhone")))')
+          xcodebuild test \
+            -project TrainingLoop.xcodeproj \
+            -scheme TrainingLoop \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            CODE_SIGNING_ALLOWED=NO
