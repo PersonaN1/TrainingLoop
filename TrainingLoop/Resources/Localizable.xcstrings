@@ -32,6 +32,50 @@
         }
       }
     },
+    "%@ over 3 months" : {
+      "comment" : "Change on the exercise chart, e.g. ▲ 7.5 kg over 3 months",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ за 3 мес"
+          }
+        }
+      }
+    },
+    "%@ over a month" : {
+      "comment" : "Change on the exercise chart",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ за месяц"
+          }
+        }
+      }
+    },
+    "%@ over a year" : {
+      "comment" : "Change on the exercise chart",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ за год"
+          }
+        }
+      }
+    },
+    "%@ overall" : {
+      "comment" : "Change on the exercise chart",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ за всё время"
+          }
+        }
+      }
+    },
     "%@ reps" : {
       "localizations" : {
         "ru" : {
@@ -414,6 +458,16 @@
         }
       }
     },
+    "About Estimated 1RM" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "О расчётном 1ПМ"
+          }
+        }
+      }
+    },
     "Abs" : {
       "localizations" : {
         "ru" : {
@@ -504,6 +558,16 @@
         }
       }
     },
+    "An estimate of the most weight you could lift once, made from a set of several reps." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка веса, который вы подняли бы один раз, по подходу из нескольких повторов."
+          }
+        }
+      }
+    },
     "An exercise with this name already exists." : {
       "localizations" : {
         "ru" : {
@@ -584,6 +648,26 @@
         }
       }
     },
+    "Best Weight" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лучший вес"
+          }
+        }
+      }
+    },
+    "Best Weight for Reps" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лучший вес на повторы"
+          }
+        }
+      }
+    },
     "Biceps" : {
       "localizations" : {
         "ru" : {
@@ -654,6 +738,84 @@
         }
       }
     },
+    "Chart" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "График"
+          }
+        }
+      }
+    },
+    "chart.period.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всё"
+          }
+        }
+      }
+    },
+    "chart.period.month" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Month"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мес"
+          }
+        }
+      }
+    },
+    "chart.period.threeMonths" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 Months"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 мес"
+          }
+        }
+      }
+    },
+    "chart.period.year" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Year"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Год"
+          }
+        }
+      }
+    },
     "Chest" : {
       "localizations" : {
         "ru" : {
@@ -710,6 +872,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тёмная"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дата"
           }
         }
       }
@@ -1068,12 +1240,42 @@
         }
       }
     },
+    "Epley formula: weight × (1 + reps ÷ 30). For example, 100 × 5 gives ≈ 117." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Формула Эпли: вес × (1 + повторы ÷ 30). Например, 100 × 5 даёт ≈ 117."
+          }
+        }
+      }
+    },
     "Equipment" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оборудование"
+          }
+        }
+      }
+    },
+    "Est. 1RM" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расч. 1ПМ"
+          }
+        }
+      }
+    },
+    "Estimated 1RM" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расчётный 1ПМ"
           }
         }
       }
@@ -1355,6 +1557,16 @@
         }
       }
     },
+    "It's a forecast, not a lifted weight, so it never counts as a record." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это прогноз, а не поднятый вес, поэтому рекордом он не считается."
+          }
+        }
+      }
+    },
     "It's used in your history or templates, so it moves to the archive. You can restore it in Settings." : {
       "localizations" : {
         "ru" : {
@@ -1521,6 +1733,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отметить подход"
+          }
+        }
+      }
+    },
+    "Max Reps" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Макс. повторов"
+          }
+        }
+      }
+    },
+    "Max Time" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Макс. время"
           }
         }
       }
@@ -1755,6 +1987,16 @@
         }
       }
     },
+    "No workouts in this period" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За этот период тренировок нет"
+          }
+        }
+      }
+    },
     "No Workouts Yet" : {
       "localizations" : {
         "ru" : {
@@ -1901,6 +2143,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Период"
+          }
+        }
+      }
+    },
+    "Personal Records" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рекорды"
           }
         }
       }
@@ -2265,6 +2517,16 @@
         }
       }
     },
+    "Sets of more than 12 reps aren't counted. A real single is under 1 rep in Best Weight for Reps." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подходы больше 12 повторов не учитываются. Реальный 1 повтор — в «Лучшем весе на повторы», строка «1 повт»."
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "ru" : {
@@ -2321,6 +2583,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Во время звонка сигналы не воспроизводятся."
+          }
+        }
+      }
+    },
+    "since %@" : {
+      "comment" : "Under the workout count on the exercise screen: since 9 Aug",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "с %@"
           }
         }
       }
@@ -2680,6 +2953,16 @@
         }
       }
     },
+    "Total Reps" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сумма повторов"
+          }
+        }
+      }
+    },
     "Traps" : {
       "localizations" : {
         "ru" : {
@@ -2886,6 +3169,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тренировка"
+          }
+        }
+      }
+    },
+    "Workout Volume" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тоннаж за тренировку"
           }
         }
       }

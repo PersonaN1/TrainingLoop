@@ -77,4 +77,13 @@ struct PersonalRecordsTests {
         #expect(PersonalBests.records(of: [early, late]).map(\.lines.count) == [0, 1])
         #expect(PersonalBests.records(of: [late, early]).map(\.lines.count) == [0, 0])
     }
+
+    @Test func firstWorkoutSetsNoRecordsEvenWhenItsSetsImprove() {
+        let first = [PlannedSet(reps: 10, weightKg: 60), PlannedSet(reps: 5, weightKg: 70)]
+        let second = [PlannedSet(reps: 3, weightKg: 75), PlannedSet(reps: 8, weightKg: 65)]
+        let records = PersonalBests.records(of: [first, second])
+        #expect(records[0].isEmpty)
+        // 65 × 8 is the first set with 8 reps at more than 60: it beats weight for 8 reps.
+        #expect(records[1].lines.map(\.metric) == [.weight, .weightForReps(8)])
+    }
 }

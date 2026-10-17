@@ -93,9 +93,10 @@ extension Workout {
     }
 }
 
-/// Workouts saved before records were counted in History get their counts once.
+/// Workouts saved before records were counted in History get their counts once; the key changes
+/// when the counting rules do.
 enum RecordCounts {
-    private static let key = "recordsCounted"
+    private static let key = "recordsCounted.2"
 
     @MainActor
     static func countOnce(_ context: ModelContext) {
@@ -130,26 +131,33 @@ extension ModelContext {
     /// added, changed or deleted moves the records of the ones after it. Call once the change is saved.
     func refreshRecords(of exerciseIDs: some Sequence<UUID>) {
         for id in Set(exerciseIDs) {
-            let descriptor = FetchDescriptor<WorkoutEntry>(predicate: #Predicate { $0.exerciseID == id })
-            guard let entries = try? fetch(descriptor) else { continue }
-            var byWorkout: [PersistentIdentifier: (startedAt: Date, entries: [WorkoutEntry])] = [:]
-            for entry in entries {
-                guard let workout = entry.workout, !workout.isActive else { continue }
-                byWorkout[workout.persistentModelID, default: (workout.startedAt, [])].entries.append(entry)
-            }
-            let workouts = byWorkout.values.sorted { $0.startedAt < $1.startedAt }
-                .map { $0.entries.sorted { $0.order < $1.order } }
-            let records = PersonalBests.records(of: workouts.map { entries in
-                entries.flatMap { ($0.sets ?? []).sorted { $0.order < $1.order }.map(\.planned) }
-            })
-            for (entries, records) in zip(workouts, records) {
-                for (index, entry) in entries.enumerated() {
+            let workouts = exerciseWorkouts(id)
+            let records = PersonalBests.records(of: workouts.map(\.sets))
+            for (workout, records) in zip(workouts, records) {
+                for (index, entry) in workout.entries.enumerated() {
                     let count = index == 0 ? records.lines.count : 0
                     if entry.recordCount != count { entry.recordCount = count }
                 }
             }
         }
         if hasChanges { saveOrReport() }
+    }
+
+    /// An exercise's finished workouts, oldest first: its entries in each and their sets in order
+    /// (records, D10 statistics).
+    func exerciseWorkouts(_ exerciseID: UUID) -> [(workout: Workout, entries: [WorkoutEntry], sets: [PlannedSet])] {
+        let descriptor = FetchDescriptor<WorkoutEntry>(predicate: #Predicate { $0.exerciseID == exerciseID })
+        guard let entries = try? fetch(descriptor) else { return [] }
+        var byWorkout: [PersistentIdentifier: (workout: Workout, entries: [WorkoutEntry])] = [:]
+        for entry in entries {
+            guard let workout = entry.workout, !workout.isActive else { continue }
+            byWorkout[workout.persistentModelID, default: (workout, [])].entries.append(entry)
+        }
+        return byWorkout.values.sorted { $0.workout.startedAt < $1.workout.startedAt }.map { item in
+            let entries = item.entries.sorted { $0.order < $1.order }
+            let sets = entries.flatMap { ($0.sets ?? []).sorted { $0.order < $1.order }.map(\.planned) }
+            return (item.workout, entries, sets)
+        }
     }
 
     /// A start time no other workout has: an exercise's history tells workouts apart by it (`recordHistory`).

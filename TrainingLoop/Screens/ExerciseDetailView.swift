@@ -2,8 +2,8 @@ import SwiftData
 import SwiftUI
 import TrainingLoopCore
 
-/// An exercise's screen. For now: its description and the catalog actions (SPEC D8);
-/// charts and records (SPEC D10, DESIGN V7) come with the history.
+/// An exercise's screen: chart, records and workouts (SPEC D10, DESIGN V7), its description
+/// and the catalog actions (SPEC D8).
 struct ExerciseDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -11,7 +11,12 @@ struct ExerciseDetailView: View {
     @Environment(WorkoutController.self) private var workouts
     @Query private var allExercises: [Exercise]
     let exercise: Exercise
-    let summary: ExerciseSummary?
+    /// Made from the store each time the screen shows: a workout may have been edited meanwhile.
+    @State private var history: [(workout: Workout, sets: [PlannedSet])] = []
+    @State private var stats = ExerciseStats(sessions: [])
+    @State private var metric: ExerciseStats.Metric = .bestWeight
+    @State private var period: ChartPeriod = .threeMonths
+    @State private var showingEstimateInfo = false
     @State private var editor: ExerciseDraft?
     @State private var editingNote = false
     @State private var confirmingDelete = false
@@ -22,8 +27,57 @@ struct ExerciseDetailView: View {
 
     private enum Removal { case hide, archive, delete }
 
+    private var metrics: [ExerciseStats.Metric] {
+        ExerciseStats.Metric.available(measure: exercise.measure, weighted: exercise.weighted && stats.hasWeight)
+    }
+
     var body: some View {
         List {
+            if stats.workoutCount == 0 {
+                Section {
+                    Text("Not done yet").foregroundStyle(.secondary)
+                }
+            } else {
+                Section {
+                    ExerciseChart(stats: stats, metrics: metrics, equipment: exercise.equipment,
+                                  unit: settings.weightUnit, metric: $metric, period: $period)
+                }
+                Section {
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)],
+                              spacing: 10) {
+                        ForEach(Array(tiles.enumerated()), id: \.offset) { _, tile in tile }
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                } header: {
+                    Text("Personal Records")
+                }
+                let forReps = stats.bestWeightForReps
+                if !forReps.isEmpty {
+                    Section("Best Weight for Reps") {
+                        ForEach(forReps, id: \.reps) { item in
+                            LabeledContent {
+                                VStack(alignment: .trailing) {
+                                    Text(settings.weightUnit.weightText(item.best.value))
+                                        .foregroundStyle(.primary)
+                                    Text(StatsFormat.date(item.best.date)).font(.caption)
+                                }
+                            } label: {
+                                Text(TemplateFormat.reps(item.reps...item.reps))
+                            }
+                            .monospacedDigit()
+                        }
+                    }
+                }
+                Section("Workouts") {
+                    ForEach(history.indices.reversed(), id: \.self) { index in
+                        NavigationLink(value: WorkoutRoute(id: history[index].workout.persistentModelID)) {
+                            workoutRow(index)
+                        }
+                    }
+                }
+            }
+
             Section {
                 LabeledContent("Muscle Group", value: exercise.primaryGroup.title)
                 if !exercise.secondaryGroups.isEmpty {
@@ -35,19 +89,6 @@ struct ExerciseDetailView: View {
                 LabeledContent("With Weight", value: exercise.weighted ? String(localized: "Yes") : String(localized: "No"))
             } header: {
                 if exercise.isCustom { CustomBadge() }
-            }
-
-            Section("History") {
-                let summary = summary ?? ExerciseSummary(sets: [], measure: exercise.measure)
-                if summary.workoutCount == 0 {
-                    Text("Not done yet").foregroundStyle(.secondary)
-                } else {
-                    LabeledContent("Workouts", value: summary.workoutCount.formatted())
-                    if let best = summary.best {
-                        LabeledContent("Best", value: best.text(equipment: exercise.equipment, unit: settings.weightUnit))
-                            .monospacedDigit()
-                    }
-                }
             }
 
             if !exercise.note.isEmpty {
@@ -80,6 +121,15 @@ struct ExerciseDetailView: View {
             }
         }
         .navigationTitle(exercise.name)
+        .navigationDestination(for: WorkoutRoute.self) { route in
+            if let workout = context.model(for: route.id) as? Workout, !workout.isDeleted {
+                ExerciseWorkoutRecord(workout: workout)
+            }
+        }
+        .onAppear(perform: load)
+        .sheet(isPresented: $showingEstimateInfo) {
+            EstimatedMaxInfoView()
+        }
         .toolbar {
             Button(exercise.isCustom ? "Edit" : "Edit Note", systemImage: "pencil") {
                 if exercise.isCustom { editor = ExerciseDraft(editing: exercise) } else { editingNote = true }
@@ -93,6 +143,73 @@ struct ExerciseDetailView: View {
         }
         .exerciseLimitAlert(isPresented: $limitReached)
         .onDisappear(perform: applyRemoval)
+    }
+
+    private func load() {
+        guard !exercise.isDeleted else { return }
+        history = context.exerciseWorkouts(exercise.id).map { ($0.workout, $0.sets) }
+        stats = ExerciseStats(sessions: history.map { .init(date: $0.workout.startedAt, sets: $0.sets) })
+        if !metrics.contains(metric), let first = metrics.first { metric = first }
+    }
+
+    /// Best weight, ≈ 1RM, volume and max reps; without weight max reps; on time max time (V7).
+    private var tiles: [RecordTile] {
+        let unit = settings.weightUnit
+        let equipment = exercise.equipment
+        func caption(_ best: ExerciseStats.Highlight, withSet: Bool = false) -> String {
+            guard withSet, let set = best.set else { return StatsFormat.date(best.date) }
+            return StatsFormat.set(set, equipment: equipment, unit: unit) + " · " + StatsFormat.date(best.date)
+        }
+        var tiles: [RecordTile] = []
+        if let best = stats.bestWeight, let set = best.set {
+            tiles.append(RecordTile(title: String(localized: "Best Weight"),
+                                    value: StatsFormat.set(set, equipment: equipment, unit: unit),
+                                    caption: caption(best)))
+        }
+        if let best = stats.estimatedMax {
+            tiles.append(RecordTile(title: String(localized: "Est. 1RM"), value: "≈ " + unit.weightText(best.value.rounded1()),
+                                    caption: caption(best, withSet: true)) { showingEstimateInfo = true })
+        }
+        if exercise.weighted, let best = stats.bestVolume {
+            tiles.append(RecordTile(title: String(localized: "Workout Volume"),
+                                    value: HistoryFormat.volume(best.value, unit: unit), caption: caption(best)))
+        }
+        if let best = stats.maxReps {
+            tiles.append(RecordTile(title: String(localized: "Max Reps"), value: Int(best.value).formatted(),
+                                    caption: caption(best, withSet: exercise.weighted)))
+        }
+        if let best = stats.maxSeconds {
+            tiles.append(RecordTile(title: String(localized: "Max Time"), value: TemplateFormat.duration(Int(best.value)),
+                                    caption: caption(best)))
+        }
+        tiles.append(RecordTile(title: String(localized: "Workouts"), value: stats.workoutCount.formatted(),
+                                caption: String(localized: "since \(StatsFormat.date(stats.sessions[0].date))")))
+        return tiles
+    }
+
+    private func workoutRow(_ index: Int) -> some View {
+        let item = history[index]
+        return VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(StatsFormat.date(item.workout.startedAt))
+                    .font(.subheadline.weight(.semibold))
+                Text(item.workout.name)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Spacer()
+                let records = stats.records[index].lines.count
+                if records > 0 {
+                    Text(verbatim: "🏆 \(records.formatted())")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.recordText)
+                        .accessibilityLabel(String(localized: "\(records) records"))
+                }
+            }
+            Text(StatsFormat.sets(item.sets, equipment: exercise.equipment, unit: settings.weightUnit))
+                .font(.subheadline)
+                .monospacedDigit()
+        }
     }
 
     /// History and statistics stay, so the exercise is archived instead of deleted (SPEC D8).
@@ -125,4 +242,27 @@ struct ExerciseDetailView: View {
         }
         context.saveOrReport()
     }
+}
+
+private struct WorkoutRoute: Hashable {
+    let id: PersistentIdentifier
+}
+
+/// A workout opened from the exercise's list; deleting it goes back to the exercise first.
+private struct ExerciseWorkoutRecord: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
+    let workout: Workout
+
+    var body: some View {
+        WorkoutRecordView(workout: workout) {
+            dismiss()
+            context.deleteWorkouts([workout])
+        }
+    }
+}
+
+private extension Double {
+    /// Estimates read better without hundredths: 93.33 → 93.3.
+    func rounded1() -> Double { (self * 10).rounded() / 10 }
 }
