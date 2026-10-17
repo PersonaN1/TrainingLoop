@@ -32,17 +32,6 @@ public struct ExerciseStats: Sendable {
             }
         }
 
-        /// The record a point of this metric can set; total reps has none.
-        var record: RecordMetric? {
-            switch self {
-            case .bestWeight: .weight
-            case .volume: .volume
-            case .maxReps: .reps
-            case .maxSeconds: .seconds
-            case .totalReps: nil
-            }
-        }
-
         func value(of sets: [PlannedSet]) -> Double? {
             let value: Double? = switch self {
             case .bestWeight: sets.compactMap(\.weightKg).max()
@@ -61,7 +50,8 @@ public struct ExerciseStats: Sendable {
         public var session: Int
         public var date: Date
         public var value: Double
-        /// The workout beat this metric's record (coral with 🏆).
+        /// The all-time best of this metric (coral with 🏆): one point, the earliest of equal ones.
+        /// Records broken along the way stay in History.
         public var isRecord: Bool
     }
 
@@ -91,13 +81,19 @@ public struct ExerciseStats: Sendable {
         sessions.contains { $0.sets.contains { ($0.weightKg ?? 0) > 0 } }
     }
 
-    /// One point per workout that has a value, oldest first.
+    /// One point per workout that has a value, oldest first; the peak is the record.
     public func points(_ metric: Metric) -> [Point] {
-        sessions.indices.compactMap { index in
-            guard let value = metric.value(of: sessions[index].sets) else { return nil }
-            let isRecord = metric.record.map { record in records[index].lines.contains { $0.metric == record } } ?? false
-            return Point(session: index, date: sessions[index].date, value: value, isRecord: isRecord)
+        var points = sessions.indices.compactMap { index in
+            metric.value(of: sessions[index].sets).map {
+                Point(session: index, date: sessions[index].date, value: $0, isRecord: false)
+            }
         }
+        var peak: Int?
+        for index in points.indices where points[index].value > (peak.map { points[$0].value } ?? 0) + 1e-6 {
+            peak = index
+        }
+        if let peak { points[peak].isRecord = true }
+        return points
     }
 
     /// The heaviest real set; of equal weights the one with more reps, then the earliest.
