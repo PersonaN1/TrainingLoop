@@ -11,6 +11,8 @@ struct ExercisesView: View {
     @State private var searchText = ""
     @State private var filter = ExerciseFilter()
     @State private var summaries: [UUID: ExerciseSummary] = [:]
+    /// The store changed since the summaries were made; they are made again when the tab shows.
+    @State private var summariesStale = true
     @State private var editor: ExerciseDraft?
     @State private var limitReached = false
 
@@ -44,8 +46,15 @@ struct ExercisesView: View {
                 ExerciseEditorView(draft: draft)
             }
             .exerciseLimitAlert(isPresented: $limitReached)
-            // Workouts happen in another tab; coming back here picks up their sets.
-            .onAppear { loadSummaries() }
+            // Workouts happen in another tab; coming back here picks up their sets, only when something was saved.
+            .onReceive(NotificationCenter.default.publisher(for: ModelContext.didSave, object: context)) { _ in
+                summariesStale = true
+            }
+            .onAppear {
+                guard summariesStale else { return }
+                summariesStale = false
+                loadSummaries()
+            }
         }
     }
 
@@ -84,7 +93,9 @@ struct ExercisesView: View {
     private func loadSummaries() {
         let sets: [WorkoutSet]
         do {
-            sets = try context.fetch(FetchDescriptor<WorkoutSet>())
+            var descriptor = FetchDescriptor<WorkoutSet>()
+            descriptor.propertiesToFetch = [\.reps, \.seconds, \.weightKg, \.exerciseID, \.workoutStartedAt]
+            sets = try context.fetch(descriptor)
         } catch {
             Persistence.report("Fetching sets failed", error)
             return

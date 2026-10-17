@@ -110,6 +110,11 @@ public struct ActiveWorkout: Codable, Hashable, Sendable {
                               seconds: entered.seconds ?? suggested.seconds,
                               weightKg: entered.weightKg ?? suggested.weightKg)
         }
+
+        /// Ticking needs what the exercise records: reps, or time (D7). Unticking always works.
+        public func canTick(measure: Measure) -> Bool {
+            isDone || (measure == .reps ? value.reps != nil : value.seconds != nil)
+        }
     }
 
     /// The rest countdown: an end time, not a counter, so a frozen app still shows the right time (TECH T6).
@@ -269,14 +274,15 @@ extension ActiveWorkout {
         updateExercise(exercise(at: position).id) { change(&$0.sets[position.set]) }
     }
 
-    /// "+ Set" copies the last row, typed values included (D4).
+    /// "+ Set" copies the last row as shown, suggestions included (D4): the new set has no "Last time"
+    /// of its own to suggest from.
     public mutating func addSet(to exerciseID: UUID) {
         updateExercise(exerciseID) { exercise in
             guard let last = exercise.sets.last else {
                 exercise.sets.append(SetRow(planned: PlannedSet(), previous: nil))
                 return
             }
-            exercise.sets.append(SetRow(planned: last.planned, previous: nil, entered: last.entered))
+            exercise.sets.append(SetRow(planned: last.planned, previous: nil, entered: last.value))
         }
     }
 
@@ -370,14 +376,70 @@ extension ActiveWorkout {
         items = rebuilt
     }
 
-    /// "Replace": another exercise from the catalog with fresh sets; done sets go with the old one.
+    /// "Replace": another exercise from the catalog with fresh sets. Done sets stay with the old exercise
+    /// (D7: ticked sets are saved); the new one then follows it with the sets still to do.
+    /// Planned reps or time carry over; `fitSets` drops them when the measures differ.
     public mutating func replaceExercise(_ id: UUID, with exerciseID: UUID, previous: [PlannedSet]) {
-        updateExercise(id) { exercise in
-            exercise.exerciseID = exerciseID
-            exercise.sets = exercise.sets.enumerated().map { index, set in
-                SetRow(planned: PlannedSet(reps: set.planned.reps, seconds: set.planned.seconds),
-                    previous: index < previous.count ? previous[index] : nil)
+        guard let old = items.flatMap(\.exercises).first(where: { $0.id == id }) else { return }
+        let open = old.sets.filter { !$0.isDone }
+        let done = old.sets.count - open.count
+        let sets = (done == 0 || open.isEmpty ? old.sets : open).enumerated().map { index, set in
+            SetRow(planned: PlannedSet(reps: set.planned.reps, seconds: set.planned.seconds),
+                   previous: index < previous.count ? previous[index] : nil)
+        }
+        guard done > 0 else {
+            updateExercise(id) { exercise in
+                exercise.exerciseID = exerciseID
+                exercise.sets = sets
             }
+            return
+        }
+        updateExercise(id) { $0.sets.removeAll { !$0.isDone } }
+        insert(Exercise(exerciseID: exerciseID, restSeconds: old.restSeconds, sets: sets), after: id)
+    }
+
+    /// Puts `exercise` right after the one with `id`, in its superset if it has one.
+    private mutating func insert(_ exercise: Exercise, after id: UUID) {
+        for index in items.indices {
+            switch items[index] {
+            case .exercise(let other) where other.id == id:
+                items.insert(.exercise(exercise), at: index + 1)
+                return
+            case .superset(var superset):
+                guard let inner = superset.exercises.firstIndex(where: { $0.id == id }) else { continue }
+                superset.exercises.insert(exercise, at: inner + 1)
+                items[index] = .superset(superset)
+                return
+            default:
+                continue
+            }
+        }
+    }
+
+    /// Drops the values an exercise doesn't record (D2) from its sets: reps or time of the other measure
+    /// (after "Replace"), a weight when "With Weight" is off (from the template or last time).
+    /// `kind` gives an exercise's measure and weighting; an unknown exercise is left as it is.
+    public mutating func fitSets(_ kind: (UUID) -> (measure: Measure, weighted: Bool)?) {
+        for index in items.indices {
+            var item = items[index]
+            switch item {
+            case .exercise(var exercise):
+                Self.fit(&exercise, kind)
+                item = .exercise(exercise)
+            case .superset(var superset):
+                for inner in superset.exercises.indices { Self.fit(&superset.exercises[inner], kind) }
+                item = .superset(superset)
+            }
+            items[index] = item
+        }
+    }
+
+    private static func fit(_ exercise: inout Exercise, _ kind: (UUID) -> (measure: Measure, weighted: Bool)?) {
+        guard let kind = kind(exercise.exerciseID) else { return }
+        for index in exercise.sets.indices {
+            exercise.sets[index].planned = exercise.sets[index].planned.fitted(measure: kind.measure, weighted: kind.weighted)
+            exercise.sets[index].previous = exercise.sets[index].previous?.fitted(measure: kind.measure, weighted: kind.weighted)
+            exercise.sets[index].entered = exercise.sets[index].entered.fitted(measure: kind.measure, weighted: kind.weighted)
         }
     }
 }

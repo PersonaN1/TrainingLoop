@@ -17,6 +17,8 @@ struct TemplateListView: View {
     @State private var limitReached = false
 
     var body: some View {
+        // Once for all cards: it indexes every exercise.
+        let lookup = ExerciseLookup(allExercises)
         NavigationStack {
             List(selection: $selection) {
                 if !editMode.isEditing {
@@ -28,7 +30,7 @@ struct TemplateListView: View {
                 // Rows are tagged by persistent ID to match the selection (the model's own `id` is a UUID).
                 ForEach(templates, id: \.persistentModelID) { template in
                     NavigationLink(value: template) {
-                        TemplateCard(template: template, lookup: ExerciseLookup(allExercises)) {
+                        TemplateCard(template: template, lookup: lookup, showsStart: !editMode.isEditing) {
                             workouts.start(template, context: context)
                         }
                     }
@@ -125,6 +127,8 @@ struct TemplateListView: View {
 private struct TemplateCard: View {
     let template: Template
     let lookup: ExerciseLookup
+    /// Hidden while selecting, so a tap meant for the selection doesn't start a workout.
+    let showsStart: Bool
     let start: () -> Void
     private static let maxRows = 6
 
@@ -135,15 +139,17 @@ private struct TemplateCard: View {
                 Text(template.name).font(.headline)
                 Spacer()
                 // ▶ starts at once; a tap elsewhere opens the preview (DESIGN V5).
-                Button(action: start) {
-                    Image(systemName: "play.fill")
-                        .font(.footnote)
-                        .foregroundStyle(.white)
-                        .frame(width: 32, height: 32)
-                        .background(Color.accentColor, in: .circle)
+                if showsStart {
+                    Button(action: start) {
+                        Image(systemName: "play.fill")
+                            .font(.footnote)
+                            .foregroundStyle(.white)
+                            .frame(width: 32, height: 32)
+                            .background(Color.accentColor, in: .circle)
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel("Start")
                 }
-                .buttonStyle(.borderless)
-                .accessibilityLabel("Start")
             }
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(visibleGroups(definition), id: \.id) { group in

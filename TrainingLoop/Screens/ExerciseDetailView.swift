@@ -8,6 +8,7 @@ struct ExerciseDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @Environment(AppSettings.self) private var settings
+    @Environment(WorkoutController.self) private var workouts
     @Query private var allExercises: [Exercise]
     let exercise: Exercise
     let summary: ExerciseSummary?
@@ -95,9 +96,9 @@ struct ExerciseDetailView: View {
     }
 
     /// History and statistics stay, so the exercise is archived instead of deleted (SPEC D8).
-    /// A template that uses it keeps it too.
+    /// A template or the running workout that uses it keeps it too.
     private var keepsRecords: Bool {
-        context.hasHistory(exercise) || context.isInTemplate(exercise)
+        context.hasHistory(exercise) || context.isInTemplate(exercise) || workouts.uses(exercise.id)
     }
 
     private func duplicate() {

@@ -20,6 +20,14 @@ struct PersonalRecordsTests {
         return workout
     }
 
+    @Test func sameVolumeInAnotherOrderIsNoRecord() {
+        // Pound weights: the same sums in another order differ in the last bits.
+        let sets = [45.359237 * 1.5, 45.359237 * 2.25, 45.359237 * 3.75].map { PlannedSet(reps: 7, weightKg: $0) }
+        var bests = PersonalBests(workouts: [sets.reversed()])
+        let isRecord = bests.addVolume(PersonalBests.volume(of: sets))
+        #expect(!isRecord)
+    }
+
     @Test func firstTimeSetsNoRecords() {
         let records = workout([bench: [PlannedSet(reps: 5, weightKg: 100)]]).records(history: [:])
         #expect(records.setIDs.isEmpty)

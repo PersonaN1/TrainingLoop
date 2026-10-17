@@ -16,8 +16,12 @@ struct HistorySummaryView<Header: View>: View {
     var body: some View {
         let now = Date.now
         let groups = Dictionary(exercises.map { ($0.id, $0.primaryGroup) }, uniquingKeysWith: { first, _ in first })
-        let summary = HistorySummary(workouts: workouts.map { $0.facts(groups: groups) }, period: period,
-                                     now: now, calendar: calendar)
+        // Sets by group only matter in the period: counting them elsewhere would load every set in History.
+        let interval = period.interval(containing: now, calendar: calendar)
+        let facts = workouts.map { workout in
+            workout.facts(groups: interval.start <= workout.startedAt && workout.startedAt < interval.end ? groups : nil)
+        }
+        let summary = HistorySummary(workouts: facts, period: period, now: now, calendar: calendar)
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 header

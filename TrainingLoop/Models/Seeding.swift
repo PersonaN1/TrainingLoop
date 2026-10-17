@@ -3,7 +3,8 @@ import SwiftData
 import TrainingLoopCore
 
 /// Creates the built-in exercises missing from the store, by key (TECH T2): runs on every launch,
-/// so built-in exercises added in an update appear without a migration.
+/// so built-in exercises added in an update appear without a migration. A built-in exercise the update
+/// corrected (group, equipment, weighting) takes the catalog's values; its type only while it has no history.
 enum BuiltinSeeder {
     @MainActor
     static func addMissing(_ context: ModelContext) {
@@ -15,9 +16,18 @@ enum BuiltinSeeder {
             Persistence.report("Fetching built-in exercises failed", error)
             return
         }
-        let present = Set(stored.compactMap(\.builtinKey))
-        for builtin in BuiltinExercises.all where !present.contains(builtin.key) {
-            context.insert(Exercise(builtin: builtin))
+        let present = Dictionary(stored.compactMap { exercise in exercise.builtinKey.map { ($0, exercise) } },
+                                 uniquingKeysWith: { first, _ in first })
+        for builtin in BuiltinExercises.all {
+            guard let exercise = present[builtin.key] else {
+                context.insert(Exercise(builtin: builtin))
+                continue
+            }
+            // Assigned only when different: an unchanged row stays clean and nothing is saved.
+            if exercise.primaryGroup != builtin.primaryGroup { exercise.primaryGroup = builtin.primaryGroup }
+            if exercise.equipment != builtin.equipment { exercise.equipment = builtin.equipment }
+            if exercise.weighted != builtin.weighted { exercise.weighted = builtin.weighted }
+            if exercise.measure != builtin.measure, !context.hasHistory(exercise) { exercise.measure = builtin.measure }
         }
         if context.hasChanges { context.saveOrReport() }
     }

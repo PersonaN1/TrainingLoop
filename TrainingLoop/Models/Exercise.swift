@@ -80,18 +80,28 @@ final class Exercise {
 }
 
 extension ModelContext {
-    /// Whether the exercise appears in any workout, finished or running (SPEC D8): such an exercise
-    /// keeps its type and goes to the archive instead of being deleted.
+    /// Whether the exercise appears in a finished workout (SPEC D8): such an exercise keeps its type and
+    /// goes to the archive instead of being deleted. The running workout is asked separately
+    /// (`WorkoutController.uses`): it lives in a file, not in the store.
+    /// When the store can't tell, the answer is yes: nothing gets deleted by mistake.
     func hasHistory(_ exercise: Exercise) -> Bool {
         let id = exercise.id
         let descriptor = FetchDescriptor<WorkoutEntry>(predicate: #Predicate { $0.exerciseID == id })
-        return ((try? fetchCount(descriptor)) ?? 0) > 0
+        do {
+            return try fetchCount(descriptor) > 0
+        } catch {
+            Persistence.logger.error("Counting an exercise's history failed: \(String(describing: error), privacy: .public)")
+            return true
+        }
     }
 
-    /// Exercises with a recorded weight: only these have a "last time's weight" to fill in (SPEC D7).
-    func exerciseIDsWithWeightHistory() -> Set<UUID> {
-        let descriptor = FetchDescriptor<WorkoutSet>(predicate: #Predicate { $0.weightKg != nil })
-        return Set(((try? fetch(descriptor)) ?? []).map(\.exerciseID))
+    /// Which of these exercises have a recorded weight: only those have a "last time's weight" to fill in
+    /// (SPEC D7). Counted per exercise, so no set is loaded.
+    func exerciseIDsWithWeightHistory(among ids: some Sequence<UUID>) -> Set<UUID> {
+        Set(ids.filter { id in
+            let descriptor = FetchDescriptor<WorkoutSet>(predicate: #Predicate { $0.exerciseID == id && $0.weightKg != nil })
+            return ((try? fetchCount(descriptor)) ?? 0) > 0
+        })
     }
 
     /// Whether a template refers to the exercise; deleting it would leave a gap in the template.

@@ -32,11 +32,14 @@ extension Workout {
         totalVolumeKg = sets.reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
     }
 
-    func facts(groups: [UUID: MuscleGroup]) -> WorkoutFacts {
+    /// Without `groups` the sets aren't counted, and none of them is loaded.
+    func facts(groups: [UUID: MuscleGroup]?) -> WorkoutFacts {
         var setsByGroup: [MuscleGroup: Int] = [:]
-        for entry in entries ?? [] {
-            guard let group = groups[entry.exerciseID] else { continue }
-            setsByGroup[group, default: 0] += entry.sets?.count ?? 0
+        if let groups {
+            for entry in entries ?? [] {
+                guard let group = groups[entry.exerciseID] else { continue }
+                setsByGroup[group, default: 0] += entry.sets?.count ?? 0
+            }
         }
         return WorkoutFacts(startedAt: startedAt, durationSeconds: durationSeconds, volumeKg: totalVolumeKg,
                             setsByGroup: setsByGroup)
@@ -58,6 +61,11 @@ extension ModelContext {
         for workout in workouts { delete(workout) }
         // Saved first, so the search below no longer finds them.
         saveOrReport()
+        refreshLastPerformed(of: templateIDs)
+    }
+
+    /// "Last done" on the templates' cards, from the workouts left in History.
+    func refreshLastPerformed(of templateIDs: Set<UUID>) {
         for id in templateIDs {
             var latest = FetchDescriptor<Workout>(predicate: #Predicate { $0.templateID == id && !$0.isActive },
                                                   sortBy: [SortDescriptor(\.startedAt, order: .reverse)])

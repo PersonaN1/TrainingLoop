@@ -72,6 +72,12 @@ struct WorkoutView: View {
                                                 set: { if !$0 { workouts.finishingAt = nil } })) {
                         WorkoutSummaryView()
                     }
+                    // The cover's binding doesn't write back when the rest ends; without this the next rest
+                    // would open full screen by itself.
+                    .onChange(of: workouts.rest == nil) { _, ended in
+                        if ended { restExpanded = false }
+                    }
+                    .forgottenWorkoutAlert(whileOpen: true)
             }
         }
     }
@@ -307,7 +313,7 @@ private struct SetRowView: View {
                 .minimumScaleFactor(0.8)
                 .frame(maxWidth: .infinity, alignment: .leading)
             if weighted {
-                TextField("Weight", value: weightBinding, format: .number.precision(.fractionLength(0...2)),
+                TextField("Weight", value: weightBinding, format: .number.grouping(.never).precision(.fractionLength(0...2)),
                           prompt: Text(row.suggested.weightKg.map { format(weight: $0) } ?? "–"))
                     .keyboardType(.decimalPad)
                     .field(width: Self.fieldWidth)
@@ -346,7 +352,7 @@ private struct SetRowView: View {
 
     /// Without reps or time there is nothing to record.
     private var canTick: Bool {
-        row.isDone || (measure == .reps ? row.value.reps != nil : row.value.seconds != nil)
+        row.canTick(measure: measure)
     }
 
     /// "60 × 8", "× 8", "45 s" or "–".

@@ -172,6 +172,11 @@ struct TemplateEditingTests {
     @Test func uniqueTemplateNames() {
         #expect(TemplateNaming.unique("New Workout", among: ["Legs"]) == "New Workout")
         #expect(TemplateNaming.unique("New Workout", among: ["new workout", "New Workout 2"]) == "New Workout 3")
+        // A full-length name is cut to make room for the number.
+        let long = String(repeating: "a", count: Limits.maxNameLength)
+        let unique = TemplateNaming.unique(long, among: [long])
+        #expect(unique.count == Limits.maxNameLength)
+        #expect(unique.hasSuffix(" 2"))
     }
 
     @Test func weightInputRoundsToQuarterAndCaps() {

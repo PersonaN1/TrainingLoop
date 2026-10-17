@@ -48,6 +48,18 @@ struct HistorySummaryTests {
         #expect(HistorySummary.weekStreak([date(9, 1)], now: now, calendar: calendar) == 0)
     }
 
+    @Test func weekStreakAcrossAClockChangeAtMidnight() {
+        // Chile moves its clocks forward at midnight: the week of 6 September 2026 starts at 01:00.
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "America/Santiago")!
+        calendar.firstWeekday = 1
+        let dates = [(8, 17), (8, 24), (8, 31), (9, 7)].map { month, day in
+            calendar.date(from: DateComponents(year: 2026, month: month, day: day, hour: 12))!
+        }
+        let now = calendar.date(from: DateComponents(year: 2026, month: 9, day: 8, hour: 12))!
+        #expect(HistorySummary.weekStreak(dates, now: now, calendar: calendar) == 4)
+    }
+
     @Test func volumeNeedsWeightAndReps() {
         #expect(WorkoutVolume.of(weightKg: 60, reps: 8) == 480)
         #expect(WorkoutVolume.of(weightKg: nil, reps: 8) == 0)

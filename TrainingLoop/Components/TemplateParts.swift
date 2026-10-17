@@ -9,8 +9,10 @@ enum TemplateFormat {
         Duration.seconds(seconds).formatted(.time(pattern: .minuteSecond))
     }
 
+    /// "8 reps", "1 rep", "8–12 reps".
     static func reps(_ range: ClosedRange<Int>) -> String {
-        String(localized: "\(rangeText(range)) reps")
+        guard range.lowerBound != range.upperBound else { return String(localized: "\(range.lowerBound) reps") }
+        return String(localized: "\(rangeText(range)) reps")
     }
 
     static func rangeText(_ range: ClosedRange<Int>) -> String {
@@ -179,8 +181,9 @@ struct SetSheet: View {
         let time = set.seconds ?? 45
         _minutes = State(initialValue: time / 60)
         _seconds = State(initialValue: time % 60)
+        // No grouping: "1,102.5" would not read back as a number.
         _weightText = State(initialValue: set.weightKg.map {
-            WeightInput.displayValue($0, unit: unit).formatted(.number.precision(.fractionLength(0...2)))
+            WeightInput.displayValue($0, unit: unit).formatted(.number.grouping(.never).precision(.fractionLength(0...2)))
         } ?? "")
     }
 

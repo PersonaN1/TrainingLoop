@@ -104,7 +104,9 @@ struct TemplateEditorView: View {
             }
         }
         .interactiveDismissDisabled(hasChanges)
-        .onAppear { weightHistory = context.exerciseIDsWithWeightHistory() }
+        .task(id: draft.exerciseIDs) {
+            weightHistory = context.exerciseIDsWithWeightHistory(among: Set(draft.exerciseIDs))
+        }
     }
 
     // MARK: Sections
