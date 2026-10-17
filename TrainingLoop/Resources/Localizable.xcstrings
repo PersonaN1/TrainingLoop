@@ -54,6 +54,16 @@
         }
       }
     },
+    "%@ over a week" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ за неделю"
+          }
+        }
+      }
+    },
     "%@ over a year" : {
       "comment" : "Change on the exercise chart",
       "localizations" : {
@@ -795,6 +805,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "3 мес"
+          }
+        }
+      }
+    },
+    "chart.period.week" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Week"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нед"
           }
         }
       }

@@ -4,10 +4,11 @@ import TrainingLoopCore
 
 /// The chart's period (DESIGN V7).
 enum ChartPeriod: CaseIterable, Hashable {
-    case month, threeMonths, year, all
+    case week, month, threeMonths, year, all
 
     var title: String {
         switch self {
+        case .week: String(localized: "chart.period.week", defaultValue: "Week")
         case .month: String(localized: "chart.period.month", defaultValue: "Month")
         case .threeMonths: String(localized: "chart.period.threeMonths", defaultValue: "3 Months")
         case .year: String(localized: "chart.period.year", defaultValue: "Year")
@@ -18,6 +19,7 @@ enum ChartPeriod: CaseIterable, Hashable {
     /// "▲ 7.5 kg over 3 months".
     func change(_ text: String) -> String {
         switch self {
+        case .week: String(localized: "\(text) over a week")
         case .month: String(localized: "\(text) over a month")
         case .threeMonths: String(localized: "\(text) over 3 months")
         case .year: String(localized: "\(text) over a year")
@@ -27,6 +29,7 @@ enum ChartPeriod: CaseIterable, Hashable {
 
     func start(now: Date = .now, calendar: Calendar = .current) -> Date? {
         switch self {
+        case .week: calendar.date(byAdding: .day, value: -7, to: now)
         case .month: calendar.date(byAdding: .month, value: -1, to: now)
         case .threeMonths: calendar.date(byAdding: .month, value: -3, to: now)
         case .year: calendar.date(byAdding: .year, value: -1, to: now)
