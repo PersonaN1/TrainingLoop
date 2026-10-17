@@ -73,7 +73,7 @@
 - Репозиторий https://github.com/PersonaN1/TrainingLoop (публичный), работа в ветках через PR, `main` защищается после появления CI.
 - Bundle ID: `io.github.personan1.trainingloop`, расширение `io.github.personan1.trainingloop.widgets`.
 - App Group в v1 не нужен.
-- Страницы privacy/support — GitHub Pages из `site/` (как SetLoop T7); контакт — решение по Telegram открыто (SPEC).
+- Страницы privacy/support — GitHub Pages из `site/` (как SetLoop T7); контакт — общий @setnewloop и GitHub Issues (SPEC D22).
 
 ### T10. Сборка и язык (как SetLoop T8)
 
