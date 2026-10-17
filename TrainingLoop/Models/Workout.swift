@@ -42,6 +42,9 @@ final class WorkoutEntry {
     var restSeconds: Int = 0
     var restWithinSeconds: Int?
     var restAfterSeconds: Int?
+    /// Records this exercise set in the workout, as on its summary (DESIGN V9); kept by
+    /// `refreshRecords`. An exercise done twice in a workout keeps its count on the first entry.
+    var recordCount: Int = 0
 
     @Relationship(deleteRule: .cascade, inverse: \WorkoutSet.entry)
     var sets: [WorkoutSet]? = []

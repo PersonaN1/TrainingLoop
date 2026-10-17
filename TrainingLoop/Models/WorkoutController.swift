@@ -54,8 +54,21 @@ final class WorkoutController {
     // MARK: Starting
 
     func start(_ template: Template, context: ModelContext) {
-        let definition = template.definition
-        let workout = ActiveWorkout(template: definition, name: template.name, templateID: template.id,
+        start(template.definition, name: template.name, templateID: template.id, context: context)
+    }
+
+    /// "Repeat" from History (D16): the record's exercises and sets as the plan. It keeps its template
+    /// for "Update template" while the template exists.
+    func repeatWorkout(_ record: Workout, context: ModelContext) {
+        let templateID = record.templateID.flatMap { id -> UUID? in
+            let count = (try? context.fetchCount(FetchDescriptor<Template>(predicate: #Predicate { $0.id == id }))) ?? 0
+            return count > 0 ? id : nil
+        }
+        start(record.definition, name: record.name, templateID: templateID, context: context)
+    }
+
+    private func start(_ definition: TemplateDefinition, name: String, templateID: UUID?, context: ModelContext) {
+        let workout = ActiveWorkout(template: definition, name: name, templateID: templateID,
                                     startedAt: .now, previous: context.lastSets(of: definition.exerciseIDs))
         begin(fitted(workout, context: context))
     }
@@ -278,6 +291,8 @@ final class WorkoutController {
         guard let active = workout, active.doneSetCount > 0 else { return }
         let oldest = context.oldestWorkoutIfFull()
         let oldestTemplateID = oldest?.templateID
+        let exerciseIDs = Set(active.items.flatMap(\.exercises).map(\.exerciseID))
+            .union((oldest?.entries ?? []).map(\.exerciseID))
         if let oldest { context.delete(oldest) }
         let record = Workout(name: name, startedAt: active.startedAt, templateID: active.templateID)
         record.isActive = false
@@ -325,6 +340,7 @@ final class WorkoutController {
             throw error
         }
         if let oldestTemplateID { context.refreshLastPerformed(of: [oldestTemplateID]) }
+        context.refreshRecords(of: exerciseIDs)
         end()
         audio.finished()
     }

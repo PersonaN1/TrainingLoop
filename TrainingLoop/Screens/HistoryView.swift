@@ -14,6 +14,7 @@ struct HistoryView: View {
     @State private var selection = Set<PersistentIdentifier>()
     @State private var deleting: PersistentIdentifier?
     @State private var path: [Route] = []
+    @State private var adding = false
 
     private enum Mode: Hashable { case records, summary }
     /// Not a bare id: in a selectable List a link with the selection's type selects instead of opening.
@@ -37,6 +38,22 @@ struct HistoryView: View {
                         context.deleteWorkouts([workout])
                     }
                 }
+            }
+            .toolbar {
+                if !editMode.isEditing && mode == .records {
+                    // iOS 26+ merges neighbouring items into one glass capsule; keep "+" on its own.
+                    if #available(iOS 26, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        // A workout done without the app (D16); never past the History limit.
+                        Button("Add Workout", systemImage: "plus") { adding = true }
+                            .disabled(workouts.count >= Limits.maxWorkouts)
+                    }
+                }
+            }
+            .sheet(isPresented: $adding) {
+                TemplateEditorView(record: nil)
             }
             .selectionToolbar(
                 editMode: $editMode, selection: $selection,
@@ -126,7 +143,18 @@ struct HistoryView: View {
     private func row(_ workout: Workout) -> some View {
         let lookup = ExerciseLookup(allExercises)
         return VStack(alignment: .leading, spacing: 2) {
-            Text(workout.name).font(.headline)
+            HStack(alignment: .firstTextBaseline) {
+                Text(workout.name).font(.headline)
+                Spacer()
+                // Records this workout set (DESIGN V9).
+                if workout.recordCount > 0 {
+                    Text(verbatim: "🏆 \(workout.recordCount.formatted())")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.recordText)
+                        .monospacedDigit()
+                        .accessibilityLabel(Text("\(workout.recordCount) records"))
+                }
+            }
             Text(HistoryFormat.meta(workout, unit: settings.weightUnit))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
