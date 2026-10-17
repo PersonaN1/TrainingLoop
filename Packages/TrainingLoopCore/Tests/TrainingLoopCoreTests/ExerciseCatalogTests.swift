@@ -44,6 +44,13 @@ struct ExerciseFilterTests {
         #expect(!filter.matches(primaryGroup: .chest, equipment: .machine, isCustom: true))
         #expect(!filter.matches(primaryGroup: .back, equipment: .cable, isCustom: true))
     }
+
+    @Test func onlyDoneKeepsExercisesWithWorkouts() {
+        let filter = ExerciseFilter(onlyDone: true)
+        #expect(filter.activeCount == 1)
+        #expect(filter.matches(primaryGroup: .chest, equipment: .barbell, isCustom: false, isDone: true))
+        #expect(!filter.matches(primaryGroup: .chest, equipment: .barbell, isCustom: false, isDone: false))
+    }
 }
 
 struct ExerciseSearchTests {
