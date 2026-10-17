@@ -64,6 +64,19 @@ extension ExerciseStats.Metric {
         }
     }
 
+    /// A Y-axis label from a shown value: "50 kg", "2.4 t", "15 reps", "1:30". `tonnes`: every
+    /// volume label in tonnes, so one axis doesn't mix "800 kg" with "1 t".
+    func axisText(_ shown: Double, unit: WeightUnit, tonnes: Bool) -> String {
+        switch self {
+        case .bestWeight: unit.weightText(unit.toKilograms(shown))
+        case .volume where tonnes:
+            String(localized: "\((shown / 1000).formatted(.number.precision(.fractionLength(0...1)))) t")
+        case .volume: HistoryFormat.volume(unit.toKilograms(shown), unit: unit)
+        case .maxReps, .totalReps: TemplateFormat.reps(Int(shown)...Int(shown))
+        case .maxSeconds: TemplateFormat.duration(Int(shown))
+        }
+    }
+
     /// A change in the chart's value: "7.5 kg", "120 kg", "3 reps", "0:15"; nil when it's none.
     func changeText(_ delta: Double, unit: WeightUnit) -> String? {
         guard abs(delta) > 1e-6 else { return nil }
@@ -186,7 +199,8 @@ struct ExerciseChart: View {
     }
 
     private func chart(_ points: [ExerciseStats.Point]) -> some View {
-        Chart {
+        let tonnes = metric == .volume && unit == .kg && points.contains { $0.value >= 1000 }
+        return Chart {
             ForEach(points, id: \.session) { point in
                 let value = metric.display(point.value, unit: unit)
                 LineMark(x: .value("Date", point.date), y: .value(metric.title, value))
@@ -219,6 +233,22 @@ struct ExerciseChart: View {
             }
         }
         .chartYScale(domain: .automatic(includesZero: false))
+        // Values with units on the left, as people read charts; dates under the line.
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+                AxisGridLine()
+                AxisValueLabel {
+                    if let shown = value.as(Double.self) { Text(metric.axisText(shown, unit: unit, tonnes: tonnes)) }
+                }
+            }
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                AxisValueLabel {
+                    if let date = value.as(Date.self) { Text(StatsFormat.date(date)) }
+                }
+            }
+        }
         .frame(height: 200)
         .accessibilityLabel(metric.title)
     }
