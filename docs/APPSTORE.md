@@ -64,7 +64,7 @@ TrainingLoop — дневник силовых тренировок для iPhon
 • График по каждому упражнению: лучший вес, тоннаж, повторы или время — за неделю, месяц, три месяца, год или всё время.
 • Сводка за неделю, месяц и год: тренировки, время, тоннаж, подходы по группам мышц и серия недель.
 • Забыли записать тренировку — добавьте её задним числом или исправьте прошлую: рекорды и графики пересчитаются.
-• Шаблон, тренировку или все тренировки за период можно отправить текстом — например, тренеру.
+• Можно поделиться тренировкой с кем угодно в виде текста.
 
 УПРАЖНЕНИЯ И НАСТРОЙКИ
 • 53 встроенных упражнения на русском и английском, а также ваши собственные.
@@ -111,7 +111,7 @@ HISTORY AND PROGRESS
 • A chart for every exercise: best weight, volume, reps or time over a week, a month, three months, a year or all time.
 • Weekly, monthly and yearly summaries: workouts, time, volume, sets by muscle group and your week streak.
 • Forgot to log a workout? Add it afterwards or correct a past one — records and charts are recalculated.
-• Send a template, a workout or a whole period as text — to your coach, for example.
+• Share your workouts with anyone as text.
 
 EXERCISES AND SETTINGS
 • 53 built-in exercises in English and Russian, plus your own.
