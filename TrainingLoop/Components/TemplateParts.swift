@@ -27,6 +27,15 @@ enum TemplateFormat {
         return parts.joined(separator: " · ")
     }
 
+    /// "3 exercises · 11 sets · 4,220 kg" under the record editor (D16).
+    static func recordSummary(_ definition: TemplateDefinition, unit: WeightUnit) -> String {
+        let volume = definition.exercises.flatMap(\.sets)
+            .reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
+        return [String(localized: "\(definition.exercises.count) exercises"),
+                String(localized: "\(definition.setCount) sets"),
+                HistoryFormat.volume(volume, unit: unit)].joined(separator: " · ")
+    }
+
     /// "~60 min · 3 days ago" or "~20 min · Not done yet" under a card.
     static func footer(_ definition: TemplateDefinition, lastPerformedAt: Date?) -> String {
         var parts: [String] = []
@@ -100,33 +109,55 @@ struct SupersetRowBackground: View {
     }
 }
 
-/// Minutes and seconds wheels: rest and timed sets (DESIGN V6).
+/// Two wheels: minutes and seconds for rest and timed sets (DESIGN V6), hours and minutes for
+/// a workout's length (SPEC D19).
 struct DurationSheet: View {
+    enum Style {
+        case minutesSeconds, hoursMinutes
+
+        /// Seconds in one step of the left wheel.
+        var large: Int { self == .minutesSeconds ? 60 : 3600 }
+        var small: Int { large / 60 }
+    }
+
     @Environment(\.dismiss) private var dismiss
     let title: String
     let range: ClosedRange<Int>
+    let style: Style
     let save: (Int) -> Void
-    @State private var minutes: Int
-    @State private var seconds: Int
+    @State private var large: Int
+    @State private var small: Int
 
-    init(title: String, seconds: Int, range: ClosedRange<Int>, save: @escaping (Int) -> Void) {
+    init(title: String, seconds: Int, range: ClosedRange<Int>, style: Style = .minutesSeconds,
+         save: @escaping (Int) -> Void) {
         self.title = title
         self.range = range
+        self.style = style
         self.save = save
-        _minutes = State(initialValue: seconds / 60)
-        _seconds = State(initialValue: seconds % 60)
+        _large = State(initialValue: seconds / style.large)
+        _small = State(initialValue: seconds % style.large / style.small)
     }
 
-    private var total: Int { minutes * 60 + seconds }
+    private var total: Int { large * style.large + small * style.small }
 
     var body: some View {
         NavigationStack {
             HStack(spacing: 0) {
-                Picker("Minutes", selection: $minutes) {
-                    ForEach(0...(range.upperBound / 60), id: \.self) { Text(String(localized: "\($0) min")).tag($0) }
-                }
-                Picker("Seconds", selection: $seconds) {
-                    ForEach(0..<60, id: \.self) { Text(String(localized: "\($0) s")).tag($0) }
+                switch style {
+                case .minutesSeconds:
+                    Picker("Minutes", selection: $large) {
+                        ForEach(0...(range.upperBound / 60), id: \.self) { Text(String(localized: "\($0) min")).tag($0) }
+                    }
+                    Picker("Seconds", selection: $small) {
+                        ForEach(0..<60, id: \.self) { Text(String(localized: "\($0) s")).tag($0) }
+                    }
+                case .hoursMinutes:
+                    Picker("Hours", selection: $large) {
+                        ForEach(0...(range.upperBound / 3600), id: \.self) { Text(String(localized: "\($0) h")).tag($0) }
+                    }
+                    Picker("Minutes", selection: $small) {
+                        ForEach(0..<60, id: \.self) { Text(String(localized: "\($0) min")).tag($0) }
+                    }
                 }
             }
             .pickerStyle(.wheel)
@@ -160,6 +191,8 @@ struct SetSheet: View {
     let measure: Measure
     let weighted: Bool
     let lastWeightKnown: Bool
+    /// A set of a finished workout: an empty weight is no weight, not last time's.
+    let isDone: Bool
     let canDelete: Bool
     /// nil deletes the set.
     let save: (PlannedSet?) -> Void
@@ -169,12 +202,14 @@ struct SetSheet: View {
     @State private var weightText: String
     @FocusState private var weightFocused: Bool
 
-    init(number: Int, set: PlannedSet, measure: Measure, weighted: Bool, lastWeightKnown: Bool, unit: WeightUnit,
+    init(number: Int, set: PlannedSet, measure: Measure, weighted: Bool, lastWeightKnown: Bool, isDone: Bool = false,
+         unit: WeightUnit,
          canDelete: Bool, save: @escaping (PlannedSet?) -> Void) {
         self.number = number
         self.measure = measure
         self.weighted = weighted
         self.lastWeightKnown = lastWeightKnown
+        self.isDone = isDone
         self.canDelete = canDelete
         self.save = save
         _reps = State(initialValue: set.reps ?? 10)
@@ -227,7 +262,9 @@ struct SetSheet: View {
                             Text(settings.weightUnit == .kg ? "kg" : "lb").foregroundStyle(.secondary)
                         }
                     } footer: {
-                        Text("Leave empty to use the weight from the previous time.")
+                        if !isDone {
+                            Text("Leave empty to use the weight from the previous time.")
+                        }
                     }
                 }
                 if canDelete {

@@ -101,6 +101,67 @@ public struct WorkoutRecords: Equatable, Sendable {
     public init() {}
 }
 
+/// The records one workout of an exercise set, folded as on the summary screen: "Weight" covers the
+/// set's rep records, and of those only the most reps stays (DESIGN V8).
+public struct ExerciseWorkoutRecords: Equatable, Sendable {
+    public struct Line: Equatable, Sendable {
+        public var metric: RecordMetric
+        /// Index of the set behind it in the workout's sets; nil for volume.
+        public var setIndex: Int?
+        /// The exercise's volume in this workout, for `.volume`.
+        public var volumeKg: Double?
+    }
+
+    /// Sets that beat a record when they were done.
+    public var setIndices: Set<Int> = []
+    public var lines: [Line] = []
+
+    public var isEmpty: Bool { lines.isEmpty }
+}
+
+extension PersonalBests {
+    /// Takes one workout's sets of the exercise in, in the order they were done, and returns its records.
+    public mutating func take(_ sets: [PlannedSet]) -> ExerciseWorkoutRecords {
+        var result = ExerciseWorkoutRecords()
+        // The last set to beat each metric holds it.
+        var holders: [RecordMetric: Int] = [:]
+        var metricOrder: [RecordMetric] = []
+        for (index, set) in sets.enumerated() {
+            let beaten = add(set)
+            if !beaten.isEmpty { result.setIndices.insert(index) }
+            for metric in beaten.sorted(by: { $0.rank < $1.rank }) {
+                if holders[metric] == nil { metricOrder.append(metric) }
+                holders[metric] = index
+            }
+        }
+        let volume = Self.volume(of: sets)
+        let volumeBeaten = addVolume(volume)
+
+        for metric in metricOrder {
+            guard let holder = holders[metric] else { continue }
+            if case .weightForReps(let target) = metric {
+                if holders[.weight] == holder { continue }
+                let more = holders.contains { other, index in
+                    if case .weightForReps(let otherTarget) = other { otherTarget > target && index == holder }
+                    else { false }
+                }
+                if more { continue }
+            }
+            result.lines.append(.init(metric: metric, setIndex: holder))
+        }
+        if volumeBeaten {
+            result.lines.append(.init(metric: .volume, volumeKg: volume))
+        }
+        return result
+    }
+
+    /// Each workout's records, in order: a workout's sets beat the bests of the workouts before it.
+    public static func records(of workouts: [[PlannedSet]]) -> [ExerciseWorkoutRecords] {
+        var bests = PersonalBests()
+        return workouts.map { bests.take($0) }
+    }
+}
+
 extension ActiveWorkout {
     /// `history` holds each exercise's earlier workouts, as in `PersonalBests(workouts:)`.
     public func records(history: [UUID: [[PlannedSet]]]) -> WorkoutRecords {
@@ -113,37 +174,12 @@ extension ActiveWorkout {
                 .flatMap(\.sets)
                 .filter(\.isDone)
                 .sorted { $0.doneAt! < $1.doneAt! }
-            // The last set to beat each metric holds it.
-            var holders: [RecordMetric: SetRow] = [:]
-            var metricOrder: [RecordMetric] = []
-            for set in done {
-                let beaten = bests.add(set.value)
-                if !beaten.isEmpty { result.setIDs.insert(set.id) }
-                for metric in beaten.sorted(by: { $0.rank < $1.rank }) {
-                    if holders[metric] == nil { metricOrder.append(metric) }
-                    holders[metric] = set
-                }
+            let records = bests.take(done.map(\.value))
+            for index in records.setIndices { result.setIDs.insert(done[index].id) }
+            result.records += records.lines.map { line in
+                .init(exerciseID: exerciseID, metric: line.metric, set: line.setIndex.map { done[$0].value },
+                      volumeKg: line.volumeKg)
             }
-            let volume = PersonalBests.volume(of: done.map(\.value))
-            let volumeBeaten = bests.addVolume(volume)
-
-            var lines: [WorkoutRecords.Record] = []
-            for metric in metricOrder {
-                guard let holder = holders[metric] else { continue }
-                if case .weightForReps(let target) = metric {
-                    if holders[.weight]?.id == holder.id { continue }
-                    let more = holders.contains { other, set in
-                        if case .weightForReps(let otherTarget) = other { otherTarget > target && set.id == holder.id }
-                        else { false }
-                    }
-                    if more { continue }
-                }
-                lines.append(.init(exerciseID: exerciseID, metric: metric, set: holder.value))
-            }
-            if volumeBeaten {
-                lines.append(.init(exerciseID: exerciseID, metric: .volume, volumeKg: volume))
-            }
-            result.records += lines
         }
         return result
     }

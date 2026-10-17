@@ -3,6 +3,8 @@ import SwiftUI
 import TrainingLoopCore
 
 /// Template editor sheet (SPEC D3–D5, DESIGN V6): works on a copy, writes only on Done.
+/// The same sheet edits a workout in History or adds one by hand (D16): then it has the start, length
+/// and note, and no rest, and an empty weight means no weight.
 struct TemplateEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -11,10 +13,20 @@ struct TemplateEditorView: View {
 
     /// nil creates a new template.
     let template: Template?
+    /// The record being edited, or nil.
+    let record: Workout?
+    let isRecord: Bool
     private let originalName: String
     private let original: TemplateDefinition
+    private let originalStart: Date
+    private let originalDuration: Int
+    private let originalNote: String
 
     @State private var name: String
+    @State private var startedAt: Date
+    @State private var durationSeconds: Int
+    @State private var note: String
+    @State private var editingDuration = false
     @FocusState private var nameFocused: Bool
     @State private var draft: TemplateDefinition
     @State private var editMode = EditMode.inactive
@@ -27,15 +39,41 @@ struct TemplateEditorView: View {
     @State private var weightHistory = Set<UUID>()
 
     init(template: Template?) {
-        self.template = template
-        let definition = template?.definition ?? TemplateDefinition()
-        originalName = template?.name ?? ""
-        original = definition
-        _name = State(initialValue: originalName)
-        _draft = State(initialValue: definition)
+        self.init(template: template, record: nil, isRecord: false)
     }
 
-    private var hasChanges: Bool { name != originalName || draft != original }
+    /// nil adds a finished workout to History.
+    init(record: Workout?) {
+        self.init(template: nil, record: record, isRecord: true)
+    }
+
+    private init(template: Template?, record: Workout?, isRecord: Bool) {
+        self.template = template
+        self.record = record
+        self.isRecord = isRecord
+        let definition = record?.definition ?? template?.definition ?? TemplateDefinition()
+        originalName = record?.name ?? template?.name ?? ""
+        original = definition
+        // A workout added by hand: an hour that ended at the last full minute.
+        let minute = Date(timeIntervalSinceReferenceDate: (Date.now.timeIntervalSinceReferenceDate / 60).rounded(.down) * 60)
+        originalStart = record?.startedAt ?? minute.addingTimeInterval(-3600)
+        originalDuration = record?.durationSeconds ?? 3600
+        originalNote = record?.note ?? ""
+        _name = State(initialValue: originalName)
+        _draft = State(initialValue: definition)
+        _startedAt = State(initialValue: originalStart)
+        _durationSeconds = State(initialValue: originalDuration)
+        _note = State(initialValue: originalNote)
+    }
+
+    private var hasChanges: Bool {
+        name != originalName || draft != original || startedAt != originalStart
+            || durationSeconds != originalDuration || note != originalNote
+    }
+
+    private var namePrompt: Text {
+        isRecord ? Text(originalName.isEmpty ? String(localized: "Free Workout") : originalName) : Text("New Workout")
+    }
     private var lookup: ExerciseLookup { ExerciseLookup(allExercises) }
 
     var body: some View {
@@ -43,10 +81,13 @@ struct TemplateEditorView: View {
             List(selection: $selection) {
                 Section {
                     // An empty name falls back to "New Workout" on save, as the prompt shows.
-                    TextField("Name", text: $name, prompt: Text("New Workout"))
+                    TextField("Name", text: $name, prompt: namePrompt)
                         .submitLabel(.done)
                         .focused($nameFocused)
                         .nameLimit($name)
+                }
+                if isRecord && !editMode.isEditing {
+                    recordSection
                 }
                 if editMode.isEditing {
                     reorderSection
@@ -57,7 +98,8 @@ struct TemplateEditorView: View {
                 }
                 if draft.items.isEmpty {
                     Section {
-                        Text("Add exercises from the catalog. Sets and rest can be changed for each one.")
+                        Text(isRecord ? "Add the exercises you did, then their sets."
+                                      : "Add exercises from the catalog. Sets and rest can be changed for each one.")
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -91,6 +133,10 @@ struct TemplateEditorView: View {
             .sheet(item: $setEditing) { editing in
                 setSheet(editing)
             }
+            .sheet(isPresented: $editingDuration) {
+                DurationSheet(title: String(localized: "Duration"), seconds: durationSeconds, range: 60...(9 * 3600 + 59 * 60),
+                              style: .hoursMinutes) { durationSeconds = $0 }
+            }
             .sheet(item: $restEditing) { editing in
                 DurationSheet(title: editing.title, seconds: restSeconds(editing.kind), range: 0...600) {
                     setRest(editing.kind, seconds: $0)
@@ -111,6 +157,21 @@ struct TemplateEditorView: View {
 
     // MARK: Sections
 
+    /// When and how long, and the note (D16, D19).
+    private var recordSection: some View {
+        Section {
+            DatePicker("Started", selection: $startedAt, in: ...Date.now)
+            Button { editingDuration = true } label: {
+                LabeledContent("Duration", value: HistoryFormat.duration(durationSeconds))
+                    .monospacedDigit()
+            }
+            .tint(.primary)
+            TextField("Note", text: $note, axis: .vertical)
+                .lineLimit(1...5)
+                .noteLimit($note)
+        }
+    }
+
     @ViewBuilder
     private func itemSection(_ item: TemplateItem) -> some View {
         switch item {
@@ -123,10 +184,12 @@ struct TemplateEditorView: View {
                 ForEach(superset.exercises) { exercise in
                     exerciseRows(exercise, inSuperset: true)
                 }
-                restRow("Rest Within Round", seconds: superset.restWithinSeconds,
-                        editing: RestEditing(kind: .within(superset.id)))
-                restRow("Rest After Round", seconds: superset.restAfterSeconds,
-                        editing: RestEditing(kind: .after(superset.id)))
+                if !isRecord {
+                    restRow("Rest Within Round", seconds: superset.restWithinSeconds,
+                            editing: RestEditing(kind: .within(superset.id)))
+                    restRow("Rest After Round", seconds: superset.restAfterSeconds,
+                            editing: RestEditing(kind: .after(superset.id)))
+                }
             } header: {
                 HStack {
                     Text("Superset")
@@ -176,7 +239,7 @@ struct TemplateEditorView: View {
                 setEditing = SetEditing(exerciseID: item.id, index: index)
             } label: {
                 SetLine(number: index + 1, set: set, weighted: exercise?.weighted ?? (set.weightKg != nil),
-                        lastWeightKnown: weightHistory.contains(item.exerciseID), unit: settings.weightUnit)
+                        lastWeightKnown: lastWeightKnown(item), unit: settings.weightUnit)
             }
             .tint(.primary)
             .deleteDisabled(item.sets.count == 1)
@@ -193,7 +256,7 @@ struct TemplateEditorView: View {
                 exercise.sets.append(exercise.sets.last ?? .default(for: measure(of: exercise)))
             }
         }
-        if !inSuperset {
+        if !inSuperset && !isRecord {
             restRow("Rest", seconds: item.restSeconds, editing: RestEditing(kind: .exercise(item.id)))
         }
     }
@@ -259,7 +322,7 @@ struct TemplateEditorView: View {
                 }
             }
             if !draft.items.isEmpty {
-                Text(TemplateFormat.summary(draft))
+                Text(isRecord ? TemplateFormat.recordSummary(draft, unit: settings.weightUnit) : TemplateFormat.summary(draft))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
@@ -277,7 +340,7 @@ struct TemplateEditorView: View {
             let exercise = lookup[item.exerciseID]
             SetSheet(number: editing.index + 1, set: item.sets[editing.index], measure: measure(of: item),
                      weighted: exercise?.weighted ?? true,
-                     lastWeightKnown: weightHistory.contains(item.exerciseID), unit: settings.weightUnit,
+                     lastWeightKnown: lastWeightKnown(item), isDone: isRecord, unit: settings.weightUnit,
                      canDelete: item.sets.count > 1) { result in
                 draft.updateExercise(item.id) { exercise in
                     guard exercise.sets.indices.contains(editing.index) else { return }
@@ -288,6 +351,11 @@ struct TemplateEditorView: View {
     }
 
     // MARK: Editing
+
+    /// A record's empty weight is no weight; a template's is last time's (D4).
+    private func lastWeightKnown(_ item: TemplateExercise) -> Bool {
+        !isRecord && weightHistory.contains(item.exerciseID)
+    }
 
     private func measure(of item: TemplateExercise) -> Measure {
         lookup[item.exerciseID]?.measure ?? (item.sets.first?.seconds != nil ? .time : .reps)
@@ -361,6 +429,7 @@ struct TemplateEditorView: View {
     }
 
     private func save() {
+        if isRecord { return saveRecord() }
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let finalName: String
         if trimmed.isEmpty {
@@ -379,6 +448,35 @@ struct TemplateEditorView: View {
             context.insert(Template(name: finalName, definition: draft, sortIndex: sortIndex))
         }
         context.saveOrReport()
+        dismiss()
+    }
+
+    /// Writes the record, or adds it to History (D16); records and "last done" follow.
+    private func saveRecord() {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalName = trimmed.isEmpty ? (originalName.isEmpty ? String(localized: "Free Workout") : originalName) : trimmed
+        let workout: Workout
+        if let record {
+            workout = record
+        } else {
+            workout = Workout(name: finalName, startedAt: startedAt)
+            workout.isActive = false
+            context.insert(workout)
+        }
+        workout.name = finalName
+        workout.note = note
+        let start = context.freeStartTime(startedAt, for: workout)
+        let moved = start != workout.startedAt
+        workout.startedAt = start
+        workout.endedAt = start.addingTimeInterval(TimeInterval(durationSeconds))
+        workout.lastActivityAt = workout.endedAt ?? start
+        // Sets repeat the start time, so a moved workout gets them anew too.
+        if record == nil || draft != original || moved {
+            workout.setContents(draft, context: context)
+        }
+        context.saveOrReport()
+        if let templateID = workout.templateID { context.refreshLastPerformed(of: [templateID]) }
+        context.refreshRecords(of: Set(original.exerciseIDs).union(draft.exerciseIDs))
         dismiss()
     }
 }

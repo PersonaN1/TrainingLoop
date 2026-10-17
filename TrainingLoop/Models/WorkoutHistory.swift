@@ -32,6 +32,53 @@ extension Workout {
         totalVolumeKg = sets.reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
     }
 
+    /// "🏆 N" in the history list (DESIGN V9).
+    var recordCount: Int {
+        (entries ?? []).reduce(0) { $0 + $1.recordCount }
+    }
+
+    /// The exercises and sets as a template: what the record editor changes and "Repeat" starts from (D16).
+    var definition: TemplateDefinition {
+        TemplateDefinition(items: entryGroups.map { group in
+            let exercises = group.map { entry in
+                TemplateExercise(exerciseID: entry.exerciseID,
+                                 sets: (entry.sets ?? []).sorted { $0.order < $1.order }.map(\.planned),
+                                 restSeconds: entry.restSeconds)
+            }
+            guard exercises.count > 1, let first = group.first else { return .exercise(exercises[0]) }
+            return .superset(TemplateSuperset(exercises: exercises,
+                                              restWithinSeconds: first.restWithinSeconds ?? 0,
+                                              restAfterSeconds: first.restAfterSeconds ?? first.restSeconds))
+        })
+    }
+
+    /// Replaces the exercises and sets with edited ones (D16) and updates the totals.
+    /// Records are counted afresh by `refreshRecords` once saved.
+    func setContents(_ definition: TemplateDefinition, context: ModelContext) {
+        for entry in entries ?? [] { context.delete(entry) }
+        entries = []
+        let completedAt = endedAt ?? startedAt
+        var order = 0
+        for (group, item) in definition.items.enumerated() {
+            let superset: TemplateSuperset? = if case .superset(let superset) = item { superset } else { nil }
+            for exercise in item.exercises {
+                let entry = WorkoutEntry(exerciseID: exercise.exerciseID, order: order, restSeconds: exercise.restSeconds)
+                entry.supersetGroup = superset == nil ? nil : group
+                entry.restWithinSeconds = superset?.restWithinSeconds
+                entry.restAfterSeconds = superset?.restAfterSeconds
+                entries?.append(entry)
+                for (index, set) in exercise.sets.enumerated() {
+                    let row = WorkoutSet(order: index, reps: set.reps, seconds: set.seconds, weightKg: set.weightKg,
+                                         exerciseID: exercise.exerciseID, workoutStartedAt: startedAt)
+                    row.completedAt = completedAt
+                    entry.sets?.append(row)
+                }
+                order += 1
+            }
+        }
+        updateTotals()
+    }
+
     /// Without `groups` the sets aren't counted, and none of them is loaded.
     func facts(groups: [UUID: MuscleGroup]?) -> WorkoutFacts {
         var setsByGroup: [MuscleGroup: Int] = [:]
@@ -43,6 +90,19 @@ extension Workout {
         }
         return WorkoutFacts(startedAt: startedAt, durationSeconds: durationSeconds, volumeKg: totalVolumeKg,
                             setsByGroup: setsByGroup)
+    }
+}
+
+/// Workouts saved before records were counted in History get their counts once.
+enum RecordCounts {
+    private static let key = "recordsCounted"
+
+    @MainActor
+    static func countOnce(_ context: ModelContext) {
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        let entries = (try? context.fetch(FetchDescriptor<WorkoutEntry>())) ?? []
+        context.refreshRecords(of: entries.map(\.exerciseID))
+        UserDefaults.standard.set(true, forKey: key)
     }
 }
 
@@ -58,10 +118,49 @@ extension ModelContext {
     /// Deletes workouts with their sets, and moves "last done" on their templates' cards back.
     func deleteWorkouts(_ workouts: [Workout]) {
         let templateIDs = Set(workouts.compactMap(\.templateID))
+        let exerciseIDs = Set(workouts.flatMap { ($0.entries ?? []).map(\.exerciseID) })
         for workout in workouts { delete(workout) }
-        // Saved first, so the search below no longer finds them.
+        // Saved first, so the searches below no longer find them.
         saveOrReport()
         refreshLastPerformed(of: templateIDs)
+        refreshRecords(of: exerciseIDs)
+    }
+
+    /// Counts the records of every finished workout with these exercises again (D10, DESIGN V9): a workout
+    /// added, changed or deleted moves the records of the ones after it. Call once the change is saved.
+    func refreshRecords(of exerciseIDs: some Sequence<UUID>) {
+        for id in Set(exerciseIDs) {
+            let descriptor = FetchDescriptor<WorkoutEntry>(predicate: #Predicate { $0.exerciseID == id })
+            guard let entries = try? fetch(descriptor) else { continue }
+            var byWorkout: [PersistentIdentifier: (startedAt: Date, entries: [WorkoutEntry])] = [:]
+            for entry in entries {
+                guard let workout = entry.workout, !workout.isActive else { continue }
+                byWorkout[workout.persistentModelID, default: (workout.startedAt, [])].entries.append(entry)
+            }
+            let workouts = byWorkout.values.sorted { $0.startedAt < $1.startedAt }
+                .map { $0.entries.sorted { $0.order < $1.order } }
+            let records = PersonalBests.records(of: workouts.map { entries in
+                entries.flatMap { ($0.sets ?? []).sorted { $0.order < $1.order }.map(\.planned) }
+            })
+            for (entries, records) in zip(workouts, records) {
+                for (index, entry) in entries.enumerated() {
+                    let count = index == 0 ? records.lines.count : 0
+                    if entry.recordCount != count { entry.recordCount = count }
+                }
+            }
+        }
+        if hasChanges { saveOrReport() }
+    }
+
+    /// A start time no other workout has: an exercise's history tells workouts apart by it (`recordHistory`).
+    func freeStartTime(_ date: Date, for workout: Workout) -> Date {
+        var date = date
+        while true {
+            let start = date
+            let others = (try? fetch(FetchDescriptor<Workout>(predicate: #Predicate { $0.startedAt == start }))) ?? []
+            guard others.contains(where: { $0 !== workout }) else { return date }
+            date = date.addingTimeInterval(1)
+        }
     }
 
     /// "Last done" on the templates' cards, from the workouts left in History.

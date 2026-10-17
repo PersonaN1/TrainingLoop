@@ -36,6 +36,7 @@ enum AppModel {
         BuiltinSeeder.addMissing(container.mainContext)
         ExampleSeeder.seedIfNeeded(container.mainContext)
         DefaultNames.relocalize(container.mainContext)
+        RecordCounts.countOnce(container.mainContext)
         #if DEBUG
         SampleHistory.insertIfRequested(container.mainContext)
         #endif

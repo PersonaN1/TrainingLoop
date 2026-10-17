@@ -2,14 +2,17 @@ import SwiftData
 import SwiftUI
 import TrainingLoopCore
 
-/// A finished workout from History: totals, note, exercises and their sets (SPEC D16, DESIGN V9).
-/// Editing, "Repeat" and sharing come with the workout screen.
+/// A finished workout from History: totals, note, exercises and their sets, editing and "Repeat"
+/// (SPEC D16, DESIGN V9).
 struct WorkoutRecordView: View {
+    @Environment(\.modelContext) private var context
     @Environment(AppSettings.self) private var settings
+    @Environment(WorkoutController.self) private var workouts
     @Query private var allExercises: [Exercise]
     let workout: Workout
     let delete: () -> Void
     @State private var confirmingDelete = false
+    @State private var editing = false
 
     var body: some View {
         // A deleted model must not be read; the screen is about to close anyway.
@@ -28,6 +31,9 @@ struct WorkoutRecordView: View {
                 LabeledContent("Duration", value: HistoryFormat.duration(workout.durationSeconds))
                 LabeledContent("Volume", value: HistoryFormat.volume(workout.totalVolumeKg, unit: settings.weightUnit))
                 LabeledContent("Sets", value: workout.totalSets.formatted())
+                if workout.recordCount > 0 {
+                    LabeledContent("New Records", value: "🏆 \(workout.recordCount.formatted())")
+                }
             }
             .monospacedDigit()
             if !workout.note.isEmpty {
@@ -49,11 +55,31 @@ struct WorkoutRecordView: View {
                     }
                 }
             }
+            Section {
+                Button("Repeat Workout", systemImage: "arrow.clockwise") {
+                    workouts.repeatWorkout(workout, context: context)
+                }
+                .disabled(workouts.workout != nil)
+            } footer: {
+                if workouts.workout != nil {
+                    Text("Finish the current workout to start this one again.")
+                }
+            }
         }
         .navigationTitle(workout.name)
+        .sheet(isPresented: $editing) {
+            TemplateEditorView(record: workout)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
+                Button("Edit", systemImage: "pencil") { editing = true }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button("Repeat Workout", systemImage: "arrow.clockwise") {
+                        workouts.repeatWorkout(workout, context: context)
+                    }
+                    .disabled(workouts.workout != nil)
                     Button("Delete", systemImage: "trash", role: .destructive) { confirmingDelete = true }
                 } label: {
                     Label("More", systemImage: "ellipsis")
