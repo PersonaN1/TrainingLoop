@@ -7,11 +7,12 @@ struct CatalogSection {
     let exercises: [Exercise]
 
     /// Exercises that pass the filter and the search, grouped by primary group in catalog order,
-    /// sorted by name inside a group.
-    static func make(_ exercises: [Exercise], filter: ExerciseFilter, search: String) -> [CatalogSection] {
+    /// sorted by name inside a group. `done`: exercises with a finished workout, for "Only Done".
+    static func make(_ exercises: [Exercise], filter: ExerciseFilter, search: String,
+                     done: Set<UUID> = []) -> [CatalogSection] {
         let visible = exercises.filter { exercise in
             filter.matches(primaryGroup: exercise.primaryGroup, equipment: exercise.equipment,
-                           isCustom: exercise.isCustom)
+                           isCustom: exercise.isCustom, isDone: done.contains(exercise.id))
                 && ExerciseSearch.matches(search, names: exercise.allNames)
         }
         let byGroup = Dictionary(grouping: visible, by: \.primaryGroup)
@@ -23,9 +24,11 @@ struct CatalogSection {
     }
 }
 
-/// "Filter ▾": muscle group, equipment, only custom (DESIGN V10).
+/// "Filter ▾": muscle group, equipment, only custom, only done (DESIGN V10).
 struct ExerciseFilterMenu: View {
     @Binding var filter: ExerciseFilter
+    /// The picker doesn't know the history and has no "Only Done".
+    var offersDone = false
 
     var body: some View {
         Menu {
@@ -45,6 +48,9 @@ struct ExerciseFilterMenu: View {
             .pickerStyle(.menu)
             Divider()
             Toggle("Only Custom", isOn: $filter.onlyCustom)
+            if offersDone {
+                Toggle("Only Done", isOn: $filter.onlyDone)
+            }
         } label: {
             HStack(spacing: 4) {
                 if filter.isActive {
@@ -74,6 +80,9 @@ struct ExerciseFilterChips: View {
                 }
                 if filter.onlyCustom {
                     FilterChip(title: String(localized: "Only Custom")) { filter.onlyCustom = false }
+                }
+                if filter.onlyDone {
+                    FilterChip(title: String(localized: "Only Done")) { filter.onlyDone = false }
                 }
             }
         }

@@ -2107,6 +2107,16 @@
         }
       }
     },
+    "Only Done" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только сделанные"
+          }
+        }
+      }
+    },
     "Opens the rest full screen" : {
       "localizations" : {
         "ru" : {

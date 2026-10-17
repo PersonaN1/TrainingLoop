@@ -37,7 +37,7 @@ struct ExercisesView: View {
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter) }
+                ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter, offersDone: true) }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("New Exercise", systemImage: "plus") { add() }
                 }
@@ -59,7 +59,8 @@ struct ExercisesView: View {
     }
 
     private var sections: [CatalogSection] {
-        CatalogSection.make(exercises, filter: filter, search: searchText)
+        CatalogSection.make(exercises, filter: filter, search: searchText,
+                            done: Set(summaries.filter { $0.value.workoutCount > 0 }.keys))
     }
 
     private func row(_ exercise: Exercise) -> some View {
