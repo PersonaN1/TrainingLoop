@@ -22,13 +22,21 @@ struct TrainingLoopApp: App {
 @MainActor
 enum AppModel {
     static let settings = AppSettings()
-    static let workouts = WorkoutController(settings: settings, context: container.mainContext)
+    static let workouts = WorkoutController(settings: settings, context: container.mainContext, fileURL: workoutFileURL)
+
+    private static var workoutFileURL: URL {
+        #if DEBUG
+        if TestLaunch.isTesting { return TestLaunch.workoutFileURL }
+        #endif
+        return WorkoutController.defaultFileURL
+    }
 
     static let container: ModelContainer = {
         let container: ModelContainer
         do {
             container = try ModelContainer(for: Schema(versionedSchema: SchemaV1.self),
-                                           migrationPlan: TrainingLoopMigrationPlan.self)
+                                           migrationPlan: TrainingLoopMigrationPlan.self,
+                                           configurations: storeConfigurations)
         } catch {
             fatalError("Can't open the store: \(error)")
         }
@@ -42,4 +50,29 @@ enum AppModel {
         #endif
         return container
     }()
+
+    /// None is the default store.
+    private static var storeConfigurations: [ModelConfiguration] {
+        #if DEBUG
+        if TestLaunch.isTesting { return [ModelConfiguration(isStoredInMemoryOnly: true)] }
+        #endif
+        return []
+    }
 }
+
+#if DEBUG
+/// Debug builds only: under tests the app keeps off the simulator's real store and workout in progress.
+/// UI tests launch it with `-UITesting YES` (and settings as launch arguments); unit tests are hosted
+/// by it and make stores of their own.
+enum TestLaunch {
+    static let isTesting = UserDefaults.standard.bool(forKey: "UITesting")
+        || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+
+    /// Removed at launch, so every run starts without a workout.
+    static let workoutFileURL: URL = {
+        let url = URL.temporaryDirectory.appending(path: "test-active-workout.json")
+        try? FileManager.default.removeItem(at: url)
+        return url
+    }()
+}
+#endif

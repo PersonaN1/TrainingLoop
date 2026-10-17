@@ -39,7 +39,31 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B11C71C3438317C87F3FF135"
+               BuildableName = "TrainingLoopTests.xctest"
+               BlueprintName = "TrainingLoopTests"
+               ReferencedContainer = "container:TrainingLoop.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D43863C2E7DFD0ED6DFDD604"
+               BuildableName = "TrainingLoopUITests.xctest"
+               BlueprintName = "TrainingLoopUITests"
+               ReferencedContainer = "container:TrainingLoop.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

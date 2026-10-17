@@ -15,12 +15,26 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		51AC4222569DE26A82D340AD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E2C4872AA1F6955EAB064CA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 048EFA868D2CE61A0D26EC74;
+			remoteInfo = TrainingLoop;
+		};
 		BF5D0DECD6900FC6D181B993 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6E2C4872AA1F6955EAB064CA /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = CE3FFDB7B04B0DB2A86617B5;
 			remoteInfo = TrainingLoopWidgets;
+		};
+		F073FA8D43AD69877DA95A4E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6E2C4872AA1F6955EAB064CA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 048EFA868D2CE61A0D26EC74;
+			remoteInfo = TrainingLoop;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -43,8 +57,10 @@
 		092AF92D26578D4610BD4A09 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		3017288E85108B40B9693AB9 /* TrainingLoop.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TrainingLoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58CAC8BF77D6ECE9BE6EB2FA /* TrainingLoopCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = TrainingLoopCore; path = Packages/TrainingLoopCore; sourceTree = SOURCE_ROOT; };
+		723B41D59E61660363358F48 /* TrainingLoopTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TrainingLoopTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B8BE3149EA0DCDD555C56DF /* TrainingLoopWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = TrainingLoopWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C812D3C90D4B4372DD90DBAC /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
+		C9A17F40C178D94FEE100057 /* TrainingLoopUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TrainingLoopUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -74,6 +90,15 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		78A80FE15CFA99D2ADC3730A /* TrainingLoopUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TrainingLoopUITests;
+			sourceTree = "<group>";
+		};
 		864CBC81407ACDB3465B8972 /* TrainingLoop */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -84,6 +109,15 @@
 			explicitFolders = (
 			);
 			path = TrainingLoop;
+			sourceTree = "<group>";
+		};
+		E31F9EA33B5FD25C063C6B67 /* TrainingLoopTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = TrainingLoopTests;
 			sourceTree = "<group>";
 		};
 		F6BD57EDFB15FC4495332271 /* TrainingLoopWidgets */ = {
@@ -126,6 +160,8 @@
 			isa = PBXGroup;
 			children = (
 				3017288E85108B40B9693AB9 /* TrainingLoop.app */,
+				723B41D59E61660363358F48 /* TrainingLoopTests.xctest */,
+				C9A17F40C178D94FEE100057 /* TrainingLoopUITests.xctest */,
 				9B8BE3149EA0DCDD555C56DF /* TrainingLoopWidgets.appex */,
 			);
 			name = Products;
@@ -138,6 +174,8 @@
 				44AFB57E1A29FE7D60E0ABC8 /* Packages */,
 				179050CCCBCE936E2E9E7F96 /* Shared */,
 				864CBC81407ACDB3465B8972 /* TrainingLoop */,
+				E31F9EA33B5FD25C063C6B67 /* TrainingLoopTests */,
+				78A80FE15CFA99D2ADC3730A /* TrainingLoopUITests */,
 				F6BD57EDFB15FC4495332271 /* TrainingLoopWidgets */,
 				353BC3467FA8EF086B39731F /* Frameworks */,
 				15C74246D43D0120BDF2048C /* Products */,
@@ -198,6 +236,28 @@
 			productReference = 3017288E85108B40B9693AB9 /* TrainingLoop.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B11C71C3438317C87F3FF135 /* TrainingLoopTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAB2112C07DB1E42B4D0CD24 /* Build configuration list for PBXNativeTarget "TrainingLoopTests" */;
+			buildPhases = (
+				79118FE8AD46BB8CD8B5BDBB /* Sources */,
+				FD36F98A0DBC428430AFC720 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2F183C3173D0D09C84C0F19D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E31F9EA33B5FD25C063C6B67 /* TrainingLoopTests */,
+			);
+			name = TrainingLoopTests;
+			packageProductDependencies = (
+			);
+			productName = TrainingLoopTests;
+			productReference = 723B41D59E61660363358F48 /* TrainingLoopTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CE3FFDB7B04B0DB2A86617B5 /* TrainingLoopWidgets */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9B73A3F70CC09CF204095368 /* Build configuration list for PBXNativeTarget "TrainingLoopWidgets" */;
@@ -222,6 +282,28 @@
 			productReference = 9B8BE3149EA0DCDD555C56DF /* TrainingLoopWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		D43863C2E7DFD0ED6DFDD604 /* TrainingLoopUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09188E5868AA49ED04D674BD /* Build configuration list for PBXNativeTarget "TrainingLoopUITests" */;
+			buildPhases = (
+				E6124748510B4A8AD61CA817 /* Sources */,
+				FAC364D528A7C391C5C8D67C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				119C5812E33DF64990DF3C7D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				78A80FE15CFA99D2ADC3730A /* TrainingLoopUITests */,
+			);
+			name = TrainingLoopUITests;
+			packageProductDependencies = (
+			);
+			productName = TrainingLoopUITests;
+			productReference = C9A17F40C178D94FEE100057 /* TrainingLoopUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -234,8 +316,15 @@
 					048EFA868D2CE61A0D26EC74 = {
 						ProvisioningStyle = Automatic;
 					};
+					B11C71C3438317C87F3FF135 = {
+						ProvisioningStyle = Automatic;
+					};
 					CE3FFDB7B04B0DB2A86617B5 = {
 						ProvisioningStyle = Automatic;
+					};
+					D43863C2E7DFD0ED6DFDD604 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = 048EFA868D2CE61A0D26EC74;
 					};
 				};
 			};
@@ -258,6 +347,8 @@
 			targets = (
 				048EFA868D2CE61A0D26EC74 /* TrainingLoop */,
 				CE3FFDB7B04B0DB2A86617B5 /* TrainingLoopWidgets */,
+				B11C71C3438317C87F3FF135 /* TrainingLoopTests */,
+				D43863C2E7DFD0ED6DFDD604 /* TrainingLoopUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -277,9 +368,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FAC364D528A7C391C5C8D67C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FD36F98A0DBC428430AFC720 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		79118FE8AD46BB8CD8B5BDBB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8A9CE0222003489F7A57E5E9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -294,9 +406,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E6124748510B4A8AD61CA817 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		119C5812E33DF64990DF3C7D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 048EFA868D2CE61A0D26EC74 /* TrainingLoop */;
+			targetProxy = 51AC4222569DE26A82D340AD /* PBXContainerItemProxy */;
+		};
+		2F183C3173D0D09C84C0F19D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 048EFA868D2CE61A0D26EC74 /* TrainingLoop */;
+			targetProxy = F073FA8D43AD69877DA95A4E /* PBXContainerItemProxy */;
+		};
 		C974A04469D8316F4E6EB652 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CE3FFDB7B04B0DB2A86617B5 /* TrainingLoopWidgets */;
@@ -386,6 +515,23 @@
 			};
 			name = Release;
 		};
+		30E62F0CB3A922CA1919A798 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.personan1.trainingloop.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TrainingLoop;
+			};
+			name = Debug;
+		};
 		4ABDDFB60E5AB3FC8598F325 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -400,6 +546,23 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.personan1.trainingloop;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		65542C031DBF174B1265F8FD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.personan1.trainingloop.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TrainingLoop;
 			};
 			name = Release;
 		};
@@ -474,6 +637,23 @@
 			};
 			name = Debug;
 		};
+		B0E12F54C3FF2E0CEAE5DB3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.personan1.trainingloop.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrainingLoop.app/TrainingLoop";
+			};
+			name = Debug;
+		};
 		BD23B718304A6151B91AA390 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -486,6 +666,23 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.github.personan1.trainingloop.widgets;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		DB6CF5BEF24640E950248E46 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.personan1.trainingloop.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrainingLoop.app/TrainingLoop";
 			};
 			name = Release;
 		};
@@ -507,6 +704,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		09188E5868AA49ED04D674BD /* Build configuration list for PBXNativeTarget "TrainingLoopUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				30E62F0CB3A922CA1919A798 /* Debug */,
+				65542C031DBF174B1265F8FD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		3A34A0658A64D56651B1FDDE /* Build configuration list for PBXProject "TrainingLoop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -530,6 +736,15 @@
 			buildConfigurations = (
 				2806ED8AFB67F9F42A6F89BD /* Debug */,
 				4ABDDFB60E5AB3FC8598F325 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EAB2112C07DB1E42B4D0CD24 /* Build configuration list for PBXNativeTarget "TrainingLoopTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0E12F54C3FF2E0CEAE5DB3F /* Debug */,
+				DB6CF5BEF24640E950248E46 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

@@ -160,6 +160,35 @@ extension ModelContext {
         }
     }
 
+    /// Writes an edited record, or adds a new one to History when `record` is nil (D16). Its sets are
+    /// written anew when they changed or the start moved (they repeat it); records and "last done" follow.
+    @discardableResult
+    func saveRecord(_ record: Workout?, name: String, note: String, startedAt: Date, durationSeconds: Int,
+                    contents: TemplateDefinition, original: TemplateDefinition) -> Workout {
+        let workout: Workout
+        if let record {
+            workout = record
+        } else {
+            workout = Workout(name: name, startedAt: startedAt)
+            workout.isActive = false
+            insert(workout)
+        }
+        workout.name = name
+        workout.note = note
+        let start = freeStartTime(startedAt, for: workout)
+        let moved = start != workout.startedAt
+        workout.startedAt = start
+        workout.endedAt = start.addingTimeInterval(TimeInterval(durationSeconds))
+        workout.lastActivityAt = workout.endedAt ?? start
+        if record == nil || contents != original || moved {
+            workout.setContents(contents, context: self)
+        }
+        saveOrReport()
+        if let templateID = workout.templateID { refreshLastPerformed(of: [templateID]) }
+        refreshRecords(of: Set(original.exerciseIDs).union(contents.exerciseIDs))
+        return workout
+    }
+
     /// A start time no other workout has: an exercise's history tells workouts apart by it (`recordHistory`).
     func freeStartTime(_ date: Date, for workout: Workout) -> Date {
         var date = date

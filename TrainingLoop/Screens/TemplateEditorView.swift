@@ -455,28 +455,8 @@ struct TemplateEditorView: View {
     private func saveRecord() {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         let finalName = trimmed.isEmpty ? (originalName.isEmpty ? String(localized: "Free Workout") : originalName) : trimmed
-        let workout: Workout
-        if let record {
-            workout = record
-        } else {
-            workout = Workout(name: finalName, startedAt: startedAt)
-            workout.isActive = false
-            context.insert(workout)
-        }
-        workout.name = finalName
-        workout.note = note
-        let start = context.freeStartTime(startedAt, for: workout)
-        let moved = start != workout.startedAt
-        workout.startedAt = start
-        workout.endedAt = start.addingTimeInterval(TimeInterval(durationSeconds))
-        workout.lastActivityAt = workout.endedAt ?? start
-        // Sets repeat the start time, so a moved workout gets them anew too.
-        if record == nil || draft != original || moved {
-            workout.setContents(draft, context: context)
-        }
-        context.saveOrReport()
-        if let templateID = workout.templateID { context.refreshLastPerformed(of: [templateID]) }
-        context.refreshRecords(of: Set(original.exerciseIDs).union(draft.exerciseIDs))
+        context.saveRecord(record, name: finalName, note: note, startedAt: startedAt, durationSeconds: durationSeconds,
+                           contents: draft, original: original)
         dismiss()
     }
 }
