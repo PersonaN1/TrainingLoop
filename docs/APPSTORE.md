@@ -36,7 +36,7 @@
 
 **Промотекст** (можно менять без ревью):
 
-Составьте тренировку один раз — дальше просто отмечайте подходы: прошлые результаты уже подставлены, отдых отсчитывается сам. Бесплатно, без подписок и рекламы.
+Составляйте шаблоны или импровизируйте на ходу. Добавляйте забытые тренировки, следите за прогрессом и делитесь тренировками. Бесплатно, без подписок и рекламы.
 
 **Ключевые слова:**
 
@@ -83,7 +83,7 @@ TrainingLoop — дневник силовых тренировок для iPhon
 
 **Promotional text:**
 
-Plan a workout once, then simply tick off your sets. Last time's numbers are already filled in, and the rest timer starts on its own. Free, no subscriptions, no ads.
+Plan templates or improvise as you go. Add workouts you forgot to log, follow your progress and share your workouts. Free, no subscriptions, no ads.
 
 **Keywords:**
 
