@@ -90,6 +90,16 @@
         }
       }
     },
+    "%lld h" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ч"
+          }
+        }
+      }
+    },
     "%lld min" : {
       "localizations" : {
         "ru" : {
@@ -197,6 +207,58 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "Осталось %lld места: удалите старые записи или выгрузите их текстом."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld records" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld record"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld records"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld рекорд"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld рекорда"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld рекордов"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld рекорда"
                 }
               }
             }
@@ -418,6 +480,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подход"
+          }
+        }
+      }
+    },
+    "Add the exercises you did, then their sets." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте выполненные упражнения, затем их подходы."
+          }
+        }
+      }
+    },
+    "Add Workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить тренировку"
           }
         }
       }
@@ -1076,6 +1158,16 @@
         }
       }
     },
+    "Finish the current workout to start this one again." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завершите текущую тренировку, чтобы повторить эту."
+          }
+        }
+      }
+    },
     "For Reps" : {
       "localizations" : {
         "ru" : {
@@ -1229,6 +1321,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дома без железа"
+          }
+        }
+      }
+    },
+    "Hours" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Часы"
           }
         }
       }
@@ -1509,6 +1611,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Новое упражнение"
+          }
+        }
+      }
+    },
+    "New Records" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новые рекорды"
           }
         }
       }
@@ -1889,6 +2001,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Убрать из суперсета"
+          }
+        }
+      }
+    },
+    "Repeat Workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
           }
         }
       }

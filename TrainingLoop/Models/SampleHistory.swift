@@ -26,6 +26,7 @@ enum SampleHistory {
             number += 1
         }
         context.saveOrReport()
+        context.refreshRecords(of: exercises.map(\.id))
     }
 
     @MainActor

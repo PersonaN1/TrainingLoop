@@ -57,4 +57,24 @@ struct PersonalRecordsTests {
         let records = workout([pullUp: [PlannedSet(reps: 12)]]).records(history: history)
         #expect(records.records.map(\.metric) == [.reps])
     }
+
+    @Test func historyRecordsMatchTheSummary() {
+        // As on the summary: the first workout sets none, the second folds weight and its rep records.
+        let records = PersonalBests.records(of: [
+            [PlannedSet(reps: 5, weightKg: 80)],
+            [PlannedSet(reps: 5, weightKg: 85), PlannedSet(reps: 3, weightKg: 70)],
+            [PlannedSet(reps: 5, weightKg: 85)],
+        ])
+        #expect(records.map(\.lines.count) == [0, 2, 0])
+        #expect(records[1].lines.map(\.metric) == [.weight, .volume])
+        #expect(records[1].setIndices == [0])
+    }
+
+    @Test func historyRecordsCountEarlierWorkoutsOnly() {
+        // A workout added before a better one: the earlier is the record, the later beats it.
+        let early = [PlannedSet(reps: 10)]
+        let late = [PlannedSet(reps: 12)]
+        #expect(PersonalBests.records(of: [early, late]).map(\.lines.count) == [0, 1])
+        #expect(PersonalBests.records(of: [late, early]).map(\.lines.count) == [0, 0])
+    }
 }
