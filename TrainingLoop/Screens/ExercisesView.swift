@@ -38,6 +38,10 @@ struct ExercisesView: View {
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter, offersDone: true) }
+                // iOS 26+ merges neighbouring items into one glass capsule; keep "+" apart from the filter.
+                if #available(iOS 26, *) {
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("New Exercise", systemImage: "plus") { add() }
                 }

@@ -29,7 +29,8 @@ enum ChartPeriod: CaseIterable, Hashable {
 
     func start(now: Date = .now, calendar: Calendar = .current) -> Date? {
         switch self {
-        case .week: calendar.date(byAdding: .day, value: -7, to: now)
+        // The last seven days with today, whole days: today's workout is never cut off the axis.
+        case .week: calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now))
         case .month: calendar.date(byAdding: .month, value: -1, to: now)
         case .threeMonths: calendar.date(byAdding: .month, value: -3, to: now)
         case .year: calendar.date(byAdding: .year, value: -1, to: now)
@@ -150,11 +151,24 @@ struct ExerciseChart: View {
         return stats.points(metric).last { $0.date < start }
     }
 
-    /// The whole period up to today, so a month looks like a month even with two workouts in it.
+    /// The whole period through the end of today, so a month looks like a month even with two
+    /// workouts in it and today's point isn't pressed against the edge.
     private var dates: ClosedRange<Date> {
         let now = Date.now
+        let calendar = Calendar.current
+        let end = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) ?? now
         let start = period.start(now: now) ?? stats.sessions.first?.date ?? now
-        return min(start, now)...now
+        return min(start, now)...end
+    }
+
+    /// A week is labelled every other day back from today, at midday so each label sits under its day.
+    /// Today's mark is the end of the axis instead: a label centred on it would overhang and be dropped.
+    private var weekMarks: [Date] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        return stride(from: -6, through: -2, by: 2).compactMap {
+            calendar.date(byAdding: DateComponents(day: $0, hour: 12), to: today)
+        } + [dates.upperBound]
     }
 
     /// The point nearest the finger.
@@ -208,6 +222,8 @@ struct ExerciseChart: View {
                         .monospacedDigit()
                         .lineLimit(2, reservesSpace: true)
                 }
+                // Full width: the change line over it takes this width and would wrap word by word.
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .opacity(selected == nil ? 0 : 1)
                 .accessibilityHidden(selected == nil)
                 .overlay(alignment: .topLeading) {
@@ -272,9 +288,22 @@ struct ExerciseChart: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { value in
-                AxisValueLabel {
-                    if let date = value.as(Date.self) { Text(StatsFormat.date(date)) }
+            if period == .week {
+                AxisMarks(values: weekMarks) { value in
+                    if let date = value.as(Date.self) {
+                        if date == dates.upperBound {
+                            // Ends at the edge, under today.
+                            AxisValueLabel(anchor: .topTrailing) { Text(StatsFormat.date(.now)) }
+                        } else {
+                            AxisValueLabel { Text(StatsFormat.date(date)) }
+                        }
+                    }
+                }
+            } else {
+                AxisMarks(values: .automatic(desiredCount: 4)) { value in
+                    AxisValueLabel {
+                        if let date = value.as(Date.self) { Text(StatsFormat.date(date)) }
+                    }
                 }
             }
         }
