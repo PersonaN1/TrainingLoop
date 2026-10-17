@@ -33,7 +33,7 @@ struct ExercisesView: View {
             .overlay { CatalogEmptyState(isEmpty: sections.isEmpty, search: searchText, filter: $filter) }
             .navigationTitle("Exercises")
             .navigationDestination(for: Exercise.self) { exercise in
-                ExerciseDetailView(exercise: exercise, summary: summaries[exercise.id])
+                ExerciseDetailView(exercise: exercise)
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .toolbar {

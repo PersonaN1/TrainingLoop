@@ -126,8 +126,11 @@ extension PersonalBests {
         // The last set to beat each metric holds it.
         var holders: [RecordMetric: Int] = [:]
         var metricOrder: [RecordMetric] = []
+        // A metric this workout is the first to reach has nothing earlier to beat, even when a later
+        // set of the workout tops an earlier one.
+        let before = values
         for (index, set) in sets.enumerated() {
-            let beaten = add(set)
+            let beaten = add(set).filter { before[$0] != nil }
             if !beaten.isEmpty { result.setIndices.insert(index) }
             for metric in beaten.sorted(by: { $0.rank < $1.rank }) {
                 if holders[metric] == nil { metricOrder.append(metric) }
