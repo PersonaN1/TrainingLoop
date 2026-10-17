@@ -2112,7 +2112,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Только сделанные"
+            "value" : "Только выполненные"
           }
         }
       }
