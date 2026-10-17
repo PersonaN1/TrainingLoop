@@ -36,7 +36,7 @@
 
 **Промотекст** (можно менять без ревью):
 
-Составьте тренировку один раз — дальше просто отмечайте подходы. Прошлый раз уже подставлен, отдых отсчитывается сам. Бесплатно, без подписок и рекламы.
+Составляйте шаблоны или импровизируйте на ходу. Добавляйте забытые тренировки, следите за прогрессом и делитесь тренировками. Бесплатно, без подписок и рекламы.
 
 **Ключевые слова:**
 
@@ -44,36 +44,36 @@
 
 **Описание:**
 
-TrainingLoop — дневник силовых тренировок для iPhone. Составьте тренировку один раз, а в зале просто отмечайте подходы: вес и повторы прошлого раза уже подставлены, таймер отдыха запускается сам. Прогресс виден и по тренировкам, и по каждому упражнению — с графиками и рекордами.
+TrainingLoop — дневник силовых тренировок для iPhone. Составляйте шаблоны тренировок или импровизируйте на ходу. В зале просто отмечайте подходы. Сохраняйте выполненные тренировки и добавляйте забытые. Следите за прогрессом тренировок и каждого упражнения по графикам и рекордам, обновляйте шаблоны и делитесь тренировками с кем угодно.
 
 ШАБЛОНЫ
-• Упражнения по порядку, у каждого — свой список подходов: повторы или время, вес, отдых.
+• Расставляйте упражнения в нужном порядке.
 • Суперсеты: соседние упражнения выполняются по кругу.
-• Пирамиды и разминочные подходы — просто разные строки.
-• Свободная тренировка без плана.
-• Три готовых примера для начала.
+• Пирамиды и разминочные подходы задаются отдельными строками.
+• Можно тренироваться и без плана — в свободной тренировке.
+• Для начала есть готовые примеры.
 
 ВО ВРЕМЯ ТРЕНИРОВКИ
-• У каждого подхода видно, что было в прошлый раз; поля заполняются сами.
-• Отметили подход — запустился отдых. Звуки, голос и вибрация.
-• Отдых и текущий подход на экране блокировки и в Dynamic Island, с кнопками «+10», «Пропустить» и «Выполнено».
+• Рядом с каждым подходом — результат прошлого раза, поля заполняются сами.
+• Отметили подход — начался отдых. Сигналы звуком, голосом и вибрацией.
+• Отдых и текущий подход на экране блокировки и в Dynamic Island.
 • Новый рекорд отмечается 🏆 прямо у подхода.
 
 ИСТОРИЯ И ПРОГРЕСС
-• Личные рекорды: максимальный вес, вес на 1, 3, 5, 8 и 10 повторов, повторы, время и тоннаж.
-• График по каждому упражнению: лучший вес, тоннаж, повторы или время за неделю, месяц, 3 месяца, год или всё время.
-• Сводка за неделю, месяц и год: тренировки, время, тоннаж, подходы по группам мышц, серия недель.
-• Забыли записать тренировку? Добавьте её задним числом или исправьте прошлую — рекорды и графики пересчитаются.
-• Шаблон, тренировку или тренировки за период можно отправить текстом — например, тренеру в мессенджер.
+• Личные рекорды: максимальный вес, лучший вес на 1, 3, 5, 8 и 10 повторов, повторы, время и тоннаж.
+• График по каждому упражнению: лучший вес, тоннаж, повторы или время — за неделю, месяц, три месяца, год или всё время.
+• Сводка за неделю, месяц и год: тренировки, время, тоннаж, подходы по группам мышц и серия недель.
+• Забыли записать тренировку — добавьте её задним числом или исправьте прошлую: рекорды и графики пересчитаются.
+• Можно поделиться тренировкой с кем угодно в виде текста.
 
 УПРАЖНЕНИЯ И НАСТРОЙКИ
-• 53 встроенных упражнения на русском и английском, плюс свои.
-• Поиск и фильтр по группе мышц и оборудованию.
+• 53 встроенных упражнения на русском и английском, а также ваши собственные.
+• Поиск и фильтры по группе мышц и оборудованию.
 • Килограммы или фунты, светлая и тёмная тема.
 
-Бесплатно и без ограничений: все функции доступны сразу, без подписок, платных дополнений, рекламы и регистрации. Тренировки хранятся только на вашем iPhone.
+Бесплатно и без ограничений: все функции доступны сразу — без подписок, платных дополнений, рекламы и регистрации. Тренировки хранятся только на вашем iPhone.
 
-Вопросы и идеи: t.me/setnewloop
+Вопросы и предложения: t.me/setnewloop
 
 ## English
 
@@ -83,7 +83,7 @@ TrainingLoop — дневник силовых тренировок для iPhon
 
 **Promotional text:**
 
-Plan a workout once, then just tick sets. Last time's numbers are filled in and the rest timer starts by itself. Free, no subscriptions, no ads.
+Plan templates or improvise as you go. Add workouts you forgot to log, follow your progress and share your workouts. Free, no subscriptions, no ads.
 
 **Keywords:**
 
@@ -91,36 +91,36 @@ gym,tracker,lifting,weightlifting,bodybuilding,sets,reps,progress,records,planne
 
 **Description:**
 
-TrainingLoop is a strength workout log for iPhone. Plan a workout once, then just tick sets at the gym: last time's weight and reps are already filled in, and the rest timer starts by itself. Follow your progress for whole workouts and for every exercise, with charts and records.
+TrainingLoop is a strength training log for iPhone. Plan workout templates or improvise as you go. At the gym, simply tick off your sets. Save finished workouts and add the ones you forgot to log. Follow the progress of your workouts and of every exercise with charts and records, update your templates and share your workouts with anyone.
 
 TEMPLATES
-• Exercises in order, each with its own list of sets: reps or time, weight, rest.
-• Supersets: neighbouring exercises done in rounds.
-• Pyramids and warm-up sets are just different rows.
-• Free workouts without a plan.
-• Three ready-made examples to start with.
+• Arrange exercises in the order you want.
+• Supersets: neighbouring exercises are done in rounds.
+• Pyramids and warm-up sets are simply separate rows.
+• Or train without a plan in a free workout.
+• Ready-made examples to get you started.
 
 DURING THE WORKOUT
-• Every set shows what you did last time; the fields are filled in for you.
-• Tick a set and the rest timer starts. Sounds, voice and vibration.
-• Rest and the current set on the Lock Screen and in the Dynamic Island, with +10, Skip and Done buttons.
+• Next to every set you see last time's result; the fields fill in by themselves.
+• Tick off a set and the rest begins, with sounds, voice cues and vibration.
+• Rest and the current set on the Lock Screen and in the Dynamic Island.
 • A new record is marked 🏆 right next to the set.
 
 HISTORY AND PROGRESS
-• Personal records: heaviest weight, weight for 1, 3, 5, 8 and 10 reps, reps, time and volume.
-• A chart for every exercise: best weight, volume, reps or time over a week, a month, 3 months, a year or all time.
-• Summary by week, month and year: workouts, time, volume, sets by muscle group, week streak.
-• Forgot to log a workout? Add it later or fix a past one — records and charts are recounted.
-• Share a template, a workout or a whole period as text — say, with your coach in a messenger.
+• Personal records: heaviest weight, best weight for 1, 3, 5, 8 and 10 reps, reps, time and volume.
+• A chart for every exercise: best weight, volume, reps or time over a week, a month, three months, a year or all time.
+• Weekly, monthly and yearly summaries: workouts, time, volume, sets by muscle group and your week streak.
+• Forgot to log a workout? Add it afterwards or correct a past one — records and charts are recalculated.
+• Share your workouts with anyone as text.
 
 EXERCISES AND SETTINGS
 • 53 built-in exercises in English and Russian, plus your own.
-• Search and filter by muscle group and equipment.
+• Search and filters by muscle group and equipment.
 • Kilograms or pounds, light and dark theme.
 
-Free, no limits: every feature is available right away, with no subscriptions, paid extras, ads or sign-up. Your workouts stay on your iPhone.
+Free, no limits: every feature is available right away — no subscriptions, paid extras, ads or sign-up. Your workouts stay on your iPhone.
 
-Questions and ideas: t.me/setnewloop
+Questions and suggestions: t.me/setnewloop
 
 ## Notes for App Review
 
