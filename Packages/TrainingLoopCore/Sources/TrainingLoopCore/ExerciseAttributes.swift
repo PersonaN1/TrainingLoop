@@ -11,12 +11,21 @@ public enum Equipment: String, Codable, CaseIterable, Sendable {
     case dumbbell
     case kettlebell
     case machine
-    case cable
     case band
     case other
+
+    /// A stored raw value, including those of earlier builds: cable is now machine.
+    public init?(storedRawValue: String) {
+        if storedRawValue == "cable" {
+            self = .machine
+        } else {
+            self.init(rawValue: storedRawValue)
+        }
+    }
 }
 
-/// The fixed list of 14 groups (SPEC D9). Statistics by group use the primary group only.
+/// The fixed list of 12 groups (SPEC D9). Statistics by group use the primary group only.
+/// Legs are one group: which leg muscles work depends on how the exercise is done.
 public enum MuscleGroup: String, Codable, CaseIterable, Sendable {
     case chest
     case back
@@ -27,9 +36,15 @@ public enum MuscleGroup: String, Codable, CaseIterable, Sendable {
     case triceps
     case forearms
     case abs
-    case quads
-    case hamstrings
-    case glutes
-    case calves
+    case legs
     case fullBody
+    case other
+
+    /// A stored raw value, including those of earlier builds: quads, hamstrings, glutes and calves are now legs.
+    public init?(storedRawValue: String) {
+        switch storedRawValue {
+        case "quads", "hamstrings", "glutes", "calves": self = .legs
+        default: self.init(rawValue: storedRawValue)
+        }
+    }
 }

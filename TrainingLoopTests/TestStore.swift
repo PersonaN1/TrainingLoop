@@ -16,7 +16,7 @@ struct TestStore {
 
     /// A weighted exercise on reps.
     func exercise(_ name: String = "Squat") -> Exercise {
-        let exercise = Exercise(name: name, measure: .reps, weighted: true, primaryGroup: .quads, equipment: .barbell)
+        let exercise = Exercise(name: name, measure: .reps, weighted: true, primaryGroup: .legs, equipment: .barbell)
         context.insert(exercise)
         context.saveOrReport()
         return exercise

@@ -3,7 +3,8 @@ import SwiftUI
 import TrainingLoopCore
 
 /// The catalog as a picker (DESIGN V6): search, filter and several exercises at once, "Add (N)";
-/// or exactly one for "Replace".
+/// or exactly one for "Replace". "+" creates a custom exercise right here; it comes back picked.
+/// The bar holds icons only (✕, filter) and "+" sits at the bottom: text buttons squeezed the title down to "Add…".
 struct ExercisePickerView: View {
     enum Mode {
         case add
@@ -11,6 +12,7 @@ struct ExercisePickerView: View {
     }
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<Exercise> { !$0.isHidden && !$0.isArchived })
     private var exercises: [Exercise]
     let mode: Mode
@@ -19,6 +21,8 @@ struct ExercisePickerView: View {
     @State private var searchText = ""
     @State private var filter = ExerciseFilter()
     @State private var picked: [Exercise] = []
+    @State private var editor: ExerciseDraft?
+    @State private var limitReached = false
 
     var body: some View {
         NavigationStack {
@@ -40,26 +44,59 @@ struct ExercisePickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel", systemImage: "xmark") { dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter) }
+                ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter, iconOnly: true) }
+            }
+            .exerciseLimitAlert(isPresented: $limitReached)
+            .sheet(item: $editor) { draft in
+                ExerciseEditorView(draft: draft) { created in
+                    switch mode {
+                    case .replace:
+                        pick([created])
+                        dismiss()
+                    case .add:
+                        picked.append(created)
+                        searchText = ""
+                    }
+                }
             }
             .safeAreaInset(edge: .bottom) {
-                if mode == .add {
-                    Button {
-                        pick(picked)
-                        dismiss()
-                    } label: {
-                        Text("Add (\(picked.count))")
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity, minHeight: 34)
+                HStack(spacing: 12) {
+                    if mode == .add {
+                        Button {
+                            pick(picked)
+                            dismiss()
+                        } label: {
+                            Text("Add (\(picked.count))")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(picked.isEmpty)
+                    } else {
+                        Spacer()
                     }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(picked.isEmpty)
-                    .padding()
+                    Button("New Exercise", systemImage: "plus") { newExercise() }
+                        .labelStyle(.iconOnly)
+                        .buttonStyle(.bordered)
+                        .tint(.primary)
                 }
+                .controlSize(.large)
+                .padding()
             }
         }
+    }
+
+    /// Starts with the search text as the name and the filter's group and equipment.
+    private func newExercise() {
+        if context.customExerciseCount() >= Limits.maxCustomExercises {
+            limitReached = true
+            return
+        }
+        var draft = ExerciseDraft(primaryGroup: filter.group ?? .fullBody, equipment: filter.equipment ?? .bodyweight)
+        draft.name = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        editor = draft
     }
 
     private var sections: [CatalogSection] {

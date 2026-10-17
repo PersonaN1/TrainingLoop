@@ -9,8 +9,8 @@ struct WorkoutView: View {
     @Environment(AppSettings.self) private var settings
     @Environment(WorkoutController.self) private var workouts
     @Query private var allExercises: [Exercise]
-    /// Finished exercises the user opened again.
-    @State private var expanded = Set<UUID>()
+    /// Finished exercises the user collapsed; nothing collapses by itself (DESIGN V3).
+    @State private var collapsed = Set<UUID>()
     @State private var picker: PickerTarget?
     @State private var confirmingFinish = false
     @State private var reordering = false
@@ -187,10 +187,10 @@ struct WorkoutView: View {
         let measure = stored?.measure ?? .reps
         let weighted = stored?.weighted ?? false
         let finished = !exercise.sets.isEmpty && exercise.sets.allSatisfy(\.isDone)
-        if finished && !expanded.contains(exercise.id) {
+        if finished && collapsed.contains(exercise.id) {
             // "Squat ✓ 4 sets"; a tap opens it again (DESIGN V3).
             Button {
-                withAnimation { _ = expanded.insert(exercise.id) }
+                withAnimation { _ = collapsed.remove(exercise.id) }
             } label: {
                 HStack {
                     Text(lookup.name(exercise.exerciseID)).font(.headline)
@@ -216,7 +216,7 @@ struct WorkoutView: View {
                     Button("Change Order", systemImage: "arrow.up.arrow.down") { reordering = true }
                     if finished {
                         Button("Collapse", systemImage: "chevron.up") {
-                            withAnimation { _ = expanded.remove(exercise.id) }
+                            withAnimation { _ = collapsed.insert(exercise.id) }
                         }
                     }
                     Button("Remove Exercise", systemImage: "trash", role: .destructive) {

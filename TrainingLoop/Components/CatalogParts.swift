@@ -29,6 +29,8 @@ struct ExerciseFilterMenu: View {
     @Binding var filter: ExerciseFilter
     /// The picker doesn't know the history and has no "Only Done".
     var offersDone = false
+    /// An icon instead of "Filter ▾", where the bar is short of room; filled while the filter is on.
+    var iconOnly = false
 
     var body: some View {
         Menu {
@@ -52,13 +54,20 @@ struct ExerciseFilterMenu: View {
                 Toggle("Only Done", isOn: $filter.onlyDone)
             }
         } label: {
-            HStack(spacing: 4) {
-                if filter.isActive {
-                    Text("Filter (\(filter.activeCount))").fontWeight(.semibold)
-                } else {
-                    Text("Filter")
+            if iconOnly {
+                Label(filter.isActive ? "Filter (\(filter.activeCount))" : "Filter",
+                      systemImage: filter.isActive ? "line.3.horizontal.decrease.circle.fill"
+                                                   : "line.3.horizontal.decrease")
+                    .labelStyle(.iconOnly)
+            } else {
+                HStack(spacing: 4) {
+                    if filter.isActive {
+                        Text("Filter (\(filter.activeCount))").fontWeight(.semibold)
+                    } else {
+                        Text("Filter")
+                    }
+                    Image(systemName: "chevron.down").font(.caption.weight(.semibold))
                 }
-                Image(systemName: "chevron.down").font(.caption.weight(.semibold))
             }
         }
         .tint(filter.isActive ? Color.accentColor : .primary)
