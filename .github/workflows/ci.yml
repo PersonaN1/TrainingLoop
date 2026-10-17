@@ -10,14 +10,33 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      # build-and-test is a required check, so the job always runs; changes only to the site
+      # or docs skip the slow steps. Anything else, or a diff that can't be made, runs them all.
+      - name: Find changes
+        id: changes
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if files=$(git diff --name-only "$BASE" HEAD) && [ -n "$files" ] &&
+             ! echo "$files" | grep -qvE '^(site/|docs/|[^/]+\.md$|LICENSE$|\.github/workflows/pages\.yml$)'; then
+            echo "Site or docs only:"; echo "$files"
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
       # Same major Xcode as local builds (Swift 6.2+, iOS 26 SDK).
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        if: steps.changes.outputs.code == 'true'
         with:
           xcode-version: latest-stable
       - run: xcodebuild -version
+        if: steps.changes.outputs.code == 'true'
       # project.yml is the source of truth; the tracked .xcodeproj must match it.
       # Pinned to the local version: another one may write the project differently.
       - name: Check generated project
+        if: steps.changes.outputs.code == 'true'
         run: |
           curl -sSL -o "$RUNNER_TEMP/xcodegen.zip" https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
           unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
@@ -26,6 +45,7 @@ jobs:
       # Through Xcode's build system, as the app is built: SwiftPM in Xcode 26 copies
       # String Catalogs (Exercises.xcstrings) without compiling them.
       - name: Core tests
+        if: steps.changes.outputs.code == 'true'
         working-directory: Packages/TrainingLoopCore
         run: >
           xcodebuild test
@@ -34,6 +54,7 @@ jobs:
       # Builds the app and runs its tests (hosted unit tests + the UI smoke test) on the newest
       # iPhone simulator the runner has. The full-History benchmark stays off: it needs TL_BENCHMARK.
       - name: App tests
+        if: steps.changes.outputs.code == 'true'
         run: |
           UDID=$(xcrun simctl list devices available -j | python3 -c '
           import json, sys
