@@ -74,6 +74,10 @@ struct WorkoutRecordView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Edit", systemImage: "pencil") { editing = true }
             }
+            // Separate buttons, not one glass capsule (iOS 26), as elsewhere in the app.
+            if #available(iOS 26, *) {
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button("Repeat Workout", systemImage: "arrow.clockwise") {

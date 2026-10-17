@@ -45,17 +45,23 @@ final class Exercise {
     }
 
     var primaryGroup: MuscleGroup {
-        get { MuscleGroup(rawValue: primaryGroupRaw) ?? .fullBody }
+        get { MuscleGroup(storedRawValue: primaryGroupRaw) ?? .fullBody }
         set { primaryGroupRaw = newValue.rawValue }
     }
 
     var secondaryGroups: [MuscleGroup] {
-        get { secondaryGroupsRaw.compactMap(MuscleGroup.init(rawValue:)) }
+        // Old leg groups collapse into one: no duplicates, and never the primary group.
+        get {
+            let primary = primaryGroup
+            return MuscleGroup.allCases.filter { group in
+                group != primary && secondaryGroupsRaw.contains { MuscleGroup(storedRawValue: $0) == group }
+            }
+        }
         set { secondaryGroupsRaw = newValue.map(\.rawValue) }
     }
 
     var equipment: Equipment {
-        get { Equipment(rawValue: equipmentRaw) ?? .other }
+        get { Equipment(storedRawValue: equipmentRaw) ?? .other }
         set { equipmentRaw = newValue.rawValue }
     }
 

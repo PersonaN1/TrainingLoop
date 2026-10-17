@@ -163,9 +163,9 @@ extension ActiveWorkout {
         self.init(name: name, templateID: templateID, startedAt: startedAt, items: items)
     }
 
-    /// An exercise added during the workout: last time's sets, or `defaultSets` empty ones.
+    /// An exercise added during the workout: last time's sets, or `defaultSets` empty ones (one; more are a tap away).
     public static func newExercise(_ exerciseID: UUID, restSeconds: Int, previous: [PlannedSet],
-                                   defaultSets: Int = 3) -> Exercise {
+                                   defaultSets: Int = 1) -> Exercise {
         let sets = previous.isEmpty
             ? (0..<defaultSets).map { _ in SetRow(planned: PlannedSet(), previous: nil) }
             : previous.map { SetRow(planned: PlannedSet(), previous: $0) }

@@ -708,26 +708,6 @@
         }
       }
     },
-    "Cable" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Блок"
-          }
-        }
-      }
-    },
-    "Calves" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Икры"
-          }
-        }
-      }
-    },
     "Can't merge these exercises" : {
       "localizations" : {
         "ru" : {
@@ -1507,16 +1487,6 @@
         }
       }
     },
-    "Glutes" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ягодицы"
-          }
-        }
-      }
-    },
     "group.fullBody" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1530,16 +1500,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Всё тело"
-          }
-        }
-      }
-    },
-    "Hamstrings" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Бицепс бедра"
           }
         }
       }
@@ -1750,6 +1710,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оставьте пустым — подставится вес из прошлого раза."
+          }
+        }
+      }
+    },
+    "Legs" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ноги"
           }
         }
       }
@@ -2084,16 +2054,6 @@
         }
       }
     },
-    "None" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет"
-          }
-        }
-      }
-    },
     "Not done yet" : {
       "localizations" : {
         "ru" : {
@@ -2280,16 +2240,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Конфиденциальность"
-          }
-        }
-      }
-    },
-    "Quads" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Квадрицепсы"
           }
         }
       }

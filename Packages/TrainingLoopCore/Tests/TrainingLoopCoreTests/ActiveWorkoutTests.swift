@@ -108,7 +108,7 @@ struct ActiveWorkoutTests {
         #expect(definition.items.count == 3)
         #expect(definition.exercises[2].sets[0] == PlannedSet(reps: 10))
         #expect(definition.exercises[3].sets[0] == PlannedSet(reps: 12, weightKg: 20))
-        #expect(definition.exercises[3].sets.count == 3)
+        #expect(definition.exercises[3].sets.count == 1)
     }
 
     @Test func movingKeepsOrLeavesTheSuperset() {
