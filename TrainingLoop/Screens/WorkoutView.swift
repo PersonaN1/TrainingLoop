@@ -52,7 +52,7 @@ struct WorkoutView: View {
                         WorkoutOrderView()
                     }
                     .task(id: workout.items.flatMap(\.exercises).map(\.exerciseID)) {
-                        workouts.loadHistory(context: context)
+                        await workouts.loadHistory(context: context)
                     }
                     .sheet(item: $picker) { target in
                         switch target {

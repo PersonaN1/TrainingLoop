@@ -5,9 +5,17 @@ import TrainingLoopCore
 
 /// Debug builds only: ten weeks of workouts from the templates, for working on History and for the
 /// App Store screenshots (docs/APPSTORE.md). Launch with `-SampleHistory YES`; does nothing once History has workouts.
+/// `-FullHistory YES` fills History to the limit instead, for checking speed (TECH T12).
 enum SampleHistory {
     @MainActor
     static func insertIfRequested(_ context: ModelContext) {
+        if UserDefaults.standard.bool(forKey: "FullHistory"), context.finishedWorkoutCount() == 0 {
+            let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+            let weighted = exercises.filter { $0.weighted && $0.measure == .reps }.sorted { $0.name < $1.name }
+            insertFull(Array(weighted.prefix(20)).map(\.id), into: context)
+            RecordRecount.start(weighted.map(\.id), context: context)
+            return
+        }
         guard UserDefaults.standard.bool(forKey: "SampleHistory"), context.finishedWorkoutCount() == 0,
               let templates = try? context.fetch(FetchDescriptor<Template>(sortBy: [SortDescriptor(\.sortIndex)])),
               !templates.isEmpty,
@@ -57,6 +65,36 @@ enum SampleHistory {
         }
         workout.updateTotals()
         template.lastPerformedAt = max(template.lastPerformedAt ?? .distantPast, startedAt)
+    }
+
+    /// `Limits.maxWorkouts` workouts (≈ 60k sets), one a day back from yesterday: five of the exercises
+    /// in turn, four sets each, weights rising and falling. Record counts are left to the caller.
+    static func insertFull(_ exerciseIDs: [UUID], into context: ModelContext,
+                           count: Int = Limits.maxWorkouts) {
+        guard !exerciseIDs.isEmpty else { return }
+        let perWorkout = min(5, exerciseIDs.count)
+        let today = Calendar.current.startOfDay(for: .now)
+        for number in 0..<count {
+            let daysAgo = count - number
+            let start = today.addingTimeInterval(TimeInterval(-daysAgo * 86_400 + 18 * 3600))
+            let workout = Workout(name: "Workout \(number % 3 + 1)", startedAt: start)
+            workout.isActive = false
+            workout.endedAt = start.addingTimeInterval(3600)
+            context.insert(workout)
+            for order in 0..<perWorkout {
+                let exerciseID = exerciseIDs[(number + order * 4) % exerciseIDs.count]
+                let entry = WorkoutEntry(exerciseID: exerciseID, order: order, restSeconds: 90)
+                workout.entries?.append(entry)
+                let weight = 40 + Double(number % 400) / 10
+                for index in 0..<4 {
+                    entry.sets?.append(WorkoutSet(order: index, reps: 8 - index, weightKg: weight,
+                                                  exerciseID: exerciseID, workoutStartedAt: start))
+                }
+            }
+            workout.updateTotals()
+            if number % 250 == 249 { context.saveOrReport() }
+        }
+        context.saveOrReport()
     }
 
     /// Barbell work grows by its own range over the ten weeks, in 2.5 kg steps, 5 kg less on a light day;

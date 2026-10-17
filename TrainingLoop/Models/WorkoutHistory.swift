@@ -102,7 +102,7 @@ enum RecordCounts {
     static func countOnce(_ context: ModelContext) {
         guard !UserDefaults.standard.bool(forKey: key) else { return }
         let entries = (try? context.fetch(FetchDescriptor<WorkoutEntry>())) ?? []
-        context.refreshRecords(of: entries.map(\.exerciseID))
+        RecordRecount.start(entries.map(\.exerciseID), context: context)
         UserDefaults.standard.set(true, forKey: key)
     }
 }
@@ -117,6 +117,7 @@ extension ModelContext {
     }
 
     /// Deletes workouts with their sets, and moves "last done" on their templates' cards back.
+    @MainActor
     func deleteWorkouts(_ workouts: [Workout]) {
         let templateIDs = Set(workouts.compactMap(\.templateID))
         let exerciseIDs = Set(workouts.flatMap { ($0.entries ?? []).map(\.exerciseID) })
@@ -124,21 +125,37 @@ extension ModelContext {
         // Saved first, so the searches below no longer find them.
         saveOrReport()
         refreshLastPerformed(of: templateIDs)
-        refreshRecords(of: exerciseIDs)
+        RecordRecount.start(exerciseIDs, context: self)
     }
 
     /// Counts the records of every finished workout with these exercises again (D10, DESIGN V9): a workout
     /// added, changed or deleted moves the records of the ones after it. Call once the change is saved.
+    /// Here and now; after a change by the user it runs in the background (`RecordRecount`).
     func refreshRecords(of exerciseIDs: some Sequence<UUID>) {
-        for id in Set(exerciseIDs) {
+        applyRecordCounts(recordCountChanges(of: Set(exerciseIDs)))
+    }
+
+    /// The entries whose record count differs from a fresh count, with the new count.
+    func recordCountChanges(of exerciseIDs: Set<UUID>) -> [PersistentIdentifier: Int] {
+        var changes: [PersistentIdentifier: Int] = [:]
+        for id in exerciseIDs {
             let workouts = exerciseWorkouts(id)
             let records = PersonalBests.records(of: workouts.map(\.sets))
             for (workout, records) in zip(workouts, records) {
                 for (index, entry) in workout.entries.enumerated() {
                     let count = index == 0 ? records.lines.count : 0
-                    if entry.recordCount != count { entry.recordCount = count }
+                    if entry.recordCount != count { changes[entry.persistentModelID] = count }
                 }
             }
+        }
+        return changes
+    }
+
+    /// Writes counts from `recordCountChanges`; an entry deleted meanwhile is skipped.
+    func applyRecordCounts(_ changes: [PersistentIdentifier: Int]) {
+        for (id, count) in changes {
+            guard let entry = model(for: id) as? WorkoutEntry, !entry.isDeleted, entry.recordCount != count else { continue }
+            entry.recordCount = count
         }
         if hasChanges { saveOrReport() }
     }
@@ -146,8 +163,18 @@ extension ModelContext {
     /// An exercise's finished workouts, oldest first: its entries in each and their sets in order
     /// (records, D10 statistics).
     func exerciseWorkouts(_ exerciseID: UUID) -> [(workout: Workout, entries: [WorkoutEntry], sets: [PlannedSet])] {
-        let descriptor = FetchDescriptor<WorkoutEntry>(predicate: #Predicate { $0.exerciseID == exerciseID })
-        guard let entries = try? fetch(descriptor) else { return [] }
+        var entryDescriptor = FetchDescriptor<WorkoutEntry>(predicate: #Predicate { $0.exerciseID == exerciseID })
+        entryDescriptor.relationshipKeyPathsForPrefetching = [\.workout]
+        guard let entries = try? fetch(entryDescriptor) else { return [] }
+        // The sets in one query rather than through each entry: with a long History that is
+        // several times faster (TECH T12).
+        let setDescriptor = FetchDescriptor<WorkoutSet>(predicate: #Predicate { $0.exerciseID == exerciseID },
+                                                        sortBy: [SortDescriptor(\.order)])
+        var setsByEntry: [PersistentIdentifier: [PlannedSet]] = [:]
+        for set in (try? fetch(setDescriptor)) ?? [] {
+            guard let entry = set.entry else { continue }
+            setsByEntry[entry.persistentModelID, default: []].append(set.planned)
+        }
         var byWorkout: [PersistentIdentifier: (workout: Workout, entries: [WorkoutEntry])] = [:]
         for entry in entries {
             guard let workout = entry.workout, !workout.isActive else { continue }
@@ -155,9 +182,38 @@ extension ModelContext {
         }
         return byWorkout.values.sorted { $0.workout.startedAt < $1.workout.startedAt }.map { item in
             let entries = item.entries.sorted { $0.order < $1.order }
-            let sets = entries.flatMap { ($0.sets ?? []).sorted { $0.order < $1.order }.map(\.planned) }
+            let sets = entries.flatMap { setsByEntry[$0.persistentModelID] ?? [] }
             return (item.workout, entries, sets)
         }
+    }
+
+    /// Writes an edited record, or adds a new one to History when `record` is nil (D16). Its sets are
+    /// written anew when they changed or the start moved (they repeat it); records and "last done" follow.
+    @MainActor @discardableResult
+    func saveRecord(_ record: Workout?, name: String, note: String, startedAt: Date, durationSeconds: Int,
+                    contents: TemplateDefinition, original: TemplateDefinition) -> Workout {
+        let workout: Workout
+        if let record {
+            workout = record
+        } else {
+            workout = Workout(name: name, startedAt: startedAt)
+            workout.isActive = false
+            insert(workout)
+        }
+        workout.name = name
+        workout.note = note
+        let start = freeStartTime(startedAt, for: workout)
+        let moved = start != workout.startedAt
+        workout.startedAt = start
+        workout.endedAt = start.addingTimeInterval(TimeInterval(durationSeconds))
+        workout.lastActivityAt = workout.endedAt ?? start
+        if record == nil || contents != original || moved {
+            workout.setContents(contents, context: self)
+        }
+        saveOrReport()
+        if let templateID = workout.templateID { refreshLastPerformed(of: [templateID]) }
+        RecordRecount.start(Set(original.exerciseIDs).union(contents.exerciseIDs), context: self)
+        return workout
     }
 
     /// A start time no other workout has: an exercise's history tells workouts apart by it (`recordHistory`).

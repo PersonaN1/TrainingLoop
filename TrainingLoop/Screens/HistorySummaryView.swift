@@ -1,27 +1,24 @@
 import Charts
+import SwiftData
 import SwiftUI
 import TrainingLoopCore
 
 /// History summary for the current week, month or year (SPEC D11, DESIGN V9).
 struct HistorySummaryView<Header: View>: View {
     @Environment(AppSettings.self) private var settings
-    let workouts: [Workout]
-    let exercises: [Exercise]
+    @Environment(\.modelContext) private var context
     @ViewBuilder let header: Header
     @State private var period = SummaryPeriod.month
     @State private var showsAllGroups = false
+    /// Worked out in the background (TECH T12): it reads all of History. A period shows its last
+    /// summary until a new one is ready.
+    @State private var summaries: [SummaryPeriod: HistorySummary] = [:]
+    /// Bumped on every save, to work the summary out again.
+    @State private var revision = 0
 
     private let calendar = Calendar.current
 
     var body: some View {
-        let now = Date.now
-        let groups = Dictionary(exercises.map { ($0.id, $0.primaryGroup) }, uniquingKeysWith: { first, _ in first })
-        // Sets by group only matter in the period: counting them elsewhere would load every set in History.
-        let interval = period.interval(containing: now, calendar: calendar)
-        let facts = workouts.map { workout in
-            workout.facts(groups: interval.start <= workout.startedAt && workout.startedAt < interval.end ? groups : nil)
-        }
-        let summary = HistorySummary(workouts: facts, period: period, now: now, calendar: calendar)
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 header
@@ -32,29 +29,50 @@ struct HistorySummaryView<Header: View>: View {
                 }
                 .pickerStyle(.segmented)
 
-                Text(periodTitle(summary.interval))
-                    .font(.headline)
-                    .padding(.top, 4)
-
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible())], spacing: 12) {
-                    StatTile(title: "Workouts", value: summary.workoutCount.formatted())
-                    StatTile(title: "Time", value: HistoryFormat.duration(summary.totalSeconds))
-                    StatTile(title: "Volume", value: HistoryFormat.totalVolume(summary.volumeKg, unit: settings.weightUnit))
-                    StatTile(title: "Week Streak", value: summary.weekStreak.formatted())
+                if let summary = summaries[period] {
+                    content(summary)
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, minHeight: 200)
                 }
-
-                card(Text(volumeTitle)) { volumeChart(summary.buckets, now: now) }
-                if period != .year {
-                    card(Text(verbatim: now.formatted(.dateTime.month(.wide)).capitalizedFirst)) {
-                        MonthCalendar(month: now, trainingDays: summary.trainingDays, calendar: calendar)
-                    }
-                }
-                card(Text("Sets by Muscle Group")) { groupBars(summary.setsByGroup) }
             }
             .padding(.horizontal)
             .padding(.bottom)
         }
         .background(Color(.systemGroupedBackground))
+        .task(id: [period.rawValue, String(revision)]) {
+            let period = period
+            let calendar = calendar
+            let summary = await HistoryReader.read(context.container) {
+                await $0.summary(period: period, now: .now, calendar: calendar)
+            }
+            guard !Task.isCancelled else { return }
+            summaries[period] = summary
+        }
+        .onReceive(NotificationCenter.default.publisher(for: ModelContext.didSave)) { _ in revision += 1 }
+    }
+
+    @ViewBuilder
+    private func content(_ summary: HistorySummary) -> some View {
+        let now = Date.now
+        Text(periodTitle(summary.interval))
+            .font(.headline)
+            .padding(.top, 4)
+
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible())], spacing: 12) {
+            StatTile(title: "Workouts", value: summary.workoutCount.formatted())
+            StatTile(title: "Time", value: HistoryFormat.duration(summary.totalSeconds))
+            StatTile(title: "Volume", value: HistoryFormat.totalVolume(summary.volumeKg, unit: settings.weightUnit))
+            StatTile(title: "Week Streak", value: summary.weekStreak.formatted())
+        }
+
+        card(Text(volumeTitle)) { volumeChart(summary.buckets, now: now) }
+        if period != .year {
+            card(Text(verbatim: now.formatted(.dateTime.month(.wide)).capitalizedFirst)) {
+                MonthCalendar(month: now, trainingDays: summary.trainingDays, calendar: calendar)
+            }
+        }
+        card(Text("Sets by Muscle Group")) { groupBars(summary.setsByGroup) }
     }
 
     private var volumeTitle: LocalizedStringKey {

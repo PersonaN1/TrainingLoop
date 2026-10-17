@@ -77,6 +77,31 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.personan1.trainingloop.widgets
+  # Hosted by the app: saving workouts and recounting after edits on an in-memory store (TECH T12).
+  TrainingLoopTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TrainingLoopTests
+        type: syncedFolder
+    dependencies:
+      - target: TrainingLoop
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.personan1.trainingloop.tests
+        GENERATE_INFOPLIST_FILE: YES
+  TrainingLoopUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TrainingLoopUITests
+        type: syncedFolder
+    dependencies:
+      - target: TrainingLoop
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.personan1.trainingloop.uitests
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   TrainingLoop:
     build:
@@ -84,5 +109,10 @@ schemes:
         TrainingLoop: all
     run:
       config: Debug
+    test:
+      config: Debug
+      targets:
+        - TrainingLoopTests
+        - TrainingLoopUITests
     archive:
       config: Release

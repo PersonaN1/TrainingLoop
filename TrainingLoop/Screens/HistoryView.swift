@@ -16,6 +16,9 @@ struct HistoryView: View {
     @State private var path: [Route] = []
     @State private var adding = false
     @State private var exporting = false
+    /// Rows are added as the list scrolls: a List of all 3000 workouts takes seconds to show (TECH T12).
+    @State private var shownCount = Self.page
+    private static let page = 200
 
     private enum Mode: Hashable { case records, summary }
     /// Not a bare id: in a selectable List a link with the selection's type selects instead of opening.
@@ -27,7 +30,7 @@ struct HistoryView: View {
                 switch mode {
                 case .records: records
                 case .summary:
-                    HistorySummaryView(workouts: workouts, exercises: allExercises) { modePicker }
+                    HistorySummaryView { modePicker }
                 }
             }
             .navigationTitle("History")
@@ -123,6 +126,12 @@ struct HistoryView: View {
                     }
                 }
             }
+            if workouts.count > shownCount {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
+                    .onAppear { shownCount += Self.page }
+            }
         }
         .overlay {
             if workouts.isEmpty {
@@ -138,7 +147,7 @@ struct HistoryView: View {
     private var days: [(date: Date, workouts: [Workout])] {
         let calendar = Calendar.current
         var result: [(date: Date, workouts: [Workout])] = []
-        for workout in workouts {
+        for workout in workouts.prefix(shownCount) {
             let day = calendar.startOfDay(for: workout.startedAt)
             if result.last?.date == day {
                 result[result.count - 1].workouts.append(workout)
