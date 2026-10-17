@@ -15,6 +15,7 @@ struct HistoryView: View {
     @State private var deleting: PersistentIdentifier?
     @State private var path: [Route] = []
     @State private var adding = false
+    @State private var exporting = false
 
     private enum Mode: Hashable { case records, summary }
     /// Not a bare id: in a selectable List a link with the selection's type selects instead of opening.
@@ -41,6 +42,11 @@ struct HistoryView: View {
             }
             .toolbar {
                 if !editMode.isEditing && mode == .records {
+                    // Workouts over a period as text (D12).
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Export Workouts", systemImage: "square.and.arrow.up") { exporting = true }
+                            .disabled(workouts.isEmpty)
+                    }
                     // iOS 26+ merges neighbouring items into one glass capsule; keep "+" on its own.
                     if #available(iOS 26, *) {
                         ToolbarSpacer(.fixed, placement: .topBarTrailing)
@@ -54,6 +60,9 @@ struct HistoryView: View {
             }
             .sheet(isPresented: $adding) {
                 TemplateEditorView(record: nil)
+            }
+            .sheet(isPresented: $exporting) {
+                HistoryExportView(workouts: workouts, exercises: allExercises)
             }
             .selectionToolbar(
                 editMode: $editMode, selection: $selection,
