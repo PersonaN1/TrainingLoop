@@ -64,6 +64,14 @@ extension ExerciseStats.Metric {
         }
     }
 
+    /// Reps and seconds: whole marks on the axis.
+    var isCount: Bool {
+        switch self {
+        case .bestWeight, .volume: false
+        case .maxReps, .totalReps, .maxSeconds: true
+        }
+    }
+
     /// A Y-axis label from a shown value: "50 kg", "2.4 t", "15 reps", "1:30". `tonnes`: every
     /// volume label in tonnes, so one axis doesn't mix "800 kg" with "1 t".
     func axisText(_ shown: Double, unit: WeightUnit, tonnes: Bool) -> String {
@@ -216,6 +224,7 @@ struct ExerciseChart: View {
         let tonnes = metric == .volume && unit == .kg && points.contains { $0.value >= 1000 }
         // Cups overlap on a crowded chart; the coral points still mark records.
         let showsCups = points.count <= 12
+        let axis = YAxis(points.map { metric.display($0.value, unit: unit) }, whole: metric.isCount)
         return Chart {
             ForEach(points, id: \.session) { point in
                 let value = metric.display(point.value, unit: unit)
@@ -249,10 +258,10 @@ struct ExerciseChart: View {
             }
         }
         .chartXScale(domain: dates)
-        .chartYScale(domain: .automatic(includesZero: false))
+        .chartYScale(domain: axis.domain)
         // Values with units on the left, as people read charts; dates under the line.
         .chartYAxis {
-            AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { value in
+            AxisMarks(position: .leading, values: axis.marks) { value in
                 AxisGridLine()
                 AxisValueLabel {
                     if let shown = value.as(Double.self) { Text(metric.axisText(shown, unit: unit, tonnes: tonnes)) }
@@ -268,6 +277,37 @@ struct ExerciseChart: View {
         }
         .frame(height: 200)
         .accessibilityLabel(metric.title)
+    }
+}
+
+/// The Y range and its marks, set by hand: Charts draws no axis for a flat line, and counts
+/// shouldn't get "5.5 reps".
+struct YAxis {
+    let domain: ClosedRange<Double>
+    let marks: [Double]
+
+    init(_ values: [Double], whole: Bool) {
+        let low = values.min() ?? 0
+        let high = values.max() ?? 0
+        let span = high - low
+        // A flat line sits in the middle with room around it.
+        let pad = span > 1e-9 ? span * 0.15 : max(whole ? 2 : 1, abs(high) * 0.1)
+        var lower = max(0, low - pad)
+        var upper = high + pad
+        var step = Self.niceStep((upper - lower) / 4)
+        if whole { step = max(1, step.rounded()) }
+        lower = (lower / step).rounded(.down) * step
+        upper = (upper / step).rounded(.up) * step
+        domain = lower...upper
+        marks = Array(stride(from: lower, through: upper + step / 2, by: step))
+    }
+
+    /// 1, 2 or 5 times a power of ten.
+    private static func niceStep(_ raw: Double) -> Double {
+        guard raw > 0 else { return 1 }
+        let magnitude = pow(10, (log10(raw)).rounded(.down))
+        let fraction = raw / magnitude
+        return (fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10) * magnitude
     }
 }
 
