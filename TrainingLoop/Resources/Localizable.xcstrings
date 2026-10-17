@@ -2577,12 +2577,12 @@
         }
       }
     },
-    "Signals don't play during a call." : {
+    "Signals don't play during a call. With sounds off or Silent Mode followed, the end of rest comes as a notification." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Во время звонка сигналы не воспроизводятся."
+            "value" : "Во время звонка сигналы не воспроизводятся. Если звуки выключены или беззвучный режим не игнорируется, о конце отдыха придёт уведомление."
           }
         }
       }
