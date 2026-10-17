@@ -7,6 +7,13 @@
 
 **Status:** in development, coming soon to the App Store. From the maker of [SetLoop](https://github.com/PersonaN1/SetLoop).
 
+<p align="center">
+<img src="site/screens/en-1-templates.jpg" width="200" alt="Workout templates">
+<img src="site/screens/en-2-workout.jpg" width="200" alt="Workout">
+<img src="site/screens/en-3-lock.jpg" width="200" alt="Lock Screen">
+<img src="site/screens/en-4-chart.jpg" width="200" alt="Exercise chart">
+</p>
+
 ## How it works
 
 - **Template** — the plan of one workout: exercises in order, a list of sets for each (reps or time, weight), rest between sets. Neighbouring exercises can be merged into a **superset** and done in rounds.
