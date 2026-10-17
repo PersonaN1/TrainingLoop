@@ -45,6 +45,10 @@ struct HistoryView: View {
             }
             .toolbar {
                 if !editMode.isEditing && mode == .records {
+                    // iOS 26+ merges neighbouring items into one glass capsule; keep Export apart from Select.
+                    if #available(iOS 26, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
                     // Workouts over a period as text (D12).
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Export Workouts", systemImage: "square.and.arrow.up") { exporting = true }
