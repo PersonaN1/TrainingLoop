@@ -75,7 +75,10 @@ struct HistoryView: View {
                 editMode: $editMode, selection: $selection,
                 allIDs: mode == .records ? workouts.map(\.persistentModelID) : [],
                 confirmationTitle: { Text("Delete \($0) workouts?") },
-                delete: { ids in context.deleteWorkouts(workouts.filter { ids.contains($0.persistentModelID) }) }
+                delete: { ids in context.deleteWorkouts(workouts.filter { ids.contains($0.persistentModelID) }) },
+                share: { [container = context.container, unit = settings.weightUnit] ids in
+                    DeferredText.workouts(ids, container: container, unit: unit)
+                }
             )
         }
     }

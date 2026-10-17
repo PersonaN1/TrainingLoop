@@ -1,13 +1,15 @@
 import SwiftData
 import SwiftUI
 
-/// iOS-style bulk delete for a list: Select / Done, Select All, Delete (N) with confirmation.
+/// iOS-style bulk actions for a list: Select / Done, Select All, Delete (N) with confirmation and,
+/// where the list can be exported, Share (N) on the left as in Photos and Files.
 struct SelectionToolbar: ViewModifier {
     @Binding var editMode: EditMode
     @Binding var selection: Set<PersistentIdentifier>
     let allIDs: [PersistentIdentifier]
     let confirmationTitle: (Int) -> Text
     let delete: (Set<PersistentIdentifier>) -> Void
+    var share: ((Set<PersistentIdentifier>) -> DeferredText)?
 
     @State private var confirmingSelection = false
 
@@ -30,6 +32,20 @@ struct SelectionToolbar: ViewModifier {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(editMode.isEditing ? "Done" : "Select") { setEditing(!editMode.isEditing) }
                         .disabled(allIDs.isEmpty && !editMode.isEditing)
+                }
+                if editMode.isEditing, let share {
+                    ToolbarItem(placement: .bottomBar) {
+                        ShareLink(item: share(selection), preview: SharePreview(Text("Share (\(selection.count))"))) {
+                            Text("Share (\(selection.count))")
+                        }
+                        .disabled(selection.isEmpty)
+                    }
+                    // Share on the left, Delete on the right.
+                    if #available(iOS 26, *) {
+                        ToolbarSpacer(.flexible, placement: .bottomBar)
+                    } else {
+                        ToolbarItem(placement: .bottomBar) { Spacer() }
+                    }
                 }
                 if editMode.isEditing {
                     ToolbarItem(placement: .bottomBar) {
@@ -74,11 +90,12 @@ extension View {
         selection: Binding<Set<PersistentIdentifier>>,
         allIDs: [PersistentIdentifier],
         confirmationTitle: @escaping (Int) -> Text,
-        delete: @escaping (Set<PersistentIdentifier>) -> Void
+        delete: @escaping (Set<PersistentIdentifier>) -> Void,
+        share: ((Set<PersistentIdentifier>) -> DeferredText)? = nil
     ) -> some View {
         modifier(SelectionToolbar(
             editMode: editMode, selection: selection,
-            allIDs: allIDs, confirmationTitle: confirmationTitle, delete: delete
+            allIDs: allIDs, confirmationTitle: confirmationTitle, delete: delete, share: share
         ))
     }
 }
