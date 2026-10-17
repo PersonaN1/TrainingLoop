@@ -47,7 +47,8 @@ struct SettingsView: View {
                     Text("Sound and Haptics")
                 } footer: {
                     // SPEC D20: rest is real time; iOS silences the app during a call.
-                    Text("Signals don't play during a call.")
+                    // D5: without the app's own signals on the lock screen, a notification ends the rest.
+                    Text("Signals don't play during a call. With sounds off or Silent Mode followed, the end of rest comes as a notification.")
                 }
 
                 Section("Display") {
