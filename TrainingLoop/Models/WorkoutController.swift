@@ -28,6 +28,7 @@ final class WorkoutController {
     private let context: ModelContext?
     private var restTask: Task<Void, Never>?
     private let audio: WorkoutAudio
+    private let restNotification: RestNotification
     private let liveActivity = LiveActivityManager()
 
     init(settings: AppSettings, context: ModelContext? = nil, fileURL: URL = WorkoutController.defaultFileURL) {
@@ -35,6 +36,7 @@ final class WorkoutController {
         self.context = context
         self.fileURL = fileURL
         audio = WorkoutAudio(settings: settings)
+        restNotification = RestNotification(settings: settings)
         workout = Self.load(from: fileURL)
         guard context != nil else { return }
         // The lock screen buttons reach the workout through here, even when they woke the app.
@@ -218,6 +220,7 @@ final class WorkoutController {
 
     func skipRest() {
         restTask?.cancel()
+        restNotification.cancel()
         audio.end()
         change { $0.rest = nil }
     }
@@ -226,6 +229,7 @@ final class WorkoutController {
     /// only while a rest runs (T6), which keeps the app awake on the lock screen for the signals.
     private func scheduleRestEnd() {
         restTask?.cancel()
+        restNotification.cancel()
         guard let rest, !rest.isPaused else {
             audio.end()
             return
@@ -237,6 +241,7 @@ final class WorkoutController {
             return
         }
         audio.begin()
+        restNotification.schedule(at: endsAt, next: nextText)
         restTask = Task { [weak self] in
             for secondsLeft in [3, 2, 1] {
                 let cueAt = endsAt.addingTimeInterval(-TimeInterval(secondsLeft))
@@ -261,6 +266,7 @@ final class WorkoutController {
     /// activity that couldn't be requested in the background or that the system ended.
     func appDidBecomeActive() {
         audio.resumeIfNeeded()
+        restNotification.clearDelivered()
         refreshActivity()
     }
 
@@ -363,6 +369,7 @@ final class WorkoutController {
 
     private func end() {
         restTask?.cancel()
+        restNotification.cancel()
         audio.end()
         liveActivity.end()
         workout = nil
@@ -449,6 +456,13 @@ final class WorkoutController {
         }
         if weighted, let weight = value.weightKg { return "\(settings.weightUnit.weightText(weight)) × \(reps)" }
         return "× \(reps)"
+    }
+
+    /// "Next: Squat, set 3", as on the rest panel.
+    private var nextText: String? {
+        guard let workout, let position = workout.nextPosition else { return nil }
+        let name = exerciseModel(workout.exercise(at: position).exerciseID)?.name ?? String(localized: "Exercise")
+        return String(localized: "Next: \(name), set \(position.set + 1)")
     }
 
     private func exerciseModel(_ id: UUID) -> Exercise? {
