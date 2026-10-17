@@ -44,7 +44,7 @@
 
 **Описание:**
 
-TrainingLoop — дневник силовых тренировок для iPhone. Составьте тренировку один раз, а дальше просто отмечайте подходы: вес и повторы прошлого раза уже подставлены, таймер отдыха запускается сам. Следите за прогрессом тренировок или каждого упражнения — с графиками и рекордами.
+TrainingLoop — дневник силовых тренировок для iPhone. Составляйте шаблоны тренировок или импровизируйте на ходу. В зале просто отмечайте подходы: вес и повторы прошлого раза уже подставлены, таймер отдыха запускается сам. Сохраняйте выполненные тренировки и добавляйте забытые. Следите за прогрессом тренировок и каждого упражнения по графикам и рекордам, обновляйте шаблоны и делитесь тренировками с кем угодно.
 
 ШАБЛОНЫ
 • Упражнения в нужном порядке, у каждого — свои подходы: повторы или время, вес и отдых.
@@ -91,7 +91,7 @@ gym,tracker,lifting,weightlifting,bodybuilding,sets,reps,progress,records,planne
 
 **Description:**
 
-TrainingLoop is a strength training log for iPhone. Plan a workout once, then simply tick off your sets: last time's weight and reps are already filled in, and the rest timer starts on its own. Follow the progress of your workouts or of every exercise, with charts and records.
+TrainingLoop is a strength training log for iPhone. Plan workout templates or improvise as you go. At the gym, simply tick off your sets: last time's weight and reps are already filled in, and the rest timer starts on its own. Save finished workouts and add the ones you forgot to log. Follow the progress of your workouts and of every exercise with charts and records, update your templates and share your workouts with anyone.
 
 TEMPLATES
 • Exercises in the order you want, each with its own sets: reps or time, weight and rest.
