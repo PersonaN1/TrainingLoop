@@ -26,8 +26,8 @@ struct WorkoutSummaryView: View {
             }
         }
         .interactiveDismissDisabled()
+        .task { await workouts.loadHistory(context: context) }
         .onAppear {
-            workouts.loadHistory(context: context)
             guard !loaded, let workout = workouts.workout else { return }
             loaded = true
             name = workout.name

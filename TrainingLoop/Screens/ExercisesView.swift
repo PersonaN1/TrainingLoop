@@ -50,10 +50,10 @@ struct ExercisesView: View {
             .onReceive(NotificationCenter.default.publisher(for: ModelContext.didSave, object: context)) { _ in
                 summariesStale = true
             }
-            .onAppear {
+            .task {
                 guard summariesStale else { return }
                 summariesStale = false
-                loadSummaries()
+                await loadSummaries()
             }
         }
     }
@@ -90,26 +90,10 @@ struct ExercisesView: View {
         }
     }
 
-    /// One pass over all recorded sets; cheaper than a query per row.
-    private func loadSummaries() {
-        let sets: [WorkoutSet]
-        do {
-            var descriptor = FetchDescriptor<WorkoutSet>()
-            descriptor.propertiesToFetch = [\.reps, \.seconds, \.weightKg, \.exerciseID, \.workoutStartedAt]
-            sets = try context.fetch(descriptor)
-        } catch {
-            Persistence.report("Fetching sets failed", error)
-            return
-        }
+    /// One pass over all recorded sets, in the background (TECH T12); cheaper than a query per row.
+    private func loadSummaries() async {
         let measures = Dictionary(exercises.map { ($0.id, $0.measure) }, uniquingKeysWith: { first, _ in first })
-        let byExercise = Dictionary(grouping: sets, by: \.exerciseID)
-        summaries = byExercise.reduce(into: [:]) { result, item in
-            let performed = item.value.map {
-                PerformedSet(reps: $0.reps, seconds: $0.seconds, weightKg: $0.weightKg,
-                             workoutStartedAt: $0.workoutStartedAt)
-            }
-            result[item.key] = ExerciseSummary(sets: performed, measure: measures[item.key] ?? .reps)
-        }
+        summaries = await HistoryReader.read(context.container) { await $0.exerciseSummaries(measures: measures) }
     }
 }
 

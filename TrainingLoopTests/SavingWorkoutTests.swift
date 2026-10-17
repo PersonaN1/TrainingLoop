@@ -37,7 +37,7 @@ struct SavingWorkoutTests {
                             updateTemplate: false, saveAsTemplate: false, context: store.context)
     }
 
-    @Test func savesTickedSetsAsRecord() throws {
+    @Test func savesTickedSetsAsRecord() async throws {
         let squat = store.exercise()
         let template = template(squat.id, weightKg: 60)
         controller.start(template, context: store.context)
@@ -69,16 +69,18 @@ struct SavingWorkoutTests {
         #expect(set.exerciseID == squat.id)
         #expect(set.workoutStartedAt == record.startedAt)
         #expect(template.lastPerformedAt == record.startedAt)
+        await RecordRecount.finish()
         // A first workout has nothing to beat.
         #expect(record.recordCount == 0)
     }
 
-    @Test func heavierWorkoutCountsRecords() throws {
+    @Test func heavierWorkoutCountsRecords() async throws {
         let squat = store.exercise()
         controller.start(template(squat.id, weightKg: 60), context: store.context)
         try tickAndSave(3)
         controller.start(template(squat.id, weightKg: 70), context: store.context)
         try tickAndSave(3)
+        await RecordRecount.finish()
 
         let records = try store.context.fetch(FetchDescriptor<Workout>(sortBy: [SortDescriptor(\.startedAt)]))
         #expect(records.count == 2)

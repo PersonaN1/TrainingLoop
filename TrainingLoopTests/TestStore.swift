@@ -22,21 +22,25 @@ struct TestStore {
         return exercise
     }
 
-    /// A finished workout added to History as the record editor does it (D16).
+    /// A finished workout added to History as the record editor does it (D16), records counted.
     @discardableResult
-    func addWorkout(on day: Int, _ exerciseID: UUID, weightKg: Double, reps: Int = 5, sets: Int = 1) -> Workout {
-        context.saveRecord(nil, name: "Day \(day)", note: "", startedAt: Self.date(day), durationSeconds: 3600,
-                           contents: Self.contents(exerciseID, weightKg: weightKg, reps: reps, sets: sets),
-                           original: TemplateDefinition())
+    func addWorkout(on day: Int, _ exerciseID: UUID, weightKg: Double, reps: Int = 5, sets: Int = 1) async -> Workout {
+        let workout = context.saveRecord(nil, name: "Day \(day)", note: "", startedAt: Self.date(day), durationSeconds: 3600,
+                                         contents: Self.contents(exerciseID, weightKg: weightKg, reps: reps, sets: sets),
+                                         original: TemplateDefinition())
+        await RecordRecount.finish()
+        return workout
     }
 
-    /// The record editor saving `workout` with new sets and, optionally, a new day.
-    func edit(_ workout: Workout, day: Int? = nil, _ exerciseID: UUID, weightKg: Double, reps: Int = 5, sets: Int = 1) {
+    /// The record editor saving `workout` with new sets and, optionally, a new day; records counted.
+    func edit(_ workout: Workout, day: Int? = nil, _ exerciseID: UUID, weightKg: Double, reps: Int = 5,
+              sets: Int = 1) async {
         context.saveRecord(workout, name: workout.name, note: workout.note,
                            startedAt: day.map(Self.date) ?? workout.startedAt,
                            durationSeconds: workout.durationSeconds,
                            contents: Self.contents(exerciseID, weightKg: weightKg, reps: reps, sets: sets),
                            original: workout.definition)
+        await RecordRecount.finish()
     }
 
     static func contents(_ exerciseID: UUID, weightKg: Double, reps: Int, sets: Int) -> TemplateDefinition {

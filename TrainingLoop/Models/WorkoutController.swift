@@ -21,6 +21,7 @@ final class WorkoutController {
 
     /// Earlier workouts of the exercises in this one, for the records (D10); loaded as exercises come in.
     private var history: [UUID: [[PlannedSet]]] = [:]
+    private var loadingHistory: Set<UUID> = []
 
     private let settings: AppSettings
     private let fileURL: URL
@@ -169,11 +170,18 @@ final class WorkoutController {
         workout?.records(history: history) ?? WorkoutRecords()
     }
 
-    func loadHistory(context: ModelContext) {
+    /// Loads in the background: with a long History it takes a while (TECH T12).
+    func loadHistory(context: ModelContext) async {
         guard let workout else { return }
-        let missing = workout.items.flatMap(\.exercises).map(\.exerciseID).filter { history[$0] == nil }
+        let missing = Array(Set(workout.items.flatMap(\.exercises).map(\.exerciseID))
+            .filter { history[$0] == nil }.subtracting(loadingHistory))
         guard !missing.isEmpty else { return }
-        history.merge(context.recordHistory(of: missing)) { $1 }
+        loadingHistory.formUnion(missing)
+        let loaded = await HistoryReader.read(context.container) { await $0.recordHistory(of: missing) }
+        // A workout that ended meanwhile is saved by now, so its history doesn't hold that workout.
+        guard self.workout?.id == workout.id else { return }
+        loadingHistory.subtract(missing)
+        history.merge(loaded) { $1 }
     }
 
     // MARK: Rest (TECH T6)
@@ -346,7 +354,7 @@ final class WorkoutController {
             throw error
         }
         if let oldestTemplateID { context.refreshLastPerformed(of: [oldestTemplateID]) }
-        context.refreshRecords(of: exerciseIDs)
+        RecordRecount.start(exerciseIDs, context: context)
         end()
         audio.finished()
     }
@@ -374,6 +382,7 @@ final class WorkoutController {
         liveActivity.end()
         workout = nil
         history = [:]
+        loadingHistory = []
         finishingAt = nil
         isPresented = false
         try? FileManager.default.removeItem(at: fileURL)

@@ -11,8 +11,8 @@ struct ExerciseDetailView: View {
     @Environment(WorkoutController.self) private var workouts
     @Query private var allExercises: [Exercise]
     let exercise: Exercise
-    /// Made from the store each time the screen shows: a workout may have been edited meanwhile.
-    @State private var history: [(workout: Workout, sets: [PlannedSet])] = []
+    /// Read in the background (TECH T12); nil until the first read is done.
+    @State private var history: [HistoryReader.ExerciseWorkout]?
     @State private var stats = ExerciseStats(sessions: [])
     @State private var metric: ExerciseStats.Metric = .bestWeight
     @State private var period: ChartPeriod = .threeMonths
@@ -33,7 +33,11 @@ struct ExerciseDetailView: View {
 
     var body: some View {
         List {
-            if stats.workoutCount == 0 {
+            if history == nil {
+                Section {
+                    ProgressView().frame(maxWidth: .infinity)
+                }
+            } else if stats.workoutCount == 0 {
                 Section {
                     Text("Not done yet").foregroundStyle(.secondary)
                 }
@@ -70,9 +74,10 @@ struct ExerciseDetailView: View {
                     }
                 }
                 Section("Workouts") {
+                    let history = history ?? []
                     ForEach(history.indices.reversed(), id: \.self) { index in
-                        NavigationLink(value: WorkoutRoute(id: history[index].workout.persistentModelID)) {
-                            workoutRow(index)
+                        NavigationLink(value: WorkoutRoute(id: history[index].workoutID)) {
+                            workoutRow(history[index], index: index)
                         }
                     }
                 }
@@ -126,7 +131,8 @@ struct ExerciseDetailView: View {
                 ExerciseWorkoutRecord(workout: workout)
             }
         }
-        .onAppear(perform: load)
+        // Again each time the screen shows: a workout may have been edited meanwhile.
+        .task { await load() }
         .sheet(isPresented: $showingEstimateInfo) {
             EstimatedMaxInfoView()
         }
@@ -145,10 +151,13 @@ struct ExerciseDetailView: View {
         .onDisappear(perform: applyRemoval)
     }
 
-    private func load() {
+    private func load() async {
         guard !exercise.isDeleted else { return }
-        history = context.exerciseWorkouts(exercise.id).map { ($0.workout, $0.sets) }
-        stats = ExerciseStats(sessions: history.map { .init(date: $0.workout.startedAt, sets: $0.sets) })
+        let id = exercise.id
+        let read = await HistoryReader.read(context.container) { await $0.exerciseHistory(id) }
+        guard !Task.isCancelled else { return }
+        history = read.workouts
+        stats = read.stats
         if !metrics.contains(metric), let first = metrics.first { metric = first }
     }
 
@@ -187,13 +196,12 @@ struct ExerciseDetailView: View {
         return tiles
     }
 
-    private func workoutRow(_ index: Int) -> some View {
-        let item = history[index]
-        return VStack(alignment: .leading, spacing: 2) {
+    private func workoutRow(_ item: HistoryReader.ExerciseWorkout, index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
             HStack {
-                Text(StatsFormat.date(item.workout.startedAt))
+                Text(StatsFormat.date(item.startedAt))
                     .font(.subheadline.weight(.semibold))
-                Text(item.workout.name)
+                Text(item.name)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

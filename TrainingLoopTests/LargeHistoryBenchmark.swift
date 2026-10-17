@@ -14,53 +14,87 @@ struct LargeHistoryBenchmark {
     static let exercisesPerWorkout = 5
     static let setsPerExercise = 4
 
-    @Test func measure() throws {
+    @Test func measure() async throws {
         let url = URL.temporaryDirectory.appending(path: "benchmark-\(UUID().uuidString).store")
         defer {
             for suffix in ["", "-shm", "-wal"] { try? FileManager.default.removeItem(atPath: url.path() + suffix) }
         }
         let exerciseIDs = try seed(at: url)
-
-        // A store opened afresh, as at launch: nothing is in memory yet.
+        // A store opened afresh, as at launch; every step reads through a new context, so nothing is cached.
         let container = try Self.container(at: url)
-        let context = container.mainContext
-        var lines: [String] = []
-        func time<T>(_ name: String, _ work: () throws -> T) rethrows -> T {
-            let clock = ContinuousClock()
-            var result: T?
-            let duration = try clock.measure { result = try work() }
-            lines.append("\(name): \(duration.formatted(.units(allowed: [.milliseconds], fractionalPart: .show(length: 1))))")
-            return result!
+        let squat = exerciseIDs[0]
+        let used = Array(exerciseIDs.prefix(Self.exercisesPerWorkout))
+        let calendar = Calendar.current
+        var lines = ["step: main thread blocked, before → after (result ready after)"]
+
+        func compare(_ name: String, before: @MainActor (ModelContext) -> Void, after: @MainActor () async -> Void) async {
+            let old = await Self.stall { before(ModelContext(container)) }
+            let new = await Self.stall { await after() }
+            lines.append("\(name): \(Self.ms(old.stall)) → \(Self.ms(new.stall)) (\(Self.ms(new.total)))")
         }
 
-        let workouts = try time("fetch History") {
-            try context.fetch(FetchDescriptor<Workout>(predicate: #Predicate { !$0.isActive },
-                                                       sortBy: [SortDescriptor(\.startedAt, order: .reverse)]))
+        for period in [SummaryPeriod.week, .month, .year] {
+            await compare("summary \(period)") { context in
+                _ = summary(context, period: period)
+            } after: {
+                _ = await HistoryReader.read(container) { await $0.summary(period: period, now: .now, calendar: calendar) }
+            }
         }
-        #expect(workouts.count == Self.workoutCount)
-        let exercises = try context.fetch(FetchDescriptor<Exercise>())
-        let groups = Dictionary(exercises.map { ($0.id, $0.primaryGroup) }, uniquingKeysWith: { first, _ in first })
-        for period in [SummaryPeriod.month, .year, .week] {
-            _ = time("summary \(period)") { summary(workouts, groups: groups, period: period) }
+        await compare("exercise statistics") { context in
+            _ = ExerciseStats(sessions: context.exerciseWorkouts(squat).map { .init(date: $0.workout.startedAt, sets: $0.sets) })
+        } after: {
+            _ = await HistoryReader.read(container) { await $0.exerciseHistory(squat) }
         }
-        let squat = exerciseIDs[0]
-        let stats = time("exercise statistics") {
-            ExerciseStats(sessions: context.exerciseWorkouts(squat).map { .init(date: $0.workout.startedAt, sets: $0.sets) })
+        await compare("records history at start (5 exercises)") { context in
+            _ = context.recordHistory(of: used)
+        } after: {
+            _ = await HistoryReader.read(container) { await $0.recordHistory(of: used) }
         }
-        #expect(stats.workoutCount > 0)
-        let used = Array(exerciseIDs.prefix(Self.exercisesPerWorkout))
-        _ = time("records history at start (5 exercises)") { context.recordHistory(of: used) }
-        _ = time("last sets at start (5 exercises)") { context.lastSets(of: used) }
-        time("recount after save (5 exercises)") { context.refreshRecords(of: used) }
-        time("recount all, once after update") { context.refreshRecords(of: exerciseIDs) }
+        await compare("recount after save (5 exercises)") { context in
+            context.refreshRecords(of: used)
+        } after: {
+            RecordRecount.start(used, context: container.mainContext)
+            await RecordRecount.finish()
+        }
 
         let report = lines.joined(separator: "\n")
         print("LargeHistoryBenchmark (\(Self.workoutCount) workouts, \(Self.workoutCount * Self.exercisesPerWorkout * Self.setsPerExercise) sets)\n\(report)")
         Attachment.record(report, named: "benchmark.txt")
     }
 
-    /// What `HistorySummaryView` works out on every render.
-    private func summary(_ workouts: [Workout], groups: [UUID: MuscleGroup], period: SummaryPeriod) -> HistorySummary {
+    /// The longest the main actor went without a turn while `work` ran, and how long `work` took.
+    private static func stall(_ work: @MainActor () async -> Void) async -> (stall: Duration, total: Duration) {
+        let clock = ContinuousClock()
+        let ticker = Task { @MainActor in
+            var last = clock.now
+            var worst = Duration.zero
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(2))
+                let now = clock.now
+                worst = max(worst, now - last)
+                last = now
+            }
+            return worst
+        }
+        await Task.yield()
+        let start = clock.now
+        await work()
+        let total = clock.now - start
+        // One more turn, so a stall at the very end is counted.
+        try? await Task.sleep(for: .milliseconds(5))
+        ticker.cancel()
+        return (await ticker.value, total)
+    }
+
+    private static func ms(_ duration: Duration) -> String {
+        duration.formatted(.units(allowed: [.milliseconds], fractionalPart: .hide))
+    }
+
+    /// What `HistorySummaryView` worked out on every render before it moved to `HistoryReader`.
+    private func summary(_ context: ModelContext, period: SummaryPeriod) -> HistorySummary {
+        let workouts = (try? context.fetch(FetchDescriptor<Workout>(predicate: #Predicate { !$0.isActive }))) ?? []
+        let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+        let groups = Dictionary(exercises.map { ($0.id, $0.primaryGroup) }, uniquingKeysWith: { first, _ in first })
         let now = Date.now
         let calendar = Calendar.current
         let interval = period.interval(containing: now, calendar: calendar)
@@ -74,7 +108,7 @@ struct LargeHistoryBenchmark {
         try ModelContainer(for: Schema(versionedSchema: SchemaV1.self), configurations: ModelConfiguration(url: url))
     }
 
-    /// One workout a day back from today, five of twenty exercises in turn, four sets each, weights rising.
+    /// A full History over twenty exercises.
     private func seed(at url: URL) throws -> [UUID] {
         let container = try Self.container(at: url)
         let context = ModelContext(container)
@@ -85,28 +119,7 @@ struct LargeHistoryBenchmark {
                      primaryGroup: groups[index % groups.count], equipment: .barbell)
         }
         exercises.forEach(context.insert)
-        let today = Calendar.current.startOfDay(for: .now)
-        for number in 0..<Self.workoutCount {
-            let daysAgo = Self.workoutCount - 1 - number
-            let start = today.addingTimeInterval(TimeInterval(-daysAgo * 86_400 + 18 * 3600 - 86_400))
-            let workout = Workout(name: "Workout \(number % 3)", startedAt: start)
-            workout.isActive = false
-            workout.endedAt = start.addingTimeInterval(3600)
-            context.insert(workout)
-            for order in 0..<Self.exercisesPerWorkout {
-                let exercise = exercises[(number + order * 4) % Self.exerciseCount]
-                let entry = WorkoutEntry(exerciseID: exercise.id, order: order, restSeconds: 90)
-                workout.entries?.append(entry)
-                let weight = 40 + Double(number % 400) / 10
-                for index in 0..<Self.setsPerExercise {
-                    entry.sets?.append(WorkoutSet(order: index, reps: 8 - index, weightKg: weight,
-                                                  exerciseID: exercise.id, workoutStartedAt: start))
-                }
-            }
-            workout.updateTotals()
-            if number % 250 == 249 { try context.save() }
-        }
-        try context.save()
+        SampleHistory.insertFull(exercises.map(\.id), into: context, count: Self.workoutCount)
         return exercises.map(\.id)
     }
 }
