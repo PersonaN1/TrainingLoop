@@ -139,10 +139,13 @@ struct WorkoutView: View {
                         .listRowBackground(SupersetRowBackground())
                     }
                 }
-                Section {
-                    Button("Add Exercises", systemImage: "plus") { picker = .add }
-                    if workout.items.flatMap(\.exercises).count > 1 {
-                        Button("Change Order", systemImage: "arrow.up.arrow.down") { reordering = true }
+                // An empty workout has its button in the placeholder below, not twice.
+                if !workout.items.isEmpty {
+                    Section {
+                        Button("Add Exercises", systemImage: "plus") { picker = .add }
+                        if workout.items.flatMap(\.exercises).count > 1 {
+                            Button("Change Order", systemImage: "arrow.up.arrow.down") { reordering = true }
+                        }
                     }
                 }
             }

@@ -873,6 +873,16 @@
         }
       }
     },
+    "Create Exercise" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать упражнение"
+          }
+        }
+      }
+    },
     "custom" : {
       "localizations" : {
         "ru" : {

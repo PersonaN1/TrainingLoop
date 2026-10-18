@@ -4,7 +4,8 @@ import TrainingLoopCore
 
 /// The catalog as a picker (DESIGN V6): search, filter and several exercises at once, "Add (N)";
 /// or exactly one for "Replace". "+" creates a custom exercise right here; it comes back picked.
-/// The bar holds icons only (✕, filter) and "+" sits at the bottom: text buttons squeezed the title down to "Add…".
+/// The bar holds icons only (✕, filter): text buttons squeezed the title down to "Add…".
+/// "Create Exercise" heads the list.
 struct ExercisePickerView: View {
     enum Mode {
         case add
@@ -27,6 +28,9 @@ struct ExercisePickerView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    Button("Create Exercise", systemImage: "plus") { newExercise() }
+                }
                 if filter.isActive {
                     ExerciseFilterChips(filter: $filter)
                 }
@@ -62,28 +66,19 @@ struct ExercisePickerView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                HStack(spacing: 12) {
-                    if mode == .add {
-                        Button {
-                            pick(picked)
-                            dismiss()
-                        } label: {
-                            Text("Add (\(picked.count))")
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(picked.isEmpty)
-                    } else {
-                        Spacer()
+                if mode == .add {
+                    Button {
+                        pick(picked)
+                        dismiss()
+                    } label: {
+                        Text("Add (\(picked.count))")
+                            .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity, minHeight: 34)
                     }
-                    Button("New Exercise", systemImage: "plus") { newExercise() }
-                        .labelStyle(.iconOnly)
-                        .buttonStyle(.bordered)
-                        .tint(.primary)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(picked.isEmpty)
+                    .padding()
                 }
-                .controlSize(.large)
-                .padding()
             }
         }
     }
