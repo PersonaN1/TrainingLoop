@@ -34,6 +34,11 @@ struct ExercisePickerView: View {
                 if filter.isActive {
                     ExerciseFilterChips(filter: $filter)
                 }
+                // In the list, under "Create Exercise": as an overlay it covered that row.
+                if sections.isEmpty {
+                    CatalogEmptyState(isEmpty: true, search: searchText, filter: $filter)
+                        .listRowBackground(Color.clear)
+                }
                 ForEach(sections, id: \.group) { section in
                     Section(section.group.title) {
                         ForEach(section.exercises) { exercise in
@@ -42,7 +47,6 @@ struct ExercisePickerView: View {
                     }
                 }
             }
-            .overlay { CatalogEmptyState(isEmpty: sections.isEmpty, search: searchText, filter: $filter) }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .navigationTitle(mode == .add ? "Add Exercises" : "Replace Exercise")
             .navigationBarTitleDisplayMode(.inline)
