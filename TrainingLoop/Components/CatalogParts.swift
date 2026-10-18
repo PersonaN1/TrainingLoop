@@ -109,7 +109,12 @@ struct CatalogEmptyState: View {
     var body: some View {
         if isEmpty {
             if !search.trimmingCharacters(in: .whitespaces).isEmpty {
-                ContentUnavailableView.search(text: search)
+                // Not `.search(text:)`: its "No Results for «…»" doesn't fit a line and gets cut.
+                ContentUnavailableView {
+                    Label("No Results", systemImage: "magnifyingglass")
+                } description: {
+                    Text("Check the spelling or try a different search.")
+                }
             } else if filter.isActive {
                 ContentUnavailableView {
                     Label("No Matching Exercises", systemImage: "line.3.horizontal.decrease.circle")

@@ -833,6 +833,16 @@
         }
       }
     },
+    "Check the spelling or try a different search." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверьте написание или попробуйте изменить запрос."
+          }
+        }
+      }
+    },
     "Chest" : {
       "localizations" : {
         "ru" : {
@@ -1980,6 +1990,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нет подходящих упражнений"
+          }
+        }
+      }
+    },
+    "No Results" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет результатов"
           }
         }
       }
