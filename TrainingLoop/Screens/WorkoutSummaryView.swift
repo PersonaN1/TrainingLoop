@@ -156,6 +156,7 @@ struct WorkoutSummaryView: View {
         } message: {
             Text("Nothing is lost: the workout stays open. Try again.")
         }
+        .keyboardDismissButton()
         .navigationTitle("Results")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

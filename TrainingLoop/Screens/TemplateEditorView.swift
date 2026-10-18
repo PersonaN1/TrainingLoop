@@ -109,7 +109,7 @@ struct TemplateEditorView: View {
                 // Over the keyboard the panel would cover half the screen.
                 if !nameFocused { bottomPanel }
             }
-            .scrollDismissesKeyboard(.immediately)
+            .keyboardDismissButton()
             .navigationTitle("Workout")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

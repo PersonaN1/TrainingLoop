@@ -20,9 +20,9 @@ struct HistorySummaryTests {
     @Test func monthTotalsAndWeeklyBars() {
         let workouts = [
             WorkoutFacts(startedAt: date(9, 29), durationSeconds: 3000, volumeKg: 1000, setsByGroup: [.back: 5]),
-            WorkoutFacts(startedAt: date(10, 1), durationSeconds: 2400, volumeKg: 2000, setsByGroup: [.quads: 6]),
+            WorkoutFacts(startedAt: date(10, 1), durationSeconds: 2400, volumeKg: 2000, setsByGroup: [.legs: 6]),
             WorkoutFacts(startedAt: date(10, 14), durationSeconds: 1800, volumeKg: 500,
-                         setsByGroup: [.quads: 4, .chest: 3]),
+                         setsByGroup: [.legs: 4, .chest: 3]),
         ]
         let summary = HistorySummary(workouts: workouts, period: .month, now: now, calendar: calendar)
         #expect(summary.workoutCount == 2)
@@ -30,7 +30,7 @@ struct HistorySummaryTests {
         #expect(summary.volumeKg == 2500)
         // Weeks starting 28 Sep, 5 Oct, 12 Oct; the first one also counts its September workout.
         #expect(summary.buckets.map(\.volumeKg) == [3000, 0, 500])
-        #expect(summary.setsByGroup.map(\.group) == [.quads, .chest])
+        #expect(summary.setsByGroup.map(\.group) == [.legs, .chest])
         #expect(summary.setsByGroup.first?.sets == 10)
         #expect(summary.trainingDays.contains(calendar.startOfDay(for: date(9, 29))))
     }

@@ -3,7 +3,9 @@ import SwiftUI
 import TrainingLoopCore
 
 /// The catalog as a picker (DESIGN V6): search, filter and several exercises at once, "Add (N)";
-/// or exactly one for "Replace".
+/// or exactly one for "Replace". "+" creates a custom exercise right here; it comes back picked.
+/// The bar holds icons only (✕, filter): text buttons squeezed the title down to "Add…".
+/// "Create Exercise" heads the list.
 struct ExercisePickerView: View {
     enum Mode {
         case add
@@ -11,6 +13,7 @@ struct ExercisePickerView: View {
     }
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<Exercise> { !$0.isHidden && !$0.isArchived })
     private var exercises: [Exercise]
     let mode: Mode
@@ -19,12 +22,22 @@ struct ExercisePickerView: View {
     @State private var searchText = ""
     @State private var filter = ExerciseFilter()
     @State private var picked: [Exercise] = []
+    @State private var editor: ExerciseDraft?
+    @State private var limitReached = false
 
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    Button("Create Exercise", systemImage: "plus") { newExercise() }
+                }
                 if filter.isActive {
                     ExerciseFilterChips(filter: $filter)
+                }
+                // In the list, under "Create Exercise": as an overlay it covered that row.
+                if sections.isEmpty {
+                    CatalogEmptyState(isEmpty: true, search: searchText, filter: $filter)
+                        .listRowBackground(Color.clear)
                 }
                 ForEach(sections, id: \.group) { section in
                     Section(section.group.title) {
@@ -34,15 +47,27 @@ struct ExercisePickerView: View {
                     }
                 }
             }
-            .overlay { CatalogEmptyState(isEmpty: sections.isEmpty, search: searchText, filter: $filter) }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .navigationTitle(mode == .add ? "Add Exercises" : "Replace Exercise")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel", systemImage: "xmark") { dismiss() }
                 }
-                ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter) }
+                ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter, iconOnly: true) }
+            }
+            .exerciseLimitAlert(isPresented: $limitReached)
+            .sheet(item: $editor) { draft in
+                ExerciseEditorView(draft: draft) { created in
+                    switch mode {
+                    case .replace:
+                        pick([created])
+                        dismiss()
+                    case .add:
+                        picked.append(created)
+                        searchText = ""
+                    }
+                }
             }
             .safeAreaInset(edge: .bottom) {
                 if mode == .add {
@@ -60,6 +85,17 @@ struct ExercisePickerView: View {
                 }
             }
         }
+    }
+
+    /// Starts with the search text as the name and the filter's group and equipment.
+    private func newExercise() {
+        if context.customExerciseCount() >= Limits.maxCustomExercises {
+            limitReached = true
+            return
+        }
+        var draft = ExerciseDraft(primaryGroup: filter.group ?? .fullBody, equipment: filter.equipment ?? .bodyweight)
+        draft.name = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        editor = draft
     }
 
     private var sections: [CatalogSection] {

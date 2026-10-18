@@ -13,11 +13,9 @@ extension MuscleGroup {
         case .triceps: String(localized: "Triceps")
         case .forearms: String(localized: "Forearms")
         case .abs: String(localized: "Abs")
-        case .quads: String(localized: "Quads")
-        case .hamstrings: String(localized: "Hamstrings")
-        case .glutes: String(localized: "Glutes")
-        case .calves: String(localized: "Calves")
+        case .legs: String(localized: "Legs")
         case .fullBody: String(localized: "group.fullBody", defaultValue: "Full Body")
+        case .other: String(localized: "Other")
         }
     }
 }
@@ -30,7 +28,6 @@ extension Equipment {
         case .dumbbell: String(localized: "Dumbbells")
         case .kettlebell: String(localized: "Kettlebell")
         case .machine: String(localized: "Machine")
-        case .cable: String(localized: "Cable")
         case .band: String(localized: "Band")
         case .other: String(localized: "Other")
         }

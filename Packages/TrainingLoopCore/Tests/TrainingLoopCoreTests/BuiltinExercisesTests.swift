@@ -54,7 +54,22 @@ struct BuiltinExercisesTests {
         #expect(BuiltinExercises.exercise(key: "missing") == nil)
     }
 
+    /// "Other" is for the user's own exercises that fit no group.
     @Test func everyMuscleGroupIsCovered() {
-        #expect(Set(all.map(\.primaryGroup)) == Set(MuscleGroup.allCases))
+        #expect(Set(all.map(\.primaryGroup)) == Set(MuscleGroup.allCases).subtracting([.other]))
+    }
+
+    @Test func oldLegGroupsReadAsLegs() {
+        for raw in ["quads", "hamstrings", "glutes", "calves"] {
+            #expect(MuscleGroup(storedRawValue: raw) == .legs)
+        }
+        #expect(MuscleGroup(storedRawValue: "chest") == .chest)
+        #expect(MuscleGroup(storedRawValue: "unknown") == nil)
+    }
+
+    @Test func cableReadsAsMachine() {
+        #expect(Equipment(storedRawValue: "cable") == .machine)
+        #expect(Equipment(storedRawValue: "band") == .band)
+        #expect(!all.contains { $0.equipment.rawValue == "cable" })
     }
 }

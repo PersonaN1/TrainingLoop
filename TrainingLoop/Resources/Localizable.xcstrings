@@ -708,26 +708,6 @@
         }
       }
     },
-    "Cable" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Блок"
-          }
-        }
-      }
-    },
-    "Calves" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Икры"
-          }
-        }
-      }
-    },
     "Can't merge these exercises" : {
       "localizations" : {
         "ru" : {
@@ -853,6 +833,16 @@
         }
       }
     },
+    "Check the spelling or try a different search." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проверьте написание или попробуйте изменить запрос."
+          }
+        }
+      }
+    },
     "Chest" : {
       "localizations" : {
         "ru" : {
@@ -889,6 +879,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не удалось сохранить тренировку"
+          }
+        }
+      }
+    },
+    "Create Exercise" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать упражнение"
           }
         }
       }
@@ -1507,16 +1507,6 @@
         }
       }
     },
-    "Glutes" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ягодицы"
-          }
-        }
-      }
-    },
     "group.fullBody" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1530,16 +1520,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Всё тело"
-          }
-        }
-      }
-    },
-    "Hamstrings" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Бицепс бедра"
           }
         }
       }
@@ -1570,6 +1550,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Скрыть из каталога"
+          }
+        }
+      }
+    },
+    "Hide Keyboard" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрыть клавиатуру"
           }
         }
       }
@@ -1750,6 +1740,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оставьте пустым — подставится вес из прошлого раза."
+          }
+        }
+      }
+    },
+    "Legs" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ноги"
           }
         }
       }
@@ -2004,6 +2004,16 @@
         }
       }
     },
+    "No Results" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет результатов"
+          }
+        }
+      }
+    },
     "No sets are marked" : {
       "localizations" : {
         "ru" : {
@@ -2080,16 +2090,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тренировок пока нет"
-          }
-        }
-      }
-    },
-    "None" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет"
           }
         }
       }
@@ -2280,16 +2280,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Конфиденциальность"
-          }
-        }
-      }
-    },
-    "Quads" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Квадрицепсы"
           }
         }
       }

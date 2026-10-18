@@ -187,4 +187,9 @@ struct TemplateEditingTests {
         let pounds = WeightInput.kilograms(from: "135", unit: .lb)!
         #expect(WeightInput.displayValue(pounds, unit: .lb) == 135)
     }
+
+    @Test func newExerciseHasOneSet() {
+        #expect(TemplateExercise.new(exerciseID: UUID(), measure: .reps, restSeconds: 60).sets == [PlannedSet(reps: 10)])
+        #expect(ActiveWorkout.newExercise(UUID(), restSeconds: 60, previous: []).sets.count == 1)
+    }
 }

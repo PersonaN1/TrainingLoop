@@ -278,6 +278,7 @@ struct SetSheet: View {
             }
             .navigationTitle(String(localized: "Set \(number)"))
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDismissButton()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

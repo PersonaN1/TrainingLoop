@@ -52,8 +52,12 @@ struct ExerciseEditorView: View {
 
     private var measureLocked: Bool { measureLock != nil }
 
-    init(draft: ExerciseDraft) {
+    /// Called with the saved exercise, after it is in the store.
+    private let onSave: (Exercise) -> Void
+
+    init(draft: ExerciseDraft, onSave: @escaping (Exercise) -> Void = { _ in }) {
         _draft = State(initialValue: draft)
+        self.onSave = onSave
     }
 
     var body: some View {
@@ -94,11 +98,6 @@ struct ExerciseEditorView: View {
                     Picker("Primary Group", selection: $draft.primaryGroup) {
                         ForEach(MuscleGroup.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
-                    NavigationLink {
-                        SecondaryGroupsView(selection: $draft.secondaryGroups, primary: draft.primaryGroup)
-                    } label: {
-                        LabeledContent("Secondary", value: secondaryText)
-                    }
                     Picker("Equipment", selection: $draft.equipment) {
                         ForEach(Equipment.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
@@ -106,7 +105,14 @@ struct ExerciseEditorView: View {
                         .lineLimit(3...)
                         .noteLimit($draft.note)
                 }
+
+                Section {
+                    SecondaryGroupChips(selection: $draft.secondaryGroups, primary: draft.primaryGroup)
+                } header: {
+                    Text("Secondary Groups")
+                }
             }
+            .keyboardDismissButton()
             .navigationTitle(draft.exercise == nil ? "New Exercise" : "Edit Exercise")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -135,11 +141,6 @@ struct ExerciseEditorView: View {
         return ExerciseName.problem(draft.name, otherNames: others)
     }
 
-    private var secondaryText: String {
-        let groups = MuscleGroup.allCases.filter(draft.secondaryGroups.contains)
-        return groups.isEmpty ? String(localized: "None") : groups.map(\.title).formatted(.list(type: .and, width: .narrow))
-    }
-
     private func save() {
         guard nameProblem == nil else { return }
         let exercise = draft.exercise ?? Exercise(name: "", measure: draft.measure, weighted: draft.weighted,
@@ -154,32 +155,84 @@ struct ExerciseEditorView: View {
         exercise.note = draft.note.trimmingCharacters(in: .whitespacesAndNewlines)
         if draft.exercise == nil { context.insert(exercise) }
         context.saveOrReport()
+        onSave(exercise)
         dismiss()
     }
 }
 
-/// Secondary muscle groups: description only, not counted in statistics (SPEC D9).
-private struct SecondaryGroupsView: View {
+/// Secondary muscle groups as chips right in the form: a tap ticks or unticks one.
+/// Description only, not counted in statistics (SPEC D9).
+private struct SecondaryGroupChips: View {
     @Binding var selection: Set<MuscleGroup>
     let primary: MuscleGroup
 
     var body: some View {
-        List(MuscleGroup.allCases.filter { $0 != primary }, id: \.self) { group in
-            Button {
-                if selection.contains(group) { selection.remove(group) } else { selection.insert(group) }
-            } label: {
-                HStack {
-                    Text(group.title).foregroundStyle(Color.primary)
-                    Spacer()
-                    if selection.contains(group) {
-                        Image(systemName: "checkmark").fontWeight(.semibold)
-                    }
+        FlowLayout(spacing: 8) {
+            ForEach(MuscleGroup.allCases.filter { $0 != primary }, id: \.self) { group in
+                let isSelected = selection.contains(group)
+                Button {
+                    if isSelected { selection.remove(group) } else { selection.insert(group) }
+                } label: {
+                    Text(group.title)
+                        .font(.subheadline)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .foregroundStyle(isSelected ? Color.white : Color.primary)
+                        .background(isSelected ? Color.accentColor : Color(.tertiarySystemFill), in: .capsule)
                 }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
-            .accessibilityAddTraits(selection.contains(group) ? .isSelected : [])
         }
-        .navigationTitle("Secondary Groups")
-        .navigationBarTitleDisplayMode(.inline)
+        .padding(.vertical, 4)
+    }
+}
+
+/// Lays subviews out in rows, starting a new row when the next one doesn't fit.
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = rows(width: proposal.width ?? .infinity, subviews: subviews)
+        let height = rows.map(\.height).reduce(0, +) + spacing * CGFloat(max(rows.count - 1, 0))
+        let width = rows.map(\.width).max() ?? 0
+        return CGSize(width: proposal.width ?? width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var y = bounds.minY
+        for row in rows(width: bounds.width, subviews: subviews) {
+            var x = bounds.minX
+            for index in row.indices {
+                let size = subviews[index].sizeThatFits(.unspecified)
+                subviews[index].place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+            y += row.height + spacing
+        }
+    }
+
+    private struct Row {
+        var indices: [Int] = []
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+    }
+
+    private func rows(width: CGFloat, subviews: Subviews) -> [Row] {
+        var rows = [Row()]
+        for index in subviews.indices {
+            let size = subviews[index].sizeThatFits(.unspecified)
+            let needed = rows[rows.count - 1].indices.isEmpty ? size.width : rows[rows.count - 1].width + spacing + size.width
+            if needed > width, !rows[rows.count - 1].indices.isEmpty {
+                rows.append(Row())
+            }
+            var row = rows[rows.count - 1]
+            row.width = row.indices.isEmpty ? size.width : row.width + spacing + size.width
+            row.height = max(row.height, size.height)
+            row.indices.append(index)
+            rows[rows.count - 1] = row
+        }
+        return rows
     }
 }
 
@@ -202,6 +255,7 @@ struct ExerciseNoteView: View {
                     .lineLimit(5...)
                     .noteLimit($note)
             }
+            .keyboardDismissButton()
             .navigationTitle(exercise.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

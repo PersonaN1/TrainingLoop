@@ -22,10 +22,10 @@ extension TemplateItem: Identifiable {
 }
 
 extension TemplateExercise {
-    /// A newly added exercise (SPEC D4): three sets of 10 reps or 45 s, no weight.
+    /// A newly added exercise (SPEC D4): one set of 10 reps or 45 s, no weight; more are a tap away.
     public static func new(exerciseID: UUID, measure: Measure, restSeconds: Int) -> TemplateExercise {
         TemplateExercise(exerciseID: exerciseID,
-                         sets: Array(repeating: .default(for: measure), count: 3),
+                         sets: [.default(for: measure)],
                          restSeconds: restSeconds)
     }
 
