@@ -112,6 +112,7 @@ struct ExerciseEditorView: View {
                     Text("Secondary Groups")
                 }
             }
+            .keyboardDismissButton()
             .navigationTitle(draft.exercise == nil ? "New Exercise" : "Edit Exercise")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -254,6 +255,7 @@ struct ExerciseNoteView: View {
                     .lineLimit(5...)
                     .noteLimit($note)
             }
+            .keyboardDismissButton()
             .navigationTitle(exercise.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -108,12 +108,6 @@ struct WorkoutView: View {
                 Text("There is nothing to save.")
             }
         }
-        ToolbarItemGroup(placement: .keyboard) {
-            Spacer()
-            Button("Done") {
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-            }
-        }
     }
 
     private func list(_ workout: ActiveWorkout) -> some View {
@@ -149,7 +143,7 @@ struct WorkoutView: View {
                     }
                 }
             }
-            .scrollDismissesKeyboard(.interactively)
+            .keyboardDismissButton()
             .overlay {
                 if workout.items.isEmpty {
                     ContentUnavailableView {

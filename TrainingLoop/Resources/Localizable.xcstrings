@@ -1554,6 +1554,16 @@
         }
       }
     },
+    "Hide Keyboard" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрыть клавиатуру"
+          }
+        }
+      }
+    },
     "History" : {
       "localizations" : {
         "ru" : {
