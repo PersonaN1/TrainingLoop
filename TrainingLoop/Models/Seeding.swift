@@ -120,9 +120,31 @@ enum ExampleSeeder {
     static func seedIfNeeded(_ context: ModelContext, defaults: UserDefaults = .standard) {
         guard !defaults.bool(forKey: key) else { return }
         for (index, example) in ExampleTemplates.all(DefaultNames.examples).enumerated() {
-            context.insert(Template(name: example.name, definition: example.definition, sortIndex: index))
+            let template = Template(name: example.name, definition: example.definition, sortIndex: index)
+            template.exampleKey = example.key
+            context.insert(template)
         }
         context.saveOrReport()
+        defaults.set(true, forKey: key)
+    }
+}
+
+/// Example templates created before they had a key get it, once (TECH T13): those still as they were
+/// created, under a default name in any language. An edited one stays the user's own.
+enum ExampleKeyMigration {
+    private static let key = "exampleKeysAdded.1"
+
+    @MainActor
+    static func runOnce(_ context: ModelContext, defaults: UserDefaults = .standard) {
+        guard !defaults.bool(forKey: key) else { return }
+        let templates = (try? context.fetch(FetchDescriptor<Template>(predicate: #Predicate { $0.exampleKey == nil }))) ?? []
+        for template in templates {
+            template.exampleKey = ExampleTemplates.all(DefaultNames.examples).first { example in
+                DefaultNames.isDefault(template.name, of: example.key)
+                    && example.definition.hasSameContent(as: template.definition)
+            }?.key
+        }
+        if context.hasChanges { context.saveOrReport() }
         defaults.set(true, forKey: key)
     }
 }
@@ -138,7 +160,16 @@ enum DefaultNames {
         )
     }
 
-    private static let keys = ["Full Body", "Legs + Pull-ups", "Home, No Equipment"]
+    /// `ExampleTemplates` key → the English default name.
+    private static let names = ["fullBody": "Full Body", "legsAndPullUps": "Legs + Pull-ups",
+                                "homeNoEquipment": "Home, No Equipment"]
+
+    /// Whether `name` is the default name of the example with this key, in any bundled language.
+    static func isDefault(_ name: String, of exampleKey: String) -> Bool {
+        guard let english = names[exampleKey] else { return false }
+        let current = Bundle.main.localizedString(forKey: english, value: english, table: nil)
+        return translations().contains { $0.key == name && $0.value == current }
+    }
 
     @MainActor
     static func relocalize(_ context: ModelContext) {
@@ -156,7 +187,7 @@ enum DefaultNames {
             Bundle.main.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:))
         }
         var result: [String: String] = [:]
-        for key in keys {
+        for key in names.values {
             let current = Bundle.main.localizedString(forKey: key, value: key, table: nil)
             result[key] = current
             for bundle in bundles {

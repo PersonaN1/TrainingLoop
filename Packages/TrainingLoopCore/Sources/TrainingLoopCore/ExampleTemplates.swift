@@ -14,16 +14,18 @@ public enum ExampleTemplates {
         }
     }
 
-    public static func all(_ names: Names) -> [(name: String, definition: TemplateDefinition)] {
+    /// Each example with its key: the stored template keeps the key, so the copies two devices create
+    /// on their first launch are found after iCloud sync (TECH T13).
+    public static func all(_ names: Names) -> [(key: String, name: String, definition: TemplateDefinition)] {
         [
-            (names.fullBody, TemplateDefinition(items: [
+            ("fullBody", names.fullBody, TemplateDefinition(items: [
                 .exercise(exercise("barbell_back_squat", sets: 3, reps: 8, rest: 120)),
                 .exercise(exercise("barbell_bench_press", sets: 3, reps: 8, rest: 120)),
                 .exercise(exercise("barbell_row", sets: 3, reps: 8, rest: 90)),
                 .exercise(exercise("overhead_press", sets: 3, reps: 8, rest: 90)),
                 .exercise(exercise("plank", sets: 3, seconds: 45, rest: 60)),
             ])),
-            (names.legsAndPullUps, TemplateDefinition(items: [
+            ("legsAndPullUps", names.legsAndPullUps, TemplateDefinition(items: [
                 .superset(TemplateSuperset(
                     exercises: [
                         exercise("barbell_back_squat", sets: 4, reps: 8, rest: 90),
@@ -34,7 +36,7 @@ public enum ExampleTemplates {
                 )),
                 .exercise(exercise("romanian_deadlift", sets: 3, reps: 10, rest: 90)),
             ])),
-            (names.homeNoEquipment, TemplateDefinition(items: [
+            ("homeNoEquipment", names.homeNoEquipment, TemplateDefinition(items: [
                 .superset(TemplateSuperset(
                     exercises: [
                         exercise("push_up", sets: 3, reps: 15, rest: 60),

@@ -12,6 +12,23 @@ struct ExampleTemplatesTests {
 
     @Test func threeTemplatesInOrder() {
         #expect(templates.map(\.name) == ["A", "B", "C"])
+        #expect(templates.map(\.key) == ["fullBody", "legsAndPullUps", "homeNoEquipment"])
+    }
+
+    /// Two builds of one example get new element IDs but the same content (TECH T13).
+    @Test func copiesHaveSameContent() {
+        let again = ExampleTemplates.all(.init(fullBody: "A", legsAndPullUps: "B", homeNoEquipment: "C"))
+        for (first, second) in zip(templates, again) {
+            #expect(first.definition != second.definition)
+            #expect(first.definition.hasSameContent(as: second.definition))
+        }
+        #expect(!templates[0].definition.hasSameContent(as: templates[1].definition))
+        var edited = again[1].definition
+        if case .superset(var superset) = edited.items[0] {
+            superset.restAfterSeconds = 120
+            edited.items[0] = .superset(superset)
+        }
+        #expect(!templates[1].definition.hasSameContent(as: edited))
     }
 
     @Test func fullBody() {

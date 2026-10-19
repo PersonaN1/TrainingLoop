@@ -13,6 +13,9 @@ final class Template {
     /// Cache for the template card (DESIGN V5).
     var lastPerformedAt: Date?
     var definitionData: Data = Data()
+    /// Key in `ExampleTemplates` of the example it was created as (SPEC D18); nil for the user's own
+    /// templates and for copies. Finds the examples each device creates on its first launch (TECH T13).
+    var exampleKey: String?
 
     init(name: String, definition: TemplateDefinition, sortIndex: Int) {
         self.name = name
