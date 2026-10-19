@@ -85,13 +85,15 @@ struct ExerciseDetailView: View {
 
             Section {
                 LabeledContent("Muscle Group", value: exercise.primaryGroup.title)
-                if !exercise.secondaryGroups.isEmpty {
-                    LabeledContent("Secondary", value: exercise.secondaryGroups.map(\.title)
-                        .formatted(.list(type: .and, width: .narrow)))
+                if !exercise.muscles.isEmpty {
+                    LabeledContent("Target Muscles", value: exercise.muscles.titles)
                 }
                 LabeledContent("Equipment", value: exercise.equipment.title)
                 LabeledContent("Exercise Type", value: exercise.measure.title)
                 LabeledContent("With Weight", value: exercise.weighted ? String(localized: "Yes") : String(localized: "No"))
+                if exercise.bySide {
+                    LabeledContent("Left and Right Separately", value: String(localized: "Yes"))
+                }
             } header: {
                 if exercise.isCustom { CustomBadge() }
             }
@@ -137,7 +139,7 @@ struct ExerciseDetailView: View {
             EstimatedMaxInfoView()
         }
         .toolbar {
-            Button(exercise.isCustom ? "Edit" : "Edit Note", systemImage: "pencil") {
+            Button("Edit", systemImage: "pencil") {
                 if exercise.isCustom { editor = ExerciseDraft(editing: exercise) } else { editingNote = true }
             }
         }
@@ -145,7 +147,7 @@ struct ExerciseDetailView: View {
             ExerciseEditorView(draft: draft)
         }
         .sheet(isPresented: $editingNote) {
-            ExerciseNoteView(exercise: exercise)
+            BuiltinExerciseEditorView(exercise: exercise)
         }
         .exerciseLimitAlert(isPresented: $limitReached)
         .onDisappear(perform: applyRemoval)

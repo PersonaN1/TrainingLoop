@@ -11,7 +11,7 @@ struct CatalogSection {
     static func make(_ exercises: [Exercise], filter: ExerciseFilter, search: String,
                      done: Set<UUID> = []) -> [CatalogSection] {
         let visible = exercises.filter { exercise in
-            filter.matches(primaryGroup: exercise.primaryGroup, equipment: exercise.equipment,
+            filter.matches(primaryGroup: exercise.primaryGroup, muscles: exercise.muscles, equipment: exercise.equipment,
                            isCustom: exercise.isCustom, isDone: done.contains(exercise.id))
                 && ExerciseSearch.matches(search, names: exercise.allNames)
         }
@@ -24,7 +24,7 @@ struct CatalogSection {
     }
 }
 
-/// "Filter ▾": muscle group, equipment, only custom, only done (DESIGN V10).
+/// "Filter ▾": muscle group and its target muscle, equipment, only custom, only done (DESIGN V10).
 struct ExerciseFilterMenu: View {
     @Binding var filter: ExerciseFilter
     /// The picker doesn't know the history and has no "Only Done".
@@ -41,6 +41,15 @@ struct ExerciseFilterMenu: View {
                 }
             }
             .pickerStyle(.menu)
+            if let group = filter.group, !group.muscles.isEmpty {
+                Picker("Target Muscle", selection: $filter.muscle) {
+                    Text("Any").tag(Muscle?.none)
+                    ForEach(group.muscles, id: \.self) { muscle in
+                        Text(muscle.title).tag(Muscle?.some(muscle))
+                    }
+                }
+                .pickerStyle(.menu)
+            }
             Picker("Equipment", selection: $filter.equipment) {
                 Text("Any").tag(Equipment?.none)
                 ForEach(Equipment.allCases, id: \.self) { equipment in
@@ -83,6 +92,9 @@ struct ExerciseFilterChips: View {
             HStack(spacing: 8) {
                 if let group = filter.group {
                     FilterChip(title: group.title) { filter.group = nil }
+                }
+                if let muscle = filter.muscle {
+                    FilterChip(title: muscle.title) { filter.muscle = nil }
                 }
                 if let equipment = filter.equipment {
                     FilterChip(title: equipment.title) { filter.equipment = nil }

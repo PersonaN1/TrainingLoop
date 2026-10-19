@@ -94,12 +94,12 @@ struct LargeHistoryBenchmark {
     private func summary(_ context: ModelContext, period: SummaryPeriod) -> HistorySummary {
         let workouts = (try? context.fetch(FetchDescriptor<Workout>(predicate: #Predicate { !$0.isActive }))) ?? []
         let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
-        let groups = Dictionary(exercises.map { ($0.id, $0.primaryGroup) }, uniquingKeysWith: { first, _ in first })
+        let muscles = Dictionary(exercises.map { ($0.id, $0.groupAndMuscles) }, uniquingKeysWith: { first, _ in first })
         let now = Date.now
         let calendar = Calendar.current
         let interval = period.interval(containing: now, calendar: calendar)
         let facts = workouts.map { workout in
-            workout.facts(groups: interval.start <= workout.startedAt && workout.startedAt < interval.end ? groups : nil)
+            workout.facts(muscles: interval.start <= workout.startedAt && workout.startedAt < interval.end ? muscles : nil)
         }
         return HistorySummary(workouts: facts, period: period, now: now, calendar: calendar)
     }

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import TrainingLoopCore
 
 /// A performed workout, stored as rows so statistics can query sets directly (TECH T2, ADR 0001).
 @Model
@@ -66,6 +67,11 @@ final class WorkoutSet {
     var seconds: Int?
     /// Always kilograms, unrounded; pounds are for input and display only (SPEC D15).
     var weightKg: Double?
+    /// A set by sides (SPEC D23): the values above are the left side, these the right one.
+    var bySide: Bool = false
+    var rightReps: Int?
+    var rightSeconds: Int?
+    var rightWeightKg: Double?
     var completedAt: Date = Date.now
     var exerciseID: UUID = UUID()
     var workoutStartedAt: Date = Date.now
@@ -78,5 +84,17 @@ final class WorkoutSet {
         self.weightKg = weightKg
         self.exerciseID = exerciseID
         self.workoutStartedAt = workoutStartedAt
+    }
+
+    /// A set with both sides when it has a right one.
+    convenience init(order: Int, _ set: PlannedSet, exerciseID: UUID, workoutStartedAt: Date) {
+        self.init(order: order, reps: set.reps, seconds: set.seconds, weightKg: set.weightKg,
+                  exerciseID: exerciseID, workoutStartedAt: workoutStartedAt)
+        if let right = set.right {
+            bySide = true
+            rightReps = right.reps
+            rightSeconds = right.seconds
+            rightWeightKg = right.weightKg
+        }
     }
 }

@@ -6,18 +6,47 @@ extension MuscleGroup {
         switch self {
         case .chest: String(localized: "Chest")
         case .back: String(localized: "Back")
-        case .traps: String(localized: "Traps")
-        case .neck: String(localized: "Neck")
         case .shoulders: String(localized: "Shoulders")
-        case .biceps: String(localized: "Biceps")
-        case .triceps: String(localized: "Triceps")
-        case .forearms: String(localized: "Forearms")
-        case .abs: String(localized: "Abs")
+        case .arms: String(localized: "Arms")
         case .legs: String(localized: "Legs")
+        case .abs: String(localized: "Abs")
+        case .neck: String(localized: "Neck")
         case .fullBody: String(localized: "group.fullBody", defaultValue: "Full Body")
         case .other: String(localized: "Other")
         }
     }
+}
+
+extension Muscle {
+    var title: String {
+        switch self {
+        case .upperChest: String(localized: "Upper Chest")
+        case .midChest: String(localized: "Mid Chest")
+        case .lowerChest: String(localized: "Lower Chest")
+        case .lats: String(localized: "Lats")
+        case .midBack: String(localized: "Mid Back")
+        case .traps: String(localized: "Traps")
+        case .lowerBack: String(localized: "Lower Back")
+        case .frontDelts: String(localized: "Front Delts")
+        case .sideDelts: String(localized: "Side Delts")
+        case .rearDelts: String(localized: "Rear Delts")
+        case .biceps: String(localized: "Biceps")
+        case .triceps: String(localized: "Triceps")
+        case .forearms: String(localized: "Forearms")
+        case .quads: String(localized: "Quads")
+        case .hamstrings: String(localized: "Hamstrings")
+        case .glutes: String(localized: "Glutes")
+        case .adductors: String(localized: "Adductors")
+        case .calves: String(localized: "Calves")
+        case .rectusAbs: String(localized: "Rectus Abs")
+        case .obliques: String(localized: "Obliques")
+        }
+    }
+}
+
+extension [Muscle] {
+    /// "Quads, Glutes".
+    var titles: String { map(\.title).joined(separator: ", ") }
 }
 
 extension Equipment {

@@ -143,6 +143,12 @@ final class WorkoutController {
         }
     }
 
+    /// After an exercise changed how it records sets (SPEC D23: by sides): its open sets follow.
+    func refit(context: ModelContext) {
+        guard workout != nil else { return }
+        change { workout in workout = fitted(workout, context: context) }
+    }
+
     func replaceExercise(_ id: UUID, with exerciseID: UUID, context: ModelContext) {
         let previous = context.lastSets(of: [exerciseID])[exerciseID] ?? []
         change { workout in
@@ -156,8 +162,7 @@ final class WorkoutController {
     private func fitted(_ workout: ActiveWorkout, context: ModelContext) -> ActiveWorkout {
         let ids = Array(Set(workout.items.flatMap(\.exercises).map(\.exerciseID)))
         let exercises = (try? context.fetch(FetchDescriptor<Exercise>(predicate: #Predicate { ids.contains($0.id) }))) ?? []
-        let kinds = Dictionary(exercises.map { ($0.id, (measure: $0.measure, weighted: $0.weighted)) },
-                               uniquingKeysWith: { first, _ in first })
+        let kinds = Dictionary(exercises.map { ($0.id, $0.kind) }, uniquingKeysWith: { first, _ in first })
         var workout = workout
         workout.fitSets { kinds[$0] }
         return workout
@@ -324,8 +329,7 @@ final class WorkoutController {
                 entry.restAfterSeconds = superset?.restAfterSeconds
                 record.entries?.append(entry)
                 for (index, set) in exercise.sets.enumerated() {
-                    let row = WorkoutSet(order: index, reps: set.value.reps, seconds: set.value.seconds,
-                                         weightKg: set.value.weightKg, exerciseID: exercise.exerciseID,
+                    let row = WorkoutSet(order: index, set.value, exerciseID: exercise.exerciseID,
                                          workoutStartedAt: active.startedAt)
                     row.completedAt = set.doneAt ?? endedAt
                     entry.sets?.append(row)
@@ -457,8 +461,14 @@ final class WorkoutController {
                      canComplete: workout[position].canTick(measure: model?.measure ?? .reps))
     }
 
-    /// "62.5 kg × 8", "× 12", "45 s".
+    /// "62.5 kg × 8", "× 12", "45 s"; "L 14 kg × 10 · R 12 kg × 9" for a set by sides (D23).
     private func planText(_ value: PlannedSet, weighted: Bool) -> String {
+        let sides = value.sides
+        guard sides.count == 2 else { return sideText(value, weighted: weighted) }
+        return String(localized: "L \(sideText(sides[0], weighted: weighted)) · R \(sideText(sides[1], weighted: weighted))")
+    }
+
+    private func sideText(_ value: PlannedSet, weighted: Bool) -> String {
         if let seconds = value.seconds { return String(localized: "\(seconds) s") }
         guard let reps = value.reps else {
             return value.weightKg.map(settings.weightUnit.weightText) ?? ""

@@ -94,7 +94,7 @@ struct EditingHistoryTests {
     @Test func editedTotalsReachSummary() async {
         let workout = await store.addWorkout(on: 1, squat.id, weightKg: 60, sets: 3)
         await store.edit(workout, squat.id, weightKg: 100, sets: 3)
-        let summary = HistorySummary(workouts: [workout.facts(groups: [squat.id: squat.primaryGroup])],
+        let summary = HistorySummary(workouts: [workout.facts(muscles: [squat.id: squat.groupAndMuscles])],
                                      period: .month, now: TestStore.date(20), calendar: Calendar(identifier: .gregorian))
         #expect(summary.workoutCount == 1)
         #expect(summary.volumeKg == 1500)

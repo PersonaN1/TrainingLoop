@@ -274,6 +274,7 @@ private struct SetColumnsHeader: View {
 }
 
 /// № · last time · weight · reps or seconds · tick. Suggested values show in grey and a tick takes them (D7).
+/// A set by sides has a line for each side, L and R, and one tick for both (D23).
 private struct SetRowView: View {
     @Environment(WorkoutController.self) private var workouts
     static let fieldWidth: CGFloat = 64
@@ -290,6 +291,9 @@ private struct SetRowView: View {
     let isRecord: Bool
     let inSuperset: Bool
 
+    /// Which values a line shows: the whole set, or one side of a set by sides.
+    private enum Line { case whole, left, right }
+
     var body: some View {
         HStack(spacing: 8) {
             HStack(spacing: 2) {
@@ -303,29 +307,13 @@ private struct SetRowView: View {
                 }
             }
             .frame(width: Self.numberWidth, alignment: .leading)
-            Text(lastTime)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            if weighted {
-                TextField("Weight", value: weightBinding, format: .number.grouping(.never).precision(.fractionLength(0...2)),
-                          prompt: Text(row.suggested.weightKg.map { format(weight: $0) } ?? "–"))
-                    .keyboardType(.decimalPad)
-                    .field(width: Self.fieldWidth)
-            }
-            switch measure {
-            case .reps:
-                TextField("Reps", value: intBinding(\.reps), format: .number,
-                          prompt: Text(row.suggested.reps.map { $0.formatted() } ?? "–"))
-                    .keyboardType(.numberPad)
-                    .field(width: Self.fieldWidth)
-            case .time:
-                TextField("Seconds", value: intBinding(\.seconds), format: .number,
-                          prompt: Text(row.suggested.seconds.map { $0.formatted() } ?? "–"))
-                    .keyboardType(.numberPad)
-                    .field(width: Self.fieldWidth)
+            if row.bySide {
+                VStack(spacing: 6) {
+                    line(.left)
+                    line(.right)
+                }
+            } else {
+                line(.whole)
             }
             Button {
                 workouts.toggle(row.id)
@@ -347,14 +335,62 @@ private struct SetRowView: View {
         })
     }
 
+    private func line(_ line: Line) -> some View {
+        let suggested = values(row.suggested, line)
+        return HStack(spacing: 8) {
+            HStack(spacing: 6) {
+                if line != .whole {
+                    Text(line == .left ? "L" : "R", comment: "Left or right side of a set")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.accentColor)
+                        .accessibilityLabel(line == .left ? Text("Left") : Text("Right"))
+                }
+                Text(lastTime(line))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if weighted {
+                TextField("Weight", value: weightBinding(line),
+                          format: .number.grouping(.never).precision(.fractionLength(0...2)),
+                          prompt: Text(suggested.weightKg.map { format(weight: $0) } ?? "–"))
+                    .keyboardType(.decimalPad)
+                    .field(width: Self.fieldWidth)
+            }
+            switch measure {
+            case .reps:
+                TextField("Reps", value: intBinding(\.reps, line), format: .number,
+                          prompt: Text(suggested.reps.map { $0.formatted() } ?? "–"))
+                    .keyboardType(.numberPad)
+                    .field(width: Self.fieldWidth)
+            case .time:
+                TextField("Seconds", value: intBinding(\.seconds, line), format: .number,
+                          prompt: Text(suggested.seconds.map { $0.formatted() } ?? "–"))
+                    .keyboardType(.numberPad)
+                    .field(width: Self.fieldWidth)
+            }
+        }
+    }
+
+    /// One line's values of a set; a right line of a set not split shows the set itself.
+    private func values(_ set: PlannedSet, _ line: Line) -> PlannedSet {
+        switch line {
+        case .whole: set
+        case .left: set.left
+        case .right: set.sides.last ?? set
+        }
+    }
+
     /// Without reps or time there is nothing to record.
     private var canTick: Bool {
         row.canTick(measure: measure)
     }
 
     /// "60 × 8", "× 8", "45 s" or "–".
-    private var lastTime: String {
-        guard let previous = row.previous else { return "–" }
+    private func lastTime(_ line: Line) -> String {
+        guard let previous = row.previous.map({ values($0, line) }) else { return "–" }
         let amount = previous.reps.map { "\($0)" } ?? previous.seconds.map { String(localized: "\($0) s") } ?? ""
         if let weight = previous.weightKg, weighted { return "\(format(weight: weight)) × \(amount)" }
         return previous.reps != nil ? "× \(amount)" : amount
@@ -364,23 +400,42 @@ private struct SetRowView: View {
         WeightInput.displayValue(kilograms, unit: unit).formatted(.number.precision(.fractionLength(0...2)))
     }
 
-    private var weightBinding: Binding<Double?> {
+    private func weightBinding(_ line: Line) -> Binding<Double?> {
         Binding(get: {
-            row.entered.weightKg.map { WeightInput.displayValue($0, unit: unit) }
+            entered(line).weightKg.map { WeightInput.displayValue($0, unit: unit) }
         }, set: { value in
             let kilograms = value.flatMap { WeightInput.kilograms(from: "\($0)", unit: unit) }
-            workouts.change { $0.updateSet(row.id) { $0.entered.weightKg = kilograms } }
+            update(line) { $0.weightKg = kilograms }
         })
     }
 
-    private func intBinding(_ field: WritableKeyPath<PlannedSet, Int?>) -> Binding<Int?> {
+    private func intBinding(_ field: WritableKeyPath<PlannedSet, Int?>, _ line: Line) -> Binding<Int?> {
         let range = field == \PlannedSet.reps ? SetRanges.reps : SetRanges.seconds
         return Binding(get: {
-            row.entered[keyPath: field]
+            entered(line)[keyPath: field]
         }, set: { value in
             let clamped = value.map { min(max($0, range.lowerBound), range.upperBound) }
-            workouts.change { $0.updateSet(row.id) { $0.entered[keyPath: field] = clamped } }
+            update(line) { $0[keyPath: field] = clamped }
         })
+    }
+
+    /// What was typed on a line; nil fields show the suggestion.
+    private func entered(_ line: Line) -> PlannedSet {
+        guard line == .right else { return row.entered.left }
+        let right = row.entered.right
+        return PlannedSet(reps: right?.reps, seconds: right?.seconds, weightKg: right?.weightKg)
+    }
+
+    private func update(_ line: Line, _ change: @escaping (inout PlannedSet) -> Void) {
+        workouts.change { workout in
+            workout.updateSet(row.id) { set in
+                guard line == .right else { return change(&set.entered) }
+                let current = set.entered.right
+                var right = PlannedSet(reps: current?.reps, seconds: current?.seconds, weightKg: current?.weightKg)
+                change(&right)
+                set.entered.right = .init(reps: right.reps, seconds: right.seconds, weightKg: right.weightKg)
+            }
+        }
     }
 }
 

@@ -57,6 +57,29 @@ enum BuiltinSeeder {
     }
 }
 
+/// Target muscles and sides (SPEC D9, D23) for exercises stored before they existed, once: a built-in
+/// exercise takes the catalog's, a custom one its old muscle-sized groups (quads, biceps…), primary
+/// and secondary. Later the user's choice stays, even an empty one.
+enum MuscleMigration {
+    private static let key = "musclesMigrated.1"
+
+    @MainActor
+    static func runOnce(_ context: ModelContext, defaults: UserDefaults = .standard) {
+        guard !defaults.bool(forKey: key) else { return }
+        let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+        for exercise in exercises where exercise.musclesRaw.isEmpty {
+            if let builtin = exercise.builtin {
+                exercise.muscles = builtin.muscles
+                exercise.bySide = builtin.bySide
+            } else {
+                exercise.muscles = ([exercise.primaryGroupRaw] + exercise.secondaryGroupsRaw).compactMap(Muscle.init(rawValue:))
+            }
+        }
+        if context.hasChanges { context.saveOrReport() }
+        defaults.set(true, forKey: key)
+    }
+}
+
 /// Creates the example templates once, on first launch (SPEC D18).
 enum ExampleSeeder {
     private static let key = "didSeedExamples"

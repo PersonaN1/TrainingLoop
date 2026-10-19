@@ -89,3 +89,12 @@ public enum Muscle: String, Codable, CaseIterable, Sendable {
         }
     }
 }
+
+extension Muscle {
+    /// `muscles` without repeats: those of the primary group first, then the rest, each in catalog order.
+    public static func ordered(_ muscles: [Muscle], primary: MuscleGroup) -> [Muscle] {
+        let chosen = Set(muscles)
+        let all = allCases.filter(chosen.contains)
+        return all.filter { $0.group == primary } + all.filter { $0.group != primary }
+    }
+}

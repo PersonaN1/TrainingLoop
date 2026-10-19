@@ -72,7 +72,7 @@ struct HistorySummaryView<Header: View>: View {
                 MonthCalendar(month: now, trainingDays: summary.trainingDays, calendar: calendar)
             }
         }
-        card(Text("Sets by Muscle Group")) { groupBars(summary.setsByGroup) }
+        card(Text("Sets by Muscle Group")) { groupBars(summary.setsByGroup, muscles: summary.setsByMuscle) }
     }
 
     private var volumeTitle: LocalizedStringKey {
@@ -141,7 +141,9 @@ struct HistorySummaryView<Header: View>: View {
     }
 
     @ViewBuilder
-    private func groupBars(_ groups: [(group: MuscleGroup, sets: Int)]) -> some View {
+    /// Expanded, each group lists its target muscles under it (SPEC D9).
+    private func groupBars(_ groups: [(group: MuscleGroup, sets: Int)],
+                           muscles: [(muscle: Muscle, sets: Int)]) -> some View {
         if groups.isEmpty {
             Text("No sets in this period.")
                 .foregroundStyle(.secondary)
@@ -150,30 +152,45 @@ struct HistorySummaryView<Header: View>: View {
             let shown = showsAllGroups ? groups : Array(groups.prefix(3))
             Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 8) {
                 ForEach(shown, id: \.group) { item in
-                    GridRow {
-                        Text(item.group.title)
-                            .font(.subheadline)
-                            .lineLimit(1)
-                        Capsule()
-                            .fill(Color.accentColor)
-                            .frame(height: 10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .scaleEffect(x: CGFloat(item.sets) / CGFloat(top), anchor: .leading)
-                        Text(item.sets.formatted())
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                            .gridColumnAlignment(.trailing)
+                    bar(Text(item.group.title), sets: item.sets, top: top, muscle: false)
+                    if showsAllGroups {
+                        ForEach(muscles.filter { $0.muscle.group == item.group }, id: \.muscle) { muscle in
+                            bar(Text(muscle.muscle.title), sets: muscle.sets, top: top, muscle: true)
+                        }
                     }
                 }
             }
-            if groups.count > 3 {
+            if groups.count > 3 || !muscles.isEmpty {
                 Button(showsAllGroups ? String(localized: "Show Less")
-                                      : String(localized: "\(groups.count - 3) more groups")) {
+                       : groups.count > 3 ? String(localized: "\(groups.count - 3) more groups")
+                       : String(localized: "Show Muscles")) {
                     withAnimation { showsAllGroups.toggle() }
                 }
                 .font(.subheadline)
             }
+        }
+    }
+}
+
+extension HistorySummaryView {
+    /// A muscle's row is indented and lighter than its group's.
+    fileprivate func bar(_ title: Text, sets: Int, top: Int, muscle: Bool) -> some View {
+        GridRow {
+            title
+                .font(muscle ? .footnote : .subheadline)
+                .foregroundStyle(muscle ? .secondary : .primary)
+                .padding(.leading, muscle ? 12 : 0)
+                .lineLimit(1)
+            Capsule()
+                .fill(Color.accentColor.opacity(muscle ? 0.5 : 1))
+                .frame(height: muscle ? 6 : 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .scaleEffect(x: CGFloat(sets) / CGFloat(max(top, 1)), anchor: .leading)
+            Text(sets.formatted())
+                .font(muscle ? .footnote : .subheadline)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+                .gridColumnAlignment(.trailing)
         }
     }
 }

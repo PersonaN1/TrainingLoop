@@ -568,6 +568,16 @@
         }
       }
     },
+    "Adductors" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приводящие"
+          }
+        }
+      }
+    },
     "All Time" : {
       "localizations" : {
         "ru" : {
@@ -614,6 +624,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Архив"
+          }
+        }
+      }
+    },
+    "Arms" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Руки"
           }
         }
       }
@@ -704,6 +724,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Собственный вес"
+          }
+        }
+      }
+    },
+    "Calves" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Икры"
           }
         }
       }
@@ -1277,16 +1307,6 @@
         }
       }
     },
-    "Edit Note" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Изменить заметку"
-          }
-        }
-      }
-    },
     "Epley formula: weight × (1 + reps ÷ 30). For example, 100 × 5 gives ≈ 117." : {
       "localizations" : {
         "ru" : {
@@ -1487,6 +1507,16 @@
         }
       }
     },
+    "Front Delts" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Передняя дельта"
+          }
+        }
+      }
+    },
     "Full Body" : {
       "localizations" : {
         "ru" : {
@@ -1507,6 +1537,16 @@
         }
       }
     },
+    "Glutes" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ягодицы"
+          }
+        }
+      }
+    },
     "group.fullBody" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1520,6 +1560,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Всё тело"
+          }
+        }
+      }
+    },
+    "Hamstrings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бицепс бедра"
           }
         }
       }
@@ -1704,6 +1754,36 @@
         }
       }
     },
+    "L" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Л"
+          }
+        }
+      }
+    },
+    "L %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Л %@"
+          }
+        }
+      }
+    },
+    "L %@ · R %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Л %@ · П %@"
+          }
+        }
+      }
+    },
     "Last Time" : {
       "localizations" : {
         "ru" : {
@@ -1724,6 +1804,16 @@
         }
       }
     },
+    "Lats" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Широчайшие"
+          }
+        }
+      }
+    },
     "lb" : {
       "localizations" : {
         "ru" : {
@@ -1740,6 +1830,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оставьте пустым — подставится вес из прошлого раза."
+          }
+        }
+      }
+    },
+    "Left" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Левая"
+          }
+        }
+      }
+    },
+    "Left and Right Separately" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Левая и правая отдельно"
           }
         }
       }
@@ -1770,6 +1880,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Светлая"
+          }
+        }
+      }
+    },
+    "Lower Back" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поясница"
+          }
+        }
+      }
+    },
+    "Lower Chest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Низ груди"
           }
         }
       }
@@ -1840,6 +1970,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Объединить в суперсет"
+          }
+        }
+      }
+    },
+    "Mid Back" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Середина спины"
+          }
+        }
+      }
+    },
+    "Mid Chest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Середина груди"
           }
         }
       }
@@ -2154,6 +2304,16 @@
         }
       }
     },
+    "Obliques" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Косые мышцы"
+          }
+        }
+      }
+    },
     "Off" : {
       "localizations" : {
         "ru" : {
@@ -2284,6 +2444,46 @@
         }
       }
     },
+    "Quads" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Квадрицепс"
+          }
+        }
+      }
+    },
+    "R" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "П"
+          }
+        }
+      }
+    },
+    "R %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "П %@"
+          }
+        }
+      }
+    },
+    "Rear Delts" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задняя дельта"
+          }
+        }
+      }
+    },
     "Record" : {
       "localizations" : {
         "ru" : {
@@ -2300,6 +2500,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Записи"
+          }
+        }
+      }
+    },
+    "Rectus Abs" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прямая мышца живота"
           }
         }
       }
@@ -2464,6 +2674,16 @@
         }
       }
     },
+    "Right" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правая"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "ru" : {
@@ -2490,26 +2710,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сек"
-          }
-        }
-      }
-    },
-    "Secondary" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вспомогательные"
-          }
-        }
-      }
-    },
-    "Secondary Groups" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вспомогательные группы"
           }
         }
       }
@@ -2664,12 +2864,32 @@
         }
       }
     },
+    "Show Muscles" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать мышцы"
+          }
+        }
+      }
+    },
     "Show on Lock Screen" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показывать на экране блокировки"
+          }
+        }
+      }
+    },
+    "Side Delts" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Средняя дельта"
           }
         }
       }
@@ -2933,6 +3153,26 @@
         }
       }
     },
+    "Target Muscle" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Целевая мышца"
+          }
+        }
+      }
+    },
+    "Target Muscles" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Целевые мышцы"
+          }
+        }
+      }
+    },
     "Template limit reached" : {
       "localizations" : {
         "ru" : {
@@ -3116,6 +3356,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Обновить шаблон"
+          }
+        }
+      }
+    },
+    "Upper Chest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Верх груди"
           }
         }
       }

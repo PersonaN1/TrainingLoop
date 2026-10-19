@@ -29,8 +29,7 @@ enum TemplateFormat {
 
     /// "3 exercises · 11 sets · 4,220 kg" under the record editor (D16).
     static func recordSummary(_ definition: TemplateDefinition, unit: WeightUnit) -> String {
-        let volume = definition.exercises.flatMap(\.sets)
-            .reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
+        let volume = definition.exercises.flatMap(\.sets).reduce(0) { $0 + $1.volumeKg }
         return [String(localized: "\(definition.exercises.count) exercises"),
                 String(localized: "\(definition.setCount) sets"),
                 HistoryFormat.volume(volume, unit: unit)].joined(separator: " · ")
@@ -183,7 +182,7 @@ struct DurationSheet: View {
 }
 
 /// One planned set (SPEC D4, D15): reps or time, and weight when the exercise is weighted.
-/// An empty weight means "use the previous time's weight" (D4).
+/// An empty weight means "use the previous time's weight" (D4). A done set by sides has both sides (D23).
 struct SetSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppSettings.self) private var settings
@@ -193,79 +192,70 @@ struct SetSheet: View {
     let lastWeightKnown: Bool
     /// A set of a finished workout: an empty weight is no weight, not last time's.
     let isDone: Bool
+    /// Left and right have their own values.
+    let bySide: Bool
     let canDelete: Bool
     /// nil deletes the set.
     let save: (PlannedSet?) -> Void
-    @State private var reps: Int
-    @State private var minutes: Int
-    @State private var seconds: Int
-    @State private var weightText: String
+    @State private var left: SideInput
+    @State private var right: SideInput
     @FocusState private var weightFocused: Bool
 
+    /// What the controls of one side hold.
+    private struct SideInput {
+        var reps: Int
+        var minutes: Int
+        var seconds: Int
+        var weightText: String
+
+        init(reps: Int?, seconds: Int?, weightKg: Double?, unit: WeightUnit) {
+            self.reps = reps ?? 10
+            let time = seconds ?? 45
+            minutes = time / 60
+            self.seconds = time % 60
+            // No grouping: "1,102.5" would not read back as a number.
+            weightText = weightKg.map {
+                WeightInput.displayValue($0, unit: unit).formatted(.number.grouping(.never).precision(.fractionLength(0...2)))
+            } ?? ""
+        }
+
+        var timeTotal: Int { minutes * 60 + seconds }
+
+        func isValid(_ measure: Measure) -> Bool {
+            measure == .reps ? SetRanges.reps.contains(reps) : SetRanges.seconds.contains(timeTotal)
+        }
+    }
+
     init(number: Int, set: PlannedSet, measure: Measure, weighted: Bool, lastWeightKnown: Bool, isDone: Bool = false,
-         unit: WeightUnit,
+         bySide: Bool = false, unit: WeightUnit,
          canDelete: Bool, save: @escaping (PlannedSet?) -> Void) {
         self.number = number
         self.measure = measure
         self.weighted = weighted
         self.lastWeightKnown = lastWeightKnown
         self.isDone = isDone
+        self.bySide = bySide
         self.canDelete = canDelete
         self.save = save
-        _reps = State(initialValue: set.reps ?? 10)
-        let time = set.seconds ?? 45
-        _minutes = State(initialValue: time / 60)
-        _seconds = State(initialValue: time % 60)
-        // No grouping: "1,102.5" would not read back as a number.
-        _weightText = State(initialValue: set.weightKg.map {
-            WeightInput.displayValue($0, unit: unit).formatted(.number.grouping(.never).precision(.fractionLength(0...2)))
-        } ?? "")
+        _left = State(initialValue: SideInput(reps: set.reps, seconds: set.seconds, weightKg: set.weightKg, unit: unit))
+        // A set not split yet starts both sides alike.
+        let right = set.sides.last ?? set
+        _right = State(initialValue: SideInput(reps: right.reps, seconds: right.seconds, weightKg: right.weightKg,
+                                               unit: unit))
     }
 
-    private var timeTotal: Int { minutes * 60 + seconds }
-
     private var isValid: Bool {
-        measure == .reps ? SetRanges.reps.contains(reps) : SetRanges.seconds.contains(timeTotal)
+        left.isValid(measure) && (!bySide || right.isValid(measure))
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                switch measure {
-                case .reps:
-                    Stepper(value: $reps, in: SetRanges.reps) {
-                        LabeledContent("Reps", value: reps.formatted())
-                            .monospacedDigit()
-                    }
-                case .time:
-                    HStack(spacing: 0) {
-                        Picker("Minutes", selection: $minutes) {
-                            ForEach(0..<60, id: \.self) { Text(String(localized: "\($0) min")).tag($0) }
-                        }
-                        Picker("Seconds", selection: $seconds) {
-                            ForEach(0..<60, id: \.self) { Text(String(localized: "\($0) s")).tag($0) }
-                        }
-                    }
-                    .pickerStyle(.wheel)
-                    .frame(height: 150)
-                    .monospacedDigit()
-                }
-                if weighted {
-                    Section {
-                        HStack {
-                            Text("Weight")
-                            TextField("Weight", text: $weightText,
-                                      prompt: lastWeightKnown ? Text("last time's weight") : Text(verbatim: ""))
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
-                                .focused($weightFocused)
-                            Text(settings.weightUnit == .kg ? "kg" : "lb").foregroundStyle(.secondary)
-                        }
-                    } footer: {
-                        if !isDone {
-                            Text("Leave empty to use the weight from the previous time.")
-                        }
-                    }
+                if bySide {
+                    controls($left, header: Text("Left"))
+                    controls($right, header: Text("Right"))
+                } else {
+                    controls($left, header: nil)
                 }
                 if canDelete {
                     Section {
@@ -292,12 +282,63 @@ struct SetSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents(bySide ? [.large] : [.medium, .large])
+    }
+
+    @ViewBuilder
+    private func controls(_ input: Binding<SideInput>, header: Text?) -> some View {
+        Section {
+            switch measure {
+            case .reps:
+                Stepper(value: input.reps, in: SetRanges.reps) {
+                    LabeledContent("Reps", value: input.wrappedValue.reps.formatted())
+                        .monospacedDigit()
+                }
+            case .time:
+                HStack(spacing: 0) {
+                    Picker("Minutes", selection: input.minutes) {
+                        ForEach(0..<60, id: \.self) { Text(String(localized: "\($0) min")).tag($0) }
+                    }
+                    Picker("Seconds", selection: input.seconds) {
+                        ForEach(0..<60, id: \.self) { Text(String(localized: "\($0) s")).tag($0) }
+                    }
+                }
+                .pickerStyle(.wheel)
+                .frame(height: 150)
+                .monospacedDigit()
+            }
+            if weighted {
+                HStack {
+                    Text("Weight")
+                    TextField("Weight", text: input.weightText,
+                              prompt: lastWeightKnown ? Text("last time's weight") : Text(verbatim: ""))
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .focused($weightFocused)
+                    Text(settings.weightUnit == .kg ? "kg" : "lb").foregroundStyle(.secondary)
+                }
+            }
+        } header: {
+            if let header { header }
+        } footer: {
+            if weighted && !isDone && !bySide {
+                Text("Leave empty to use the weight from the previous time.")
+            }
+        }
     }
 
     private var result: PlannedSet {
-        PlannedSet(reps: measure == .reps ? reps : nil,
-                   seconds: measure == .time ? timeTotal : nil,
-                   weightKg: weighted ? WeightInput.kilograms(from: weightText, unit: settings.weightUnit) : nil)
+        var set = values(left)
+        if bySide {
+            let side = values(right)
+            set.right = .init(reps: side.reps, seconds: side.seconds, weightKg: side.weightKg)
+        }
+        return set
+    }
+
+    private func values(_ input: SideInput) -> PlannedSet {
+        PlannedSet(reps: measure == .reps ? input.reps : nil,
+                   seconds: measure == .time ? input.timeTotal : nil,
+                   weightKg: weighted ? WeightInput.kilograms(from: input.weightText, unit: settings.weightUnit) : nil)
     }
 }
