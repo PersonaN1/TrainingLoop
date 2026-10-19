@@ -5,6 +5,7 @@ import TrainingLoopCore
 /// Creates the built-in exercises missing from the store, by key (TECH T2): runs on every launch,
 /// so built-in exercises added in an update appear without a migration. A built-in exercise the update
 /// corrected (group, equipment, weighting) takes the catalog's values; its type only while it has no history.
+/// A custom exercise named like a new built-in one gets a free "Name (2)" name: names stay unique (SPEC D8).
 enum BuiltinSeeder {
     @MainActor
     static func addMissing(_ context: ModelContext) {
@@ -18,9 +19,13 @@ enum BuiltinSeeder {
         }
         let present = Dictionary(stored.compactMap { exercise in exercise.builtinKey.map { ($0, exercise) } },
                                  uniquingKeysWith: { first, _ in first })
+        var customs: [Exercise]?
         for builtin in BuiltinExercises.all {
             guard let exercise = present[builtin.key] else {
-                context.insert(Exercise(builtin: builtin))
+                let added = Exercise(builtin: builtin)
+                if customs == nil { customs = fetchCustoms(context) }
+                renameClashing(customs ?? [], with: added)
+                context.insert(added)
                 continue
             }
             // Assigned only when different: an unchanged row stays clean and nothing is saved.
@@ -30,6 +35,25 @@ enum BuiltinSeeder {
             if exercise.measure != builtin.measure, !context.hasHistory(exercise) { exercise.measure = builtin.measure }
         }
         if context.hasChanges { context.saveOrReport() }
+    }
+
+    @MainActor
+    private static func fetchCustoms(_ context: ModelContext) -> [Exercise] {
+        do {
+            return try context.fetch(FetchDescriptor<Exercise>(predicate: #Predicate { $0.builtinKey == nil }))
+        } catch {
+            Persistence.report("Fetching custom exercises failed", error)
+            return []
+        }
+    }
+
+    @MainActor
+    private static func renameClashing(_ customs: [Exercise], with added: Exercise) {
+        let builtinNames = added.allNames
+        for custom in customs where ExerciseName.problem(custom.name, otherNames: builtinNames) == .duplicate {
+            let taken = customs.map(\.name) + builtinNames
+            custom.customName = ExerciseName.copyName(of: custom.name, otherNames: taken)
+        }
     }
 }
 

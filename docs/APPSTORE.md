@@ -67,7 +67,7 @@ TrainingLoop — дневник силовых тренировок для iPhon
 • Можно поделиться тренировкой с кем угодно в виде текста.
 
 УПРАЖНЕНИЯ И НАСТРОЙКИ
-• 53 встроенных упражнения на русском и английском, а также ваши собственные.
+• 126 встроенных упражнений на русском и английском, а также ваши собственные.
 • Поиск и фильтры по группе мышц и оборудованию.
 • Килограммы или фунты, светлая и тёмная тема.
 
@@ -114,7 +114,7 @@ HISTORY AND PROGRESS
 • Share your workouts with anyone as text.
 
 EXERCISES AND SETTINGS
-• 53 built-in exercises in English and Russian, plus your own.
+• 126 built-in exercises in English and Russian, plus your own.
 • Search and filters by muscle group and equipment.
 • Kilograms or pounds, light and dark theme.
 

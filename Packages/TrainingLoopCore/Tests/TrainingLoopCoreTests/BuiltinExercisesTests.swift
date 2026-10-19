@@ -5,7 +5,7 @@ struct BuiltinExercisesTests {
     private let all = BuiltinExercises.all
 
     @Test func matchesApprovedList() {
-        #expect(all.count == 53)
+        #expect(all.count == 126)
     }
 
     @Test func keysAreUniqueSnakeCase() {
@@ -23,6 +23,14 @@ struct BuiltinExercisesTests {
         }
     }
 
+    /// Built-in names don't clash with each other under the uniqueness rule either (case, ё/е, spacing).
+    @Test func namesDifferAfterFolding() {
+        for language in ["en", "ru"] {
+            let keys = all.map { ExerciseName.key($0.name(languageCode: language)) }
+            #expect(Set(keys).count == all.count, "\(language)")
+        }
+    }
+
     /// Every key has a name in every language; a missing one would show the raw key.
     @Test func everyNameIsTranslated() {
         for exercise in all {
@@ -35,12 +43,13 @@ struct BuiltinExercisesTests {
 
     @Test func timedExercises() {
         let timed = all.filter { $0.measure == .time }.map(\.key)
-        #expect(timed == ["plank", "side_plank", "dead_hang", "farmers_walk"])
+        #expect(timed == ["wall_sit", "plank", "side_plank", "dead_hang", "farmers_walk", "jump_rope"])
     }
 
     @Test func unweightedExercises() {
         let unweighted = all.filter { !$0.weighted }.map(\.key)
-        #expect(unweighted == ["air_squat", "ab_wheel_rollout", "burpee"])
+        #expect(unweighted == ["air_squat", "jump_squat", "nordic_curl", "band_pull_apart", "ab_wheel_rollout",
+                               "lying_leg_raise", "hanging_knee_raise", "burpee", "jump_rope"])
     }
 
     @Test func looksUpByKeyAndLanguage() throws {
