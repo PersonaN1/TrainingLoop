@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import TipKit
 import TrainingLoopCore
 
 /// The workout in progress: every exercise in one list, the next set highlighted, the rest at the bottom
@@ -114,18 +115,19 @@ struct WorkoutView: View {
         let lookup = ExerciseLookup(allExercises)
         let next = workout.nextPosition.map { workout[$0].id }
         let records = workouts.records.setIDs
+        let tipped = splitTipExercise(workout, lookup: lookup)
         return ScrollViewReader { proxy in
             List {
                 ForEach(Array(workout.items.enumerated()), id: \.element.id) { itemIndex, item in
                     switch item {
                     case .exercise(let exercise):
                         Section {
-                            exerciseRows(exercise, lookup: lookup, next: next, records: records)
+                            exerciseRows(exercise, lookup: lookup, next: next, records: records, tipped: tipped)
                         }
                     case .superset(let superset):
                         Section {
                             ForEach(superset.exercises) {
-                                exerciseRows($0, lookup: lookup, next: next, records: records, inSuperset: true)
+                                exerciseRows($0, lookup: lookup, next: next, records: records, tipped: tipped, inSuperset: true)
                             }
                         } header: {
                             Text(supersetTitle(superset, workout: workout, itemIndex: itemIndex))
@@ -179,7 +181,7 @@ struct WorkoutView: View {
 
     @ViewBuilder
     private func exerciseRows(_ exercise: ActiveWorkout.Exercise, lookup: ExerciseLookup, next: UUID?,
-                              records: Set<UUID>, inSuperset: Bool = false) -> some View {
+                              records: Set<UUID>, tipped: UUID?, inSuperset: Bool = false) -> some View {
         let stored = lookup[exercise.exerciseID]
         let measure = stored?.measure ?? .reps
         let weighted = stored?.weighted ?? false
@@ -226,6 +228,10 @@ struct WorkoutView: View {
                 }
                 .accessibilityLabel("More")
             }
+            if exercise.id == tipped {
+                TipView(SplitSetTip())
+                    .tipBackground(Color(.secondarySystemGroupedBackground))
+            }
             SetColumnsHeader(measure: measure, weighted: weighted, unit: settings.weightUnit)
             ForEach(Array(exercise.sets.enumerated()), id: \.element.id) { index, set in
                 SetRowView(number: index + 1, row: set, measure: measure, weighted: weighted,
@@ -256,8 +262,22 @@ struct WorkoutView: View {
     private func splitButton(_ set: ActiveWorkout.SetRow) -> some View {
         Button(set.isSplit ? "Join L and R" : "Split into L and R",
                systemImage: set.isSplit ? "arrow.right.and.line.vertical.and.arrow.left" : "arrow.left.and.right") {
+            if !set.isSplit { SplitSetTip().invalidate(reason: .actionPerformed) }
             withAnimation { workouts.change { $0.setSplit(set.id, !set.isSplit) } }
         }
+    }
+
+    /// The split tip goes under the first unfinished exercise done by both sides (SPEC D23).
+    private func splitTipExercise(_ workout: ActiveWorkout, lookup: ExerciseLookup) -> UUID? {
+        workout.items.flatMap { item -> [ActiveWorkout.Exercise] in
+            switch item {
+            case .exercise(let exercise): [exercise]
+            case .superset(let superset): superset.exercises
+            }
+        }
+        .first { exercise in
+            lookup[exercise.exerciseID]?.bySide == true && !exercise.sets.allSatisfy(\.isDone)
+        }?.id
     }
 
     /// "Next: Squat, set 3".
@@ -701,4 +721,12 @@ private struct WorkoutOrderView: View {
             }
         }
     }
+}
+
+/// First-time hint: a set of both sides can be split when they differ (SPEC D23). Gone for good after ×
+/// or the first split.
+struct SplitSetTip: Tip {
+    var title: Text { Text("Sides differed?") }
+    var message: Text? { Text("Hold the set or swipe it right → “Split into L and R”.") }
+    var image: Image? { Image(systemName: "arrow.left.and.right") }
 }

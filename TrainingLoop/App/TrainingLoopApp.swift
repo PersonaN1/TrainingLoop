@@ -1,10 +1,19 @@
 import SwiftData
 import SwiftUI
+import TipKit
 
 @main
 struct TrainingLoopApp: App {
     @State private var settings = AppModel.settings
     @State private var workouts = AppModel.workouts
+
+    init() {
+        #if DEBUG
+        if TestLaunch.isTesting { Tips.hideAllTipsForTesting() }
+        if UserDefaults.standard.bool(forKey: "ResetTips") { try? Tips.resetDatastore() }
+        #endif
+        try? Tips.configure([.displayFrequency(.immediate)])
+    }
 
     var body: some Scene {
         WindowGroup {

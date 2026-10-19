@@ -1634,6 +1634,16 @@
         }
       }
     },
+    "Hold the set or swipe it right → “Split into L and R”." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удержите подход или смахните вправо → «Разделить на Л и П»."
+          }
+        }
+      }
+    },
     "Home, No Equipment" : {
       "localizations" : {
         "ru" : {
@@ -2900,6 +2910,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Средняя дельта"
+          }
+        }
+      }
+    },
+    "Sides differed?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Руки сделали по-разному?"
           }
         }
       }
