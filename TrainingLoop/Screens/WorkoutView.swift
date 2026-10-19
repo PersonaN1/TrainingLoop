@@ -193,6 +193,7 @@ struct WorkoutView: View {
             } label: {
                 HStack {
                     Text(lookup.name(exercise.exerciseID)).font(.headline)
+                    if stored?.bySide == true { BothSidesBadge() }
                     Image(systemName: "checkmark").foregroundStyle(Color.accentColor)
                     if exercise.sets.contains(where: { records.contains($0.id) }) {
                         Image(systemName: "trophy.fill")
@@ -208,6 +209,7 @@ struct WorkoutView: View {
         } else {
             HStack {
                 Text(lookup.name(exercise.exerciseID)).font(.headline)
+                if stored?.bySide == true { BothSidesBadge() }
                 Spacer()
                 Menu {
                     Button("Add Set", systemImage: "plus") { workouts.change { $0.addSet(to: exercise.id) } }
@@ -232,7 +234,8 @@ struct WorkoutView: View {
                 TipView(SplitSetTip())
                     .tipBackground(Color(.secondarySystemGroupedBackground))
             }
-            SetColumnsHeader(measure: measure, weighted: weighted, unit: settings.weightUnit)
+            SetColumnsHeader(measure: measure, weighted: weighted, bothSides: stored?.bySide == true,
+                             unit: settings.weightUnit)
             ForEach(Array(exercise.sets.enumerated()), id: \.element.id) { index, set in
                 SetRowView(number: index + 1, row: set, measure: measure, weighted: weighted,
                            unit: settings.weightUnit, isNext: set.id == next, isRecord: records.contains(set.id),
@@ -292,6 +295,8 @@ struct WorkoutView: View {
 private struct SetColumnsHeader: View {
     let measure: Measure
     let weighted: Bool
+    /// "kg × 2": the weight is per side, volume counts both (D23).
+    let bothSides: Bool
     let unit: WeightUnit
 
     var body: some View {
@@ -299,7 +304,15 @@ private struct SetColumnsHeader: View {
             Text("#", comment: "Set number column").frame(width: SetRowView.numberWidth, alignment: .leading)
             Text("Last Time").frame(maxWidth: .infinity, alignment: .leading)
             if weighted {
-                Text(unit == .kg ? "kg" : "lb").frame(width: SetRowView.fieldWidth)
+                Group {
+                    if bothSides {
+                        Text(unit == .kg ? "kg × 2" : "lb × 2")
+                    } else {
+                        Text(unit == .kg ? "kg" : "lb")
+                    }
+                }
+                .frame(width: SetRowView.fieldWidth)
+                .fixedSize()
             }
             Text(measure == .reps ? "Reps" : "Sec").frame(width: SetRowView.fieldWidth)
             Color.clear.frame(width: SetRowView.checkWidth, height: 1)

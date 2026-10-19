@@ -215,6 +215,7 @@ struct TemplateEditorView: View {
         let exercise = lookup[item.exerciseID]
         HStack {
             Text(lookup.name(item.exerciseID)).font(.headline)
+            if exercise?.bySide == true { BothSidesBadge() }
             Spacer()
             Menu {
                 Button("Replace", systemImage: "arrow.left.arrow.right") { picker = .replace(item.id) }

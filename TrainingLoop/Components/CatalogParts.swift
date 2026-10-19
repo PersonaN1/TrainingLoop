@@ -139,6 +139,19 @@ struct CatalogEmptyState: View {
 }
 
 /// «своё» next to a custom exercise's name (DESIGN V10).
+/// "L+R": a set counts for each side, volume ×2 (SPEC D23).
+struct BothSidesBadge: View {
+    var body: some View {
+        Text("L+R", comment: "Badge of an exercise done by both sides")
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .foregroundStyle(Color.accentColor)
+            .background(Color.accentColor.opacity(0.15), in: Capsule())
+            .accessibilityLabel("Left and Right")
+    }
+}
+
 struct CustomBadge: View {
     var body: some View {
         Text("custom")

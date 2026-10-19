@@ -1764,6 +1764,16 @@
         }
       }
     },
+    "kg × 2" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "кг × 2"
+          }
+        }
+      }
+    },
     "Kilograms" : {
       "localizations" : {
         "ru" : {
@@ -1804,6 +1814,17 @@
         }
       }
     },
+    "L+R" : {
+      "comment" : "Badge of an exercise done by both sides",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Л+П"
+          }
+        }
+      }
+    },
     "Last Time" : {
       "localizations" : {
         "ru" : {
@@ -1840,6 +1861,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "фнт"
+          }
+        }
+      }
+    },
+    "lb × 2" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "фнт × 2"
           }
         }
       }
