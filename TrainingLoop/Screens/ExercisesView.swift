@@ -71,6 +71,7 @@ struct ExercisesView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
                 Text(exercise.name)
+                if exercise.bySide { BothSidesBadge() }
                 if exercise.isCustom { CustomBadge() }
             }
             Text(summary(exercise).line(equipment: exercise.equipment, unit: settings.weightUnit))

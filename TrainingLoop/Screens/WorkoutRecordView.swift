@@ -103,7 +103,10 @@ struct WorkoutRecordView: View {
 
     @ViewBuilder
     private func entryRows(_ entry: WorkoutEntry, lookup: ExerciseLookup) -> some View {
-        Text(lookup.name(entry.exerciseID)).font(.headline)
+        HStack(spacing: 6) {
+            Text(lookup.name(entry.exerciseID)).font(.headline)
+            if lookup[entry.exerciseID]?.bySide == true { BothSidesBadge() }
+        }
         let sets = (entry.sets ?? []).sorted { $0.order < $1.order }
         if sets.isEmpty {
             Text("No sets done").foregroundStyle(.secondary)

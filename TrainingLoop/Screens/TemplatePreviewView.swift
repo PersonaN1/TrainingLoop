@@ -106,7 +106,10 @@ struct TemplatePreviewView: View {
 
     private func exerciseRow(_ item: TemplateExercise, lookup: ExerciseLookup) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(lookup.name(item.exerciseID)).font(.headline)
+            HStack(spacing: 6) {
+                Text(lookup.name(item.exerciseID)).font(.headline)
+                if lookup[item.exerciseID]?.bySide == true { BothSidesBadge() }
+            }
             Text(SetsSummary(item.sets).previewText(item.sets, unit: settings.weightUnit,
                                                     equipment: lookup[item.exerciseID]?.equipment))
                 .font(.subheadline)
