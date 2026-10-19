@@ -19,6 +19,32 @@ public struct TemplateDefinition: Codable, Hashable, Sendable {
     }
 
     public var exerciseIDs: [UUID] { exercises.map(\.exerciseID) }
+
+    /// Whether both hold the same exercises, sets and rests. The element IDs are left out: they are
+    /// made anew for every copy, so two devices' copies of one example differ only in them.
+    public func hasSameContent(as other: TemplateDefinition) -> Bool {
+        withoutIDs == other.withoutIDs
+    }
+
+    private var withoutIDs: TemplateDefinition {
+        func strip(_ exercise: TemplateExercise) -> TemplateExercise {
+            var exercise = exercise
+            exercise.id = Self.blankID
+            return exercise
+        }
+        return TemplateDefinition(items: items.map { item in
+            switch item {
+            case .exercise(let exercise):
+                return .exercise(strip(exercise))
+            case .superset(var superset):
+                superset.id = Self.blankID
+                superset.exercises = superset.exercises.map(strip)
+                return .superset(superset)
+            }
+        })
+    }
+
+    private static let blankID = UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 }
 
 /// A top-level element of a template: a single exercise or a superset (no nesting, SPEC D3).

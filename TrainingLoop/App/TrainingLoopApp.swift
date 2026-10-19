@@ -54,6 +54,8 @@ enum AppModel {
         MuscleMigration.runOnce(container.mainContext)
         BothSidesMigration.runOnce(container.mainContext)
         ExampleSeeder.seedIfNeeded(container.mainContext)
+        ExampleKeyMigration.runOnce(container.mainContext)
+        Deduplication.run(container.mainContext)
         DefaultNames.relocalize(container.mainContext)
         RecordCounts.countOnce(container.mainContext)
         #if DEBUG
