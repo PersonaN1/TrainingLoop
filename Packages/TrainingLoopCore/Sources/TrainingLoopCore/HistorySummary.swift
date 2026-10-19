@@ -7,12 +7,16 @@ public struct WorkoutFacts: Sendable {
     public var volumeKg: Double
     /// Sets per primary muscle group (SPEC D9).
     public var setsByGroup: [MuscleGroup: Int]
+    /// Sets per target muscle: a set counts for each target muscle of its exercise.
+    public var setsByMuscle: [Muscle: Int]
 
-    public init(startedAt: Date, durationSeconds: Int, volumeKg: Double, setsByGroup: [MuscleGroup: Int] = [:]) {
+    public init(startedAt: Date, durationSeconds: Int, volumeKg: Double, setsByGroup: [MuscleGroup: Int] = [:],
+                setsByMuscle: [Muscle: Int] = [:]) {
         self.startedAt = startedAt
         self.durationSeconds = durationSeconds
         self.volumeKg = volumeKg
         self.setsByGroup = setsByGroup
+        self.setsByMuscle = setsByMuscle
     }
 }
 
@@ -77,6 +81,8 @@ public struct HistorySummary: Sendable {
     public let buckets: [Bucket]
     /// Most sets first; groups without sets are left out.
     public let setsByGroup: [(group: MuscleGroup, sets: Int)]
+    /// Most sets first; muscles without sets are left out.
+    public let setsByMuscle: [(muscle: Muscle, sets: Int)]
     /// Start of every day with a workout, in the whole history: the calendar may show another month.
     public let trainingDays: Set<Date>
     public let weekStreak: Int
@@ -97,6 +103,12 @@ public struct HistorySummary: Sendable {
         }
         setsByGroup = MuscleGroup.allCases.compactMap { group in
             groups[group].flatMap { $0 > 0 ? (group: group, sets: $0) : nil }
+        }.sorted { $0.sets > $1.sets }
+        let muscles = inPeriod.reduce(into: [Muscle: Int]()) { result, workout in
+            result.merge(workout.setsByMuscle, uniquingKeysWith: +)
+        }
+        setsByMuscle = Muscle.allCases.compactMap { muscle in
+            muscles[muscle].flatMap { $0 > 0 ? (muscle: muscle, sets: $0) : nil }
         }.sorted { $0.sets > $1.sets }
         trainingDays = Set(workouts.map { calendar.startOfDay(for: $0.startedAt) })
         weekStreak = Self.weekStreak(workouts.map(\.startedAt), now: now, calendar: calendar)

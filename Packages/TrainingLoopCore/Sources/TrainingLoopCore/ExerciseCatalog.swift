@@ -68,14 +68,19 @@ public enum ExerciseName {
 /// The catalog filter (DESIGN V10): one muscle group, one kind of equipment, only custom ones,
 /// only ones done in some workout.
 public struct ExerciseFilter: Equatable, Sendable {
-    public var group: MuscleGroup?
+    public var group: MuscleGroup? {
+        didSet { if let muscle, muscle.group != group { self.muscle = nil } }
+    }
+    /// A target muscle of `group`; only with a group chosen.
+    public var muscle: Muscle?
     public var equipment: Equipment?
     public var onlyCustom = false
     public var onlyDone = false
 
-    public init(group: MuscleGroup? = nil, equipment: Equipment? = nil, onlyCustom: Bool = false,
-                onlyDone: Bool = false) {
+    public init(group: MuscleGroup? = nil, muscle: Muscle? = nil, equipment: Equipment? = nil,
+                onlyCustom: Bool = false, onlyDone: Bool = false) {
         self.group = group
+        self.muscle = muscle?.group == group ? muscle : nil
         self.equipment = equipment
         self.onlyCustom = onlyCustom
         self.onlyDone = onlyDone
@@ -83,14 +88,17 @@ public struct ExerciseFilter: Equatable, Sendable {
 
     /// Number of active conditions, for "Filter (N)".
     public var activeCount: Int {
-        (group == nil ? 0 : 1) + (equipment == nil ? 0 : 1) + (onlyCustom ? 1 : 0) + (onlyDone ? 1 : 0)
+        (group == nil ? 0 : 1) + (muscle == nil ? 0 : 1) + (equipment == nil ? 0 : 1) + (onlyCustom ? 1 : 0)
+            + (onlyDone ? 1 : 0)
     }
 
     public var isActive: Bool { activeCount > 0 }
 
-    /// Filters by the primary group only, like statistics (SPEC D9).
-    public func matches(primaryGroup: MuscleGroup, equipment: Equipment, isCustom: Bool, isDone: Bool = false) -> Bool {
+    /// Filters by the primary group, like statistics, then by its target muscles (SPEC D9).
+    public func matches(primaryGroup: MuscleGroup, muscles: [Muscle] = [], equipment: Equipment, isCustom: Bool,
+                        isDone: Bool = false) -> Bool {
         if let group, group != primaryGroup { return false }
+        if let muscle, !muscles.contains(muscle) { return false }
         if let wanted = self.equipment, wanted != equipment { return false }
         if onlyCustom && !isCustom { return false }
         if onlyDone && !isDone { return false }

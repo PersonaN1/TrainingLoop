@@ -68,12 +68,39 @@ struct BuiltinExercisesTests {
         #expect(Set(all.map(\.primaryGroup)) == Set(MuscleGroup.allCases).subtracting([.other]))
     }
 
-    @Test func oldLegGroupsReadAsLegs() {
+    @Test func oldGroupsReadAsTheirNewGroup() {
         for raw in ["quads", "hamstrings", "glutes", "calves"] {
             #expect(MuscleGroup(storedRawValue: raw) == .legs)
+            #expect(Muscle(rawValue: raw)?.group == .legs)
+        }
+        #expect(MuscleGroup(storedRawValue: "traps") == .back)
+        for raw in ["biceps", "triceps", "forearms"] {
+            #expect(MuscleGroup(storedRawValue: raw) == .arms)
+            #expect(Muscle(rawValue: raw)?.group == .arms)
         }
         #expect(MuscleGroup(storedRawValue: "chest") == .chest)
         #expect(MuscleGroup(storedRawValue: "unknown") == nil)
+    }
+
+    /// Every divided group has built-in exercises aimed at each of its muscles.
+    @Test func everyMuscleIsTargeted() {
+        #expect(Set(all.flatMap(\.muscles)) == Set(Muscle.allCases))
+        for exercise in all {
+            #expect(Set(exercise.muscles).count == exercise.muscles.count, "\(exercise.key)")
+        }
+    }
+
+    /// The muscles of an exercise's own group come first: they are what it aims at.
+    @Test func ownGroupMusclesFirst() {
+        for exercise in all where !exercise.muscles.isEmpty && !exercise.primaryGroup.muscles.isEmpty {
+            #expect(exercise.muscles[0].group == exercise.primaryGroup, "\(exercise.key)")
+        }
+    }
+
+    @Test func oneSidedExercisesGoBySides() throws {
+        #expect(try #require(BuiltinExercises.exercise(key: "one_arm_dumbbell_row")).bySide)
+        #expect(try #require(BuiltinExercises.exercise(key: "concentration_curl")).bySide)
+        #expect(try !#require(BuiltinExercises.exercise(key: "barbell_curl")).bySide)
     }
 
     @Test func cableReadsAsMachine() {

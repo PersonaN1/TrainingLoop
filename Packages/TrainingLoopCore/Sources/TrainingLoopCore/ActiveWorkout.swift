@@ -84,36 +84,73 @@ public struct ActiveWorkout: Codable, Hashable, Sendable {
         /// Typed by the user; a nil field shows the suggestion in grey.
         public var entered: PlannedSet
         public var doneAt: Date?
+        /// Left and right are entered separately (D23): the values are the left side, `right` the right one.
+        /// One tick covers both.
+        public var bySide: Bool
 
         public init(id: UUID = UUID(), planned: PlannedSet, previous: PlannedSet?,
-                    entered: PlannedSet = PlannedSet(), doneAt: Date? = nil) {
+                    entered: PlannedSet = PlannedSet(), doneAt: Date? = nil, bySide: Bool = false) {
             self.id = id
             self.planned = planned
             self.previous = previous
             self.entered = entered
             self.doneAt = doneAt
+            self.bySide = bySide
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case id, planned, previous, entered, doneAt, bySide
+        }
+
+        /// A workout saved by an earlier build has no `bySide`.
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(UUID.self, forKey: .id)
+            planned = try container.decode(PlannedSet.self, forKey: .planned)
+            previous = try container.decodeIfPresent(PlannedSet.self, forKey: .previous)
+            entered = try container.decode(PlannedSet.self, forKey: .entered)
+            doneAt = try container.decodeIfPresent(Date.self, forKey: .doneAt)
+            bySide = try container.decodeIfPresent(Bool.self, forKey: .bySide) ?? false
         }
 
         public var isDone: Bool { doneAt != nil }
 
-        /// Template value, else last time's, else empty (D7).
+        /// Template value, else last time's, else empty (D7). The template's value is for both sides;
+        /// last time's right side suggests the right side, or its only value when it wasn't split.
         public var suggested: PlannedSet {
-            PlannedSet(reps: planned.reps ?? previous?.reps,
-                       seconds: planned.seconds ?? previous?.seconds,
-                       weightKg: planned.weightKg ?? previous?.weightKg)
+            var result = PlannedSet(reps: planned.reps ?? previous?.reps,
+                                    seconds: planned.seconds ?? previous?.seconds,
+                                    weightKg: planned.weightKg ?? previous?.weightKg)
+            if bySide {
+                let plannedRight = planned.right ?? PlannedSet.Side(reps: planned.reps, seconds: planned.seconds,
+                                                                     weightKg: planned.weightKg)
+                let previousRight = previous?.right
+                    ?? previous.map { PlannedSet.Side(reps: $0.reps, seconds: $0.seconds, weightKg: $0.weightKg) }
+                result.right = PlannedSet.Side(reps: plannedRight.reps ?? previousRight?.reps,
+                                               seconds: plannedRight.seconds ?? previousRight?.seconds,
+                                               weightKg: plannedRight.weightKg ?? previousRight?.weightKg)
+            }
+            return result
         }
 
         /// What a tick records: the typed values over the suggestion.
         public var value: PlannedSet {
             let suggested = suggested
-            return PlannedSet(reps: entered.reps ?? suggested.reps,
-                              seconds: entered.seconds ?? suggested.seconds,
-                              weightKg: entered.weightKg ?? suggested.weightKg)
+            var result = PlannedSet(reps: entered.reps ?? suggested.reps,
+                                    seconds: entered.seconds ?? suggested.seconds,
+                                    weightKg: entered.weightKg ?? suggested.weightKg)
+            if let right = suggested.right {
+                result.right = PlannedSet.Side(reps: entered.right?.reps ?? right.reps,
+                                               seconds: entered.right?.seconds ?? right.seconds,
+                                               weightKg: entered.right?.weightKg ?? right.weightKg)
+            }
+            return result
         }
 
-        /// Ticking needs what the exercise records: reps, or time (D7). Unticking always works.
+        /// Ticking needs what the exercise records: reps, or time (D7), on both sides of a set by sides.
+        /// Unticking always works.
         public func canTick(measure: Measure) -> Bool {
-            isDone || (measure == .reps ? value.reps != nil : value.seconds != nil)
+            isDone || value.sides.allSatisfy { measure == .reps ? $0.reps != nil : $0.seconds != nil }
         }
     }
 
@@ -282,7 +319,7 @@ extension ActiveWorkout {
                 exercise.sets.append(SetRow(planned: PlannedSet(), previous: nil))
                 return
             }
-            exercise.sets.append(SetRow(planned: last.planned, previous: nil, entered: last.value))
+            exercise.sets.append(SetRow(planned: last.planned, previous: nil, entered: last.value, bySide: last.bySide))
         }
     }
 
@@ -416,10 +453,24 @@ extension ActiveWorkout {
         }
     }
 
+    /// The way an exercise records its sets, for `fitSets`.
+    public struct Kind: Sendable {
+        public var measure: Measure
+        public var weighted: Bool
+        public var bySide: Bool
+
+        public init(measure: Measure, weighted: Bool, bySide: Bool) {
+            self.measure = measure
+            self.weighted = weighted
+            self.bySide = bySide
+        }
+    }
+
     /// Drops the values an exercise doesn't record (D2) from its sets: reps or time of the other measure
-    /// (after "Replace"), a weight when "With Weight" is off (from the template or last time).
-    /// `kind` gives an exercise's measure and weighting; an unknown exercise is left as it is.
-    public mutating func fitSets(_ kind: (UUID) -> (measure: Measure, weighted: Bool)?) {
+    /// (after "Replace"), a weight when "With Weight" is off (from the template or last time), a right
+    /// side when it doesn't go by sides; sets of an exercise that does are split (D23).
+    /// `kind` gives an exercise's way of recording; an unknown exercise is left as it is.
+    public mutating func fitSets(_ kind: (UUID) -> Kind?) {
         for index in items.indices {
             var item = items[index]
             switch item {
@@ -434,12 +485,16 @@ extension ActiveWorkout {
         }
     }
 
-    private static func fit(_ exercise: inout Exercise, _ kind: (UUID) -> (measure: Measure, weighted: Bool)?) {
+    private static func fit(_ exercise: inout Exercise, _ kind: (UUID) -> Kind?) {
         guard let kind = kind(exercise.exerciseID) else { return }
         for index in exercise.sets.indices {
-            exercise.sets[index].planned = exercise.sets[index].planned.fitted(measure: kind.measure, weighted: kind.weighted)
-            exercise.sets[index].previous = exercise.sets[index].previous?.fitted(measure: kind.measure, weighted: kind.weighted)
-            exercise.sets[index].entered = exercise.sets[index].entered.fitted(measure: kind.measure, weighted: kind.weighted)
+            var set = exercise.sets[index]
+            // A done set keeps its shape: it was recorded the way the exercise went then.
+            if !set.isDone { set.bySide = kind.bySide }
+            set.planned = set.planned.fitted(measure: kind.measure, weighted: kind.weighted, bySide: set.bySide)
+            set.previous = set.previous?.fitted(measure: kind.measure, weighted: kind.weighted, bySide: true)
+            set.entered = set.entered.fitted(measure: kind.measure, weighted: kind.weighted, bySide: set.bySide)
+            exercise.sets[index] = set
         }
     }
 }
@@ -479,7 +534,8 @@ extension ActiveWorkout {
         func exercise(_ exercise: Exercise) -> TemplateExercise {
             TemplateExercise(exerciseID: exercise.exerciseID,
                              sets: exercise.sets.map { set in
-                                 set.planned.reps == nil && set.planned.seconds == nil ? set.value : set.planned
+                                 // A template's value is for both sides (D23).
+                                 set.planned.reps == nil && set.planned.seconds == nil ? set.value.left : set.planned.left
                              },
                              restSeconds: exercise.restSeconds)
         }

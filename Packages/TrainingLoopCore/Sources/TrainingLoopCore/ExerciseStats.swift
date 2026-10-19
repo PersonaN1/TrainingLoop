@@ -32,13 +32,15 @@ public struct ExerciseStats: Sendable {
             }
         }
 
+        /// The better side counts for a best, both sides for a total (D23).
         func value(of sets: [PlannedSet]) -> Double? {
+            let sides = sets.flatMap(\.sides)
             let value: Double? = switch self {
-            case .bestWeight: sets.compactMap(\.weightKg).max()
+            case .bestWeight: sides.compactMap(\.weightKg).max()
             case .volume: PersonalBests.volume(of: sets)
-            case .maxReps: sets.compactMap(\.reps).max().map(Double.init)
-            case .totalReps: Double(sets.compactMap(\.reps).reduce(0, +))
-            case .maxSeconds: sets.compactMap(\.seconds).max().map(Double.init)
+            case .maxReps: sides.compactMap(\.reps).max().map(Double.init)
+            case .totalReps: Double(sides.compactMap(\.reps).reduce(0, +))
+            case .maxSeconds: sides.compactMap(\.seconds).max().map(Double.init)
             }
             guard let value, value > 0 else { return nil }
             return value
@@ -78,7 +80,7 @@ public struct ExerciseStats: Sendable {
     /// Some set was done with weight; without it a weighted exercise charts reps (push-ups with
     /// optional added weight).
     public var hasWeight: Bool {
-        sessions.contains { $0.sets.contains { ($0.weightKg ?? 0) > 0 } }
+        sessions.contains { $0.sets.flatMap(\.sides).contains { ($0.weightKg ?? 0) > 0 } }
     }
 
     /// One point per workout that has a value, oldest first; the peak is the record.
@@ -137,11 +139,11 @@ public struct ExerciseStats: Sendable {
         }
     }
 
-    /// The set with the highest score; the earliest wins a tie.
+    /// The set side with the highest score; the earliest wins a tie.
     private func best(_ score: (PlannedSet) -> Double?) -> Highlight? {
         var result: Highlight?
         for session in sessions {
-            for set in session.sets {
+            for set in session.sets.flatMap(\.sides) {
                 guard let value = score(set), value > (result?.value ?? -.infinity) else { continue }
                 result = Highlight(value: value, set: set, date: session.date)
             }

@@ -75,21 +75,59 @@ public struct TemplateExercise: Codable, Hashable, Sendable, Identifiable {
 
 /// One planned set (SPEC D4). Reps or seconds depending on the exercise's measure;
 /// weight is optional — when missing, the previous time's weight is offered (D7).
+/// A set done one side at a time (D23) holds the left side in its own values and the right one in `right`.
 public struct PlannedSet: Codable, Hashable, Sendable {
     public var reps: Int?
     public var seconds: Int?
     public var weightKg: Double?
+    public var right: Side?
 
-    public init(reps: Int? = nil, seconds: Int? = nil, weightKg: Double? = nil) {
+    public init(reps: Int? = nil, seconds: Int? = nil, weightKg: Double? = nil, right: Side? = nil) {
         self.reps = reps
         self.seconds = seconds
         self.weightKg = weightKg
+        self.right = right
     }
 
-    /// Only what an exercise records (D2): reps or seconds by its measure, the weight when it is weighted.
-    public func fitted(measure: Measure, weighted: Bool) -> PlannedSet {
-        PlannedSet(reps: measure == .reps ? reps : nil, seconds: measure == .time ? seconds : nil,
-                   weightKg: weighted ? weightKg : nil)
+    /// The values of one side.
+    public struct Side: Codable, Hashable, Sendable {
+        public var reps: Int?
+        public var seconds: Int?
+        public var weightKg: Double?
+
+        public init(reps: Int? = nil, seconds: Int? = nil, weightKg: Double? = nil) {
+            self.reps = reps
+            self.seconds = seconds
+            self.weightKg = weightKg
+        }
+    }
+
+    /// The set without its right side: the left side of a set by sides, else the whole set.
+    public var left: PlannedSet {
+        PlannedSet(reps: reps, seconds: seconds, weightKg: weightKg)
+    }
+
+    /// Each side as a set of its own, left first; one element for a set not split by sides.
+    /// Records and charts take the better side, volume and total reps add both (D23).
+    public var sides: [PlannedSet] {
+        guard let right else { return [self] }
+        return [left, PlannedSet(reps: right.reps, seconds: right.seconds, weightKg: right.weightKg)]
+    }
+
+    /// Weight × reps of both sides.
+    public var volumeKg: Double {
+        sides.reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
+    }
+
+    /// Only what an exercise records (D2): reps or seconds by its measure, the weight when it is weighted,
+    /// a right side when it goes by sides.
+    public func fitted(measure: Measure, weighted: Bool, bySide: Bool = false) -> PlannedSet {
+        let fittedRight = bySide ? right.map { side in
+            Side(reps: measure == .reps ? side.reps : nil, seconds: measure == .time ? side.seconds : nil,
+                 weightKg: weighted ? side.weightKg : nil)
+        } : nil
+        return PlannedSet(reps: measure == .reps ? reps : nil, seconds: measure == .time ? seconds : nil,
+                          weightKg: weighted ? weightKg : nil, right: fittedRight)
     }
 }
 

@@ -45,6 +45,17 @@ struct ExerciseFilterTests {
         #expect(!filter.matches(primaryGroup: .back, equipment: .band, isCustom: true))
     }
 
+    @Test func muscleNarrowsItsGroup() {
+        var filter = ExerciseFilter(group: .legs, muscle: .glutes)
+        #expect(filter.activeCount == 2)
+        #expect(filter.matches(primaryGroup: .legs, muscles: [.quads, .glutes], equipment: .barbell, isCustom: false))
+        #expect(!filter.matches(primaryGroup: .legs, muscles: [.quads], equipment: .barbell, isCustom: false))
+        #expect(!filter.matches(primaryGroup: .back, muscles: [.glutes], equipment: .barbell, isCustom: false))
+        filter.group = .back
+        #expect(filter.muscle == nil)
+        #expect(ExerciseFilter(group: .chest, muscle: .glutes).muscle == nil)
+    }
+
     @Test func onlyDoneKeepsExercisesWithWorkouts() {
         let filter = ExerciseFilter(onlyDone: true)
         #expect(filter.activeCount == 1)

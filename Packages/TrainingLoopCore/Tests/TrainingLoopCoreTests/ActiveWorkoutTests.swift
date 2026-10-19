@@ -173,8 +173,8 @@ struct ActiveWorkoutTests {
                                 previous: [PlannedSet(seconds: 60, weightKg: 10)])
         workout.fitSets { id in
             switch id {
-            case plank: (measure: .time, weighted: false)
-            case squat: (measure: .reps, weighted: false)
+            case plank: ActiveWorkout.Kind(measure: .time, weighted: false, bySide: false)
+            case squat: ActiveWorkout.Kind(measure: .reps, weighted: false, bySide: false)
             default: nil
             }
         }
