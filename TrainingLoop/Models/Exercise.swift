@@ -15,7 +15,12 @@ final class Exercise {
     var measureRaw: String = Measure.reps.rawValue
     var weighted: Bool = true
     var primaryGroupRaw: String = MuscleGroup.fullBody.rawValue
+    /// Secondary groups of earlier builds; read once into `muscles` (`MuscleMigration`).
     var secondaryGroupsRaw: [String] = []
+    /// Target muscles (SPEC D9), any group's; a built-in exercise starts with the catalog's.
+    var musclesRaw: [String] = []
+    /// Left and right are recorded separately (SPEC D23).
+    var bySide: Bool = false
     var equipmentRaw: String = Equipment.other.rawValue
     var note: String = ""
     var isHidden: Bool = false
@@ -28,6 +33,8 @@ final class Exercise {
         measure = builtin.measure
         weighted = builtin.weighted
         primaryGroup = builtin.primaryGroup
+        muscles = builtin.muscles
+        bySide = builtin.bySide
         equipment = builtin.equipment
     }
 
@@ -49,15 +56,15 @@ final class Exercise {
         set { primaryGroupRaw = newValue.rawValue }
     }
 
-    var secondaryGroups: [MuscleGroup] {
-        // Old leg groups collapse into one: no duplicates, and never the primary group.
-        get {
-            let primary = primaryGroup
-            return MuscleGroup.allCases.filter { group in
-                group != primary && secondaryGroupsRaw.contains { MuscleGroup(storedRawValue: $0) == group }
-            }
-        }
-        set { secondaryGroupsRaw = newValue.map(\.rawValue) }
+    /// The primary group's muscles first, then the others, each in catalog order.
+    var muscles: [Muscle] {
+        get { Muscle.ordered(musclesRaw.compactMap(Muscle.init(rawValue:)), primary: primaryGroup) }
+        set { musclesRaw = Muscle.ordered(newValue, primary: primaryGroup).map(\.rawValue) }
+    }
+
+    /// The way it records its sets, for the running workout.
+    var kind: ActiveWorkout.Kind {
+        ActiveWorkout.Kind(measure: measure, weighted: weighted, bySide: bySide)
     }
 
     var equipment: Equipment {

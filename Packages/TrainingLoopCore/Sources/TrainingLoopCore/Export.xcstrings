@@ -247,6 +247,23 @@
         }
       }
     },
+    "L %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Л %@"
+          }
+        }
+      }
+    },
     "Note: %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -260,6 +277,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Заметка: %@"
+          }
+        }
+      }
+    },
+    "R %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "R %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "П %@"
           }
         }
       }

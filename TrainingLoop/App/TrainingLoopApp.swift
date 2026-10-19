@@ -1,10 +1,19 @@
 import SwiftData
 import SwiftUI
+import TipKit
 
 @main
 struct TrainingLoopApp: App {
     @State private var settings = AppModel.settings
     @State private var workouts = AppModel.workouts
+
+    init() {
+        #if DEBUG
+        if TestLaunch.isTesting { Tips.hideAllTipsForTesting() }
+        if UserDefaults.standard.bool(forKey: "ResetTips") { try? Tips.resetDatastore() }
+        #endif
+        try? Tips.configure([.displayFrequency(.immediate)])
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -42,6 +51,8 @@ enum AppModel {
         }
         // Built-in exercises first: the example templates refer to them.
         BuiltinSeeder.addMissing(container.mainContext)
+        MuscleMigration.runOnce(container.mainContext)
+        BothSidesMigration.runOnce(container.mainContext)
         ExampleSeeder.seedIfNeeded(container.mainContext)
         DefaultNames.relocalize(container.mainContext)
         RecordCounts.countOnce(container.mainContext)

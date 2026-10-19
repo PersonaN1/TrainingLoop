@@ -21,11 +21,11 @@ actor HistoryReader {
     func summary(period: SummaryPeriod, now: Date, calendar: Calendar) -> HistorySummary {
         let workouts = (try? modelContext.fetch(FetchDescriptor<Workout>(predicate: #Predicate { !$0.isActive }))) ?? []
         let exercises = (try? modelContext.fetch(FetchDescriptor<Exercise>())) ?? []
-        let groups = Dictionary(exercises.map { ($0.id, $0.primaryGroup) }, uniquingKeysWith: { first, _ in first })
-        // Sets by group only matter in the period: counting them elsewhere would load every set in History.
+        let muscles = Dictionary(exercises.map { ($0.id, $0.groupAndMuscles) }, uniquingKeysWith: { first, _ in first })
+        // Sets by group and muscle only matter in the period: counting them elsewhere would load every set in History.
         let interval = period.interval(containing: now, calendar: calendar)
         let facts = workouts.map { workout in
-            workout.facts(groups: interval.start <= workout.startedAt && workout.startedAt < interval.end ? groups : nil)
+            workout.facts(muscles: interval.start <= workout.startedAt && workout.startedAt < interval.end ? muscles : nil)
         }
         return HistorySummary(workouts: facts, period: period, now: now, calendar: calendar)
     }
@@ -60,9 +60,12 @@ actor HistoryReader {
         }
         let byExercise = Dictionary(grouping: sets, by: \.exerciseID)
         return byExercise.reduce(into: [:]) { result, item in
-            let performed = item.value.map {
-                PerformedSet(reps: $0.reps, seconds: $0.seconds, weightKg: $0.weightKg,
-                             workoutStartedAt: $0.workoutStartedAt)
+            // Each side of a set by sides counts on its own: the best is the better side (SPEC D23).
+            let performed = item.value.flatMap { set in
+                set.planned.sides.map {
+                    PerformedSet(reps: $0.reps, seconds: $0.seconds, weightKg: $0.weightKg,
+                                 workoutStartedAt: set.workoutStartedAt)
+                }
             }
             result[item.key] = ExerciseSummary(sets: performed, measure: measures[item.key] ?? .reps)
         }

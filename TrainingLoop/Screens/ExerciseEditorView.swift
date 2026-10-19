@@ -11,7 +11,8 @@ struct ExerciseDraft: Identifiable {
     var measure = Measure.reps
     var weighted = true
     var primaryGroup = MuscleGroup.fullBody
-    var secondaryGroups: Set<MuscleGroup> = []
+    var muscles: Set<Muscle> = []
+    var bySide = false
     var equipment = Equipment.bodyweight
     var note = ""
 
@@ -31,13 +32,15 @@ struct ExerciseDraft: Identifiable {
         measure = exercise.measure
         weighted = exercise.weighted
         primaryGroup = exercise.primaryGroup
-        secondaryGroups = Set(exercise.secondaryGroups)
+        muscles = Set(exercise.muscles)
+        bySide = exercise.bySide
         equipment = exercise.equipment
         note = exercise.note
     }
 }
 
-/// New or edited custom exercise (DESIGN V10). A built-in exercise only gets a note: `ExerciseNoteView`.
+/// New or edited custom exercise (DESIGN V10). A built-in exercise gets its muscles, sides and note:
+/// `BuiltinExerciseEditorView`.
 struct ExerciseEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
@@ -94,6 +97,8 @@ struct ExerciseEditorView: View {
                     }
                 }
 
+                BothSidesSection(isOn: $draft.bySide)
+
                 Section("Description") {
                     Picker("Primary Group", selection: $draft.primaryGroup) {
                         ForEach(MuscleGroup.allCases, id: \.self) { Text($0.title).tag($0) }
@@ -107,9 +112,9 @@ struct ExerciseEditorView: View {
                 }
 
                 Section {
-                    SecondaryGroupChips(selection: $draft.secondaryGroups, primary: draft.primaryGroup)
+                    MuscleChips(selection: $draft.muscles, primary: draft.primaryGroup)
                 } header: {
-                    Text("Secondary Groups")
+                    Text("Target Muscles")
                 }
             }
             .keyboardDismissButton()
@@ -131,8 +136,6 @@ struct ExerciseEditorView: View {
                     measureLock = .workout
                 }
             }
-            // The primary group is never also a secondary one.
-            .onChange(of: draft.primaryGroup) { _, primary in draft.secondaryGroups.remove(primary) }
         }
     }
 
@@ -150,30 +153,32 @@ struct ExerciseEditorView: View {
         exercise.weighted = draft.weighted
         exercise.primaryGroup = draft.primaryGroup
         // Kept in the catalog's order, not the order they were ticked.
-        exercise.secondaryGroups = MuscleGroup.allCases.filter(draft.secondaryGroups.contains)
+        exercise.muscles = Muscle.allCases.filter(draft.muscles.contains)
+        exercise.bySide = draft.bySide
         exercise.equipment = draft.equipment
         exercise.note = draft.note.trimmingCharacters(in: .whitespacesAndNewlines)
         if draft.exercise == nil { context.insert(exercise) }
         context.saveOrReport()
+        workouts.refit(context: context)
         onSave(exercise)
         dismiss()
     }
 }
 
-/// Secondary muscle groups as chips right in the form: a tap ticks or unticks one.
-/// Description only, not counted in statistics (SPEC D9).
-private struct SecondaryGroupChips: View {
-    @Binding var selection: Set<MuscleGroup>
+/// Target muscles as chips right in the form, the primary group's first: a tap ticks or unticks one.
+/// Statistics count sets by them (SPEC D9).
+private struct MuscleChips: View {
+    @Binding var selection: Set<Muscle>
     let primary: MuscleGroup
 
     var body: some View {
         FlowLayout(spacing: 8) {
-            ForEach(MuscleGroup.allCases.filter { $0 != primary }, id: \.self) { group in
-                let isSelected = selection.contains(group)
+            ForEach(Muscle.ordered(Muscle.allCases, primary: primary), id: \.self) { muscle in
+                let isSelected = selection.contains(muscle)
                 Button {
-                    if isSelected { selection.remove(group) } else { selection.insert(group) }
+                    if isSelected { selection.remove(muscle) } else { selection.insert(muscle) }
                 } label: {
-                    Text(group.title)
+                    Text(muscle.title)
                         .font(.subheadline)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
@@ -185,6 +190,19 @@ private struct SecondaryGroupChips: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+/// "Left and Right" (SPEC D23): each side does the set, volume counts both; a set can be split.
+private struct BothSidesSection: View {
+    @Binding var isOn: Bool
+
+    var body: some View {
+        Section {
+            Toggle("Left and Right", isOn: $isOn)
+        } footer: {
+            Text("Two dumbbells or one arm at a time: a set counts for each side. When the sides differ, swipe the set right or hold it to split it into L and R.")
+        }
     }
 }
 
@@ -236,24 +254,37 @@ struct FlowLayout: Layout {
     }
 }
 
-/// The note of a built-in exercise, its only editable field (SPEC D8, DESIGN V7).
-struct ExerciseNoteView: View {
+/// What a built-in exercise lets change (SPEC D8, D9, D23, DESIGN V7): target muscles, sides, note.
+struct BuiltinExerciseEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
+    @Environment(WorkoutController.self) private var workouts
     let exercise: Exercise
+    @State private var muscles: Set<Muscle>
+    @State private var bySide: Bool
     @State private var note: String
 
     init(exercise: Exercise) {
         self.exercise = exercise
+        _muscles = State(initialValue: Set(exercise.muscles))
+        _bySide = State(initialValue: exercise.bySide)
         _note = State(initialValue: exercise.note)
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Note — for example, seat setting", text: $note, axis: .vertical)
-                    .lineLimit(5...)
-                    .noteLimit($note)
+                Section {
+                    MuscleChips(selection: $muscles, primary: exercise.primaryGroup)
+                } header: {
+                    Text("Target Muscles")
+                }
+                BothSidesSection(isOn: $bySide)
+                Section("Note") {
+                    TextField("Note — for example, seat setting", text: $note, axis: .vertical)
+                        .lineLimit(3...)
+                        .noteLimit($note)
+                }
             }
             .keyboardDismissButton()
             .navigationTitle(exercise.name)
@@ -264,8 +295,11 @@ struct ExerciseNoteView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
+                        exercise.muscles = Muscle.allCases.filter(muscles.contains)
+                        exercise.bySide = bySide
                         exercise.note = note.trimmingCharacters(in: .whitespacesAndNewlines)
                         context.saveOrReport()
+                        workouts.refit(context: context)
                         dismiss()
                     }
                 }

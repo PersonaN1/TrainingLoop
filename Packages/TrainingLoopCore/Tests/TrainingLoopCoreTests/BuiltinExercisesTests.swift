@@ -5,7 +5,7 @@ struct BuiltinExercisesTests {
     private let all = BuiltinExercises.all
 
     @Test func matchesApprovedList() {
-        #expect(all.count == 53)
+        #expect(all.count == 126)
     }
 
     @Test func keysAreUniqueSnakeCase() {
@@ -23,6 +23,14 @@ struct BuiltinExercisesTests {
         }
     }
 
+    /// Built-in names don't clash with each other under the uniqueness rule either (case, ё/е, spacing).
+    @Test func namesDifferAfterFolding() {
+        for language in ["en", "ru"] {
+            let keys = all.map { ExerciseName.key($0.name(languageCode: language)) }
+            #expect(Set(keys).count == all.count, "\(language)")
+        }
+    }
+
     /// Every key has a name in every language; a missing one would show the raw key.
     @Test func everyNameIsTranslated() {
         for exercise in all {
@@ -35,12 +43,13 @@ struct BuiltinExercisesTests {
 
     @Test func timedExercises() {
         let timed = all.filter { $0.measure == .time }.map(\.key)
-        #expect(timed == ["plank", "side_plank", "dead_hang", "farmers_walk"])
+        #expect(timed == ["wall_sit", "plank", "side_plank", "dead_hang", "farmers_walk", "jump_rope"])
     }
 
     @Test func unweightedExercises() {
         let unweighted = all.filter { !$0.weighted }.map(\.key)
-        #expect(unweighted == ["air_squat", "ab_wheel_rollout", "burpee"])
+        #expect(unweighted == ["air_squat", "jump_squat", "nordic_curl", "band_pull_apart", "ab_wheel_rollout",
+                               "lying_leg_raise", "hanging_knee_raise", "burpee", "jump_rope"])
     }
 
     @Test func looksUpByKeyAndLanguage() throws {
@@ -59,12 +68,43 @@ struct BuiltinExercisesTests {
         #expect(Set(all.map(\.primaryGroup)) == Set(MuscleGroup.allCases).subtracting([.other]))
     }
 
-    @Test func oldLegGroupsReadAsLegs() {
+    @Test func oldGroupsReadAsTheirNewGroup() {
         for raw in ["quads", "hamstrings", "glutes", "calves"] {
             #expect(MuscleGroup(storedRawValue: raw) == .legs)
+            #expect(Muscle(rawValue: raw)?.group == .legs)
+        }
+        #expect(MuscleGroup(storedRawValue: "traps") == .back)
+        for raw in ["biceps", "triceps", "forearms"] {
+            #expect(MuscleGroup(storedRawValue: raw) == .arms)
+            #expect(Muscle(rawValue: raw)?.group == .arms)
         }
         #expect(MuscleGroup(storedRawValue: "chest") == .chest)
         #expect(MuscleGroup(storedRawValue: "unknown") == nil)
+    }
+
+    /// Every divided group has built-in exercises aimed at each of its muscles.
+    @Test func everyMuscleIsTargeted() {
+        #expect(Set(all.flatMap(\.muscles)) == Set(Muscle.allCases))
+        for exercise in all {
+            #expect(Set(exercise.muscles).count == exercise.muscles.count, "\(exercise.key)")
+        }
+    }
+
+    /// The muscles of an exercise's own group come first: they are what it aims at.
+    @Test func ownGroupMusclesFirst() {
+        for exercise in all where !exercise.muscles.isEmpty && !exercise.primaryGroup.muscles.isEmpty {
+            #expect(exercise.muscles[0].group == exercise.primaryGroup, "\(exercise.key)")
+        }
+    }
+
+    /// One arm at a time or a dumbbell in each hand; one dumbbell in both hands is not (D23).
+    @Test func eachSideExercisesHaveBothSides() throws {
+        #expect(try #require(BuiltinExercises.exercise(key: "one_arm_dumbbell_row")).bySide)
+        #expect(try #require(BuiltinExercises.exercise(key: "concentration_curl")).bySide)
+        #expect(try #require(BuiltinExercises.exercise(key: "dumbbell_curl")).bySide)
+        #expect(try #require(BuiltinExercises.exercise(key: "dumbbell_bench_press")).bySide)
+        #expect(try !#require(BuiltinExercises.exercise(key: "goblet_squat")).bySide)
+        #expect(try !#require(BuiltinExercises.exercise(key: "barbell_curl")).bySide)
     }
 
     @Test func cableReadsAsMachine() {

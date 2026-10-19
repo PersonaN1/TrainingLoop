@@ -5,6 +5,7 @@ import TrainingLoopCore
 /// Creates the built-in exercises missing from the store, by key (TECH T2): runs on every launch,
 /// so built-in exercises added in an update appear without a migration. A built-in exercise the update
 /// corrected (group, equipment, weighting) takes the catalog's values; its type only while it has no history.
+/// A custom exercise named like a new built-in one gets a free "Name (2)" name: names stay unique (SPEC D8).
 enum BuiltinSeeder {
     @MainActor
     static func addMissing(_ context: ModelContext) {
@@ -18,9 +19,13 @@ enum BuiltinSeeder {
         }
         let present = Dictionary(stored.compactMap { exercise in exercise.builtinKey.map { ($0, exercise) } },
                                  uniquingKeysWith: { first, _ in first })
+        var customs: [Exercise]?
         for builtin in BuiltinExercises.all {
             guard let exercise = present[builtin.key] else {
-                context.insert(Exercise(builtin: builtin))
+                let added = Exercise(builtin: builtin)
+                if customs == nil { customs = fetchCustoms(context) }
+                renameClashing(customs ?? [], with: added)
+                context.insert(added)
                 continue
             }
             // Assigned only when different: an unchanged row stays clean and nothing is saved.
@@ -30,6 +35,80 @@ enum BuiltinSeeder {
             if exercise.measure != builtin.measure, !context.hasHistory(exercise) { exercise.measure = builtin.measure }
         }
         if context.hasChanges { context.saveOrReport() }
+    }
+
+    @MainActor
+    private static func fetchCustoms(_ context: ModelContext) -> [Exercise] {
+        do {
+            return try context.fetch(FetchDescriptor<Exercise>(predicate: #Predicate { $0.builtinKey == nil }))
+        } catch {
+            Persistence.report("Fetching custom exercises failed", error)
+            return []
+        }
+    }
+
+    @MainActor
+    private static func renameClashing(_ customs: [Exercise], with added: Exercise) {
+        let builtinNames = added.allNames
+        for custom in customs where ExerciseName.problem(custom.name, otherNames: builtinNames) == .duplicate {
+            let taken = customs.map(\.name) + builtinNames
+            custom.customName = ExerciseName.copyName(of: custom.name, otherNames: taken)
+        }
+    }
+}
+
+/// Target muscles and sides (SPEC D9, D23) for exercises stored before they existed, once: a built-in
+/// exercise takes the catalog's, a custom one its old muscle-sized groups (quads, biceps…), primary
+/// and secondary. Later the user's choice stays, even an empty one.
+enum MuscleMigration {
+    private static let key = "musclesMigrated.1"
+
+    @MainActor
+    static func runOnce(_ context: ModelContext, defaults: UserDefaults = .standard) {
+        guard !defaults.bool(forKey: key) else { return }
+        let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+        for exercise in exercises where exercise.musclesRaw.isEmpty {
+            if let builtin = exercise.builtin {
+                exercise.muscles = builtin.muscles
+                exercise.bySide = builtin.bySide
+            } else {
+                exercise.muscles = ([exercise.primaryGroupRaw] + exercise.secondaryGroupsRaw).compactMap(Muscle.init(rawValue:))
+            }
+        }
+        if context.hasChanges { context.saveOrReport() }
+        defaults.set(true, forKey: key)
+    }
+}
+
+/// Both sides (SPEC D23), once: built-in exercises take the catalog's flag, and the sets already in History
+/// of every exercise done with both sides count for both, so volume and its records don't jump.
+enum BothSidesMigration {
+    private static let key = "bothSidesMigrated.1"
+
+    @MainActor
+    static func runOnce(_ context: ModelContext, defaults: UserDefaults = .standard) {
+        guard !defaults.bool(forKey: key) else { return }
+        let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+        for exercise in exercises {
+            if let builtin = exercise.builtin, exercise.bySide != builtin.bySide { exercise.bySide = builtin.bySide }
+        }
+        var changed: Set<UUID> = []
+        var workouts: [PersistentIdentifier: Workout] = [:]
+        for exercise in exercises where exercise.bySide {
+            let id = exercise.id
+            let sets = (try? context.fetch(FetchDescriptor<WorkoutSet>(predicate: #Predicate {
+                $0.exerciseID == id && !$0.bySide
+            }))) ?? []
+            for set in sets {
+                set.bySide = true
+                changed.insert(id)
+                if let workout = set.entry?.workout { workouts[workout.persistentModelID] = workout }
+            }
+        }
+        workouts.values.forEach { $0.updateTotals() }
+        if context.hasChanges { context.saveOrReport() }
+        defaults.set(true, forKey: key)
+        RecordRecount.start(changed, context: context)
     }
 }
 

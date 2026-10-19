@@ -340,7 +340,10 @@ struct TemplateEditorView: View {
             let exercise = lookup[item.exerciseID]
             SetSheet(number: editing.index + 1, set: item.sets[editing.index], measure: measure(of: item),
                      weighted: exercise?.weighted ?? true,
-                     lastWeightKnown: lastWeightKnown(item), isDone: isRecord, unit: settings.weightUnit,
+                     lastWeightKnown: lastWeightKnown(item), isDone: isRecord,
+                     // A template's value is for both sides; a record can keep what each side did (D23).
+                     bothSides: isRecord && (item.sets[editing.index].bothSides || exercise?.bySide == true),
+                     unit: settings.weightUnit,
                      canDelete: item.sets.count > 1) { result in
                 draft.updateExercise(item.id) { exercise in
                     guard exercise.sets.indices.contains(editing.index) else { return }
@@ -462,7 +465,7 @@ struct TemplateEditorView: View {
 }
 
 /// "1 · 8 reps · 60 kg"; an empty weight reads "last time's weight" in gray (DESIGN V6),
-/// when there is one.
+/// when there is one. A split set has a line for each side, L and R (D23).
 struct SetLine: View {
     let number: Int
     let set: PlannedSet
@@ -472,10 +475,28 @@ struct SetLine: View {
     let unit: WeightUnit
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
             Text(number.formatted())
                 .foregroundStyle(.secondary)
                 .frame(minWidth: 20, alignment: .leading)
+            let sides = set.sides
+            if set.isSplit {
+                VStack(spacing: 4) {
+                    line(sides[0], side: Text("L", comment: "Left side of a set"))
+                    line(sides[1], side: Text("R", comment: "Right side of a set"))
+                }
+            } else {
+                line(set, side: nil)
+            }
+        }
+        .monospacedDigit()
+    }
+
+    private func line(_ set: PlannedSet, side: Text?) -> some View {
+        HStack(spacing: 12) {
+            if let side {
+                side.font(.caption.weight(.semibold)).foregroundStyle(Color.accentColor)
+            }
             if let reps = set.reps {
                 Text(TemplateFormat.reps(reps...reps))
             } else if let seconds = set.seconds {
@@ -493,7 +514,6 @@ struct SetLine: View {
                 }
             }
         }
-        .monospacedDigit()
     }
 }
 

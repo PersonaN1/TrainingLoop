@@ -29,7 +29,7 @@ extension Workout {
         let sets = orderedEntries.flatMap { $0.sets ?? [] }
         totalSets = sets.count
         totalExercises = (entries ?? []).count
-        totalVolumeKg = sets.reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
+        totalVolumeKg = sets.reduce(0) { $0 + $1.planned.volumeKg }
     }
 
     /// "🏆 N" in the history list (DESIGN V9).
@@ -68,8 +68,7 @@ extension Workout {
                 entry.restAfterSeconds = superset?.restAfterSeconds
                 entries?.append(entry)
                 for (index, set) in exercise.sets.enumerated() {
-                    let row = WorkoutSet(order: index, reps: set.reps, seconds: set.seconds, weightKg: set.weightKg,
-                                         exerciseID: exercise.exerciseID, workoutStartedAt: startedAt)
+                    let row = WorkoutSet(order: index, set, exerciseID: exercise.exerciseID, workoutStartedAt: startedAt)
                     row.completedAt = completedAt
                     entry.sets?.append(row)
                 }
@@ -79,17 +78,20 @@ extension Workout {
         updateTotals()
     }
 
-    /// Without `groups` the sets aren't counted, and none of them is loaded.
-    func facts(groups: [UUID: MuscleGroup]?) -> WorkoutFacts {
+    /// Without `muscles` the sets aren't counted, and none of them is loaded.
+    func facts(muscles: [UUID: ExerciseMuscles]?) -> WorkoutFacts {
         var setsByGroup: [MuscleGroup: Int] = [:]
-        if let groups {
+        var setsByMuscle: [Muscle: Int] = [:]
+        if let muscles {
             for entry in entries ?? [] {
-                guard let group = groups[entry.exerciseID] else { continue }
-                setsByGroup[group, default: 0] += entry.sets?.count ?? 0
+                guard let exercise = muscles[entry.exerciseID] else { continue }
+                let sets = entry.sets?.count ?? 0
+                setsByGroup[exercise.group, default: 0] += sets
+                for muscle in exercise.muscles { setsByMuscle[muscle, default: 0] += sets }
             }
         }
         return WorkoutFacts(startedAt: startedAt, durationSeconds: durationSeconds, volumeKg: totalVolumeKg,
-                            setsByGroup: setsByGroup)
+                            setsByGroup: setsByGroup, setsByMuscle: setsByMuscle)
     }
 }
 
@@ -107,8 +109,22 @@ enum RecordCounts {
     }
 }
 
+/// An exercise's primary group and target muscles, for sets by group and by muscle (SPEC D9).
+struct ExerciseMuscles: Sendable {
+    var group: MuscleGroup
+    var muscles: [Muscle]
+}
+
+extension Exercise {
+    var groupAndMuscles: ExerciseMuscles { ExerciseMuscles(group: primaryGroup, muscles: muscles) }
+}
+
 extension WorkoutSet {
-    var planned: PlannedSet { PlannedSet(reps: reps, seconds: seconds, weightKg: weightKg) }
+    var planned: PlannedSet {
+        let isSplit = bySide && (rightReps != nil || rightSeconds != nil || rightWeightKg != nil)
+        return PlannedSet(reps: reps, seconds: seconds, weightKg: weightKg, bothSides: bySide,
+                          right: isSplit ? .init(reps: rightReps, seconds: rightSeconds, weightKg: rightWeightKg) : nil)
+    }
 }
 
 extension ModelContext {

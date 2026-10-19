@@ -37,7 +37,7 @@ struct WorkoutSummaryView: View {
     private func form(_ workout: ActiveWorkout, endedAt: Date) -> some View {
         let done = workout.doneItems
         let sets = done.flatMap(\.exercises).flatMap(\.sets)
-        let volume = sets.reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.value.weightKg, reps: $1.value.reps) }
+        let volume = sets.reduce(0) { $0 + $1.value.volumeKg }
         let template = workout.templateID.flatMap { id in templates.first { $0.id == id } }
         let historyCount = context.finishedWorkoutCount()
         return Form {

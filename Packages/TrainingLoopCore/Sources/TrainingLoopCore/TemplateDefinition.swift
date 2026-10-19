@@ -75,21 +75,81 @@ public struct TemplateExercise: Codable, Hashable, Sendable, Identifiable {
 
 /// One planned set (SPEC D4). Reps or seconds depending on the exercise's measure;
 /// weight is optional — when missing, the previous time's weight is offered (D7).
+/// A set of an exercise done with both arms or legs (D23) is `bothSides`: its values are each side's.
+/// When the sides differ the set is split: the left side in its own values, the right one in `right`.
 public struct PlannedSet: Codable, Hashable, Sendable {
     public var reps: Int?
     public var seconds: Int?
     public var weightKg: Double?
+    public var bothSides: Bool
+    public var right: Side?
 
-    public init(reps: Int? = nil, seconds: Int? = nil, weightKg: Double? = nil) {
+    public init(reps: Int? = nil, seconds: Int? = nil, weightKg: Double? = nil, bothSides: Bool = false,
+                right: Side? = nil) {
         self.reps = reps
         self.seconds = seconds
         self.weightKg = weightKg
+        self.bothSides = bothSides || right != nil
+        self.right = right
     }
 
-    /// Only what an exercise records (D2): reps or seconds by its measure, the weight when it is weighted.
-    public func fitted(measure: Measure, weighted: Bool) -> PlannedSet {
-        PlannedSet(reps: measure == .reps ? reps : nil, seconds: measure == .time ? seconds : nil,
-                   weightKg: weighted ? weightKg : nil)
+    private enum CodingKeys: String, CodingKey {
+        case reps, seconds, weightKg, bothSides, right
+    }
+
+    /// Templates and workouts saved by an earlier build have no `bothSides`.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        reps = try container.decodeIfPresent(Int.self, forKey: .reps)
+        seconds = try container.decodeIfPresent(Int.self, forKey: .seconds)
+        weightKg = try container.decodeIfPresent(Double.self, forKey: .weightKg)
+        right = try container.decodeIfPresent(Side.self, forKey: .right)
+        bothSides = try container.decodeIfPresent(Bool.self, forKey: .bothSides) ?? false || right != nil
+    }
+
+    /// Left and right have values of their own.
+    public var isSplit: Bool { right != nil }
+
+    /// The values of one side.
+    public struct Side: Codable, Hashable, Sendable {
+        public var reps: Int?
+        public var seconds: Int?
+        public var weightKg: Double?
+
+        public init(reps: Int? = nil, seconds: Int? = nil, weightKg: Double? = nil) {
+            self.reps = reps
+            self.seconds = seconds
+            self.weightKg = weightKg
+        }
+    }
+
+    /// The set without its sides: the left side of a split set, else one side's values.
+    public var left: PlannedSet {
+        PlannedSet(reps: reps, seconds: seconds, weightKg: weightKg)
+    }
+
+    /// Each side as a set of its own, left first; two alike for a set of both sides not split,
+    /// one for a set of an exercise without sides. Records and charts take the better side,
+    /// volume and total reps add both (D23).
+    public var sides: [PlannedSet] {
+        if let right { return [left, PlannedSet(reps: right.reps, seconds: right.seconds, weightKg: right.weightKg)] }
+        return bothSides ? [left, left] : [self]
+    }
+
+    /// Weight × reps of both sides.
+    public var volumeKg: Double {
+        sides.reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
+    }
+
+    /// Only what an exercise records (D2): reps or seconds by its measure, the weight when it is weighted,
+    /// both sides and a split when it is done with both.
+    public func fitted(measure: Measure, weighted: Bool, bothSides: Bool = false) -> PlannedSet {
+        let fittedRight = bothSides ? right.map { side in
+            Side(reps: measure == .reps ? side.reps : nil, seconds: measure == .time ? side.seconds : nil,
+                 weightKg: weighted ? side.weightKg : nil)
+        } : nil
+        return PlannedSet(reps: measure == .reps ? reps : nil, seconds: measure == .time ? seconds : nil,
+                          weightKg: weighted ? weightKg : nil, bothSides: bothSides, right: fittedRight)
     }
 }
 

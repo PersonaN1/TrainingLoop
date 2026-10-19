@@ -35,6 +35,23 @@
         }
       }
     },
+    "arnold_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arnold Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим Арнольда"
+          }
+        }
+      }
+    },
     "back_extension" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -48,6 +65,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Гиперэкстензия"
+          }
+        }
+      }
+    },
+    "band_pull_apart" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Band Pull-apart"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разведение эспандера перед собой"
           }
         }
       }
@@ -120,6 +154,23 @@
         }
       }
     },
+    "barbell_lunge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barbell Lunge"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выпады со штангой"
+          }
+        }
+      }
+    },
     "barbell_row" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -133,6 +184,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тяга штанги в наклоне"
+          }
+        }
+      }
+    },
+    "barbell_shrug" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barbell Shrug"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шраги со штангой"
+          }
+        }
+      }
+    },
+    "behind_the_neck_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behind-the-Neck Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим штанги из-за головы"
+          }
+        }
+      }
+    },
+    "belt_squat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belt Squat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Присед с поясом в тренажёре"
+          }
+        }
+      }
+    },
+    "bench_dip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bench Dip"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обратные отжимания от скамьи"
           }
         }
       }
@@ -188,6 +307,108 @@
         }
       }
     },
+    "cable_crunch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cable Crunch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скручивания на блоке"
+          }
+        }
+      }
+    },
+    "cable_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cable Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сгибание рук на нижнем блоке"
+          }
+        }
+      }
+    },
+    "cable_glute_kickback" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cable Glute Kickback"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отведение ноги назад на блоке"
+          }
+        }
+      }
+    },
+    "cable_lateral_raise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cable Lateral Raise"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отведение руки в сторону на блоке"
+          }
+        }
+      }
+    },
+    "cable_overhead_extension" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cable Overhead Extension"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разгибание рук из-за головы на блоке"
+          }
+        }
+      }
+    },
+    "chest_supported_dumbbell_row" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chest-Supported Dumbbell Row"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тяга гантелей лёжа на наклонной скамье"
+          }
+        }
+      }
+    },
     "chin_up" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -218,6 +439,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Жим штанги узким хватом"
+          }
+        }
+      }
+    },
+    "close_grip_lat_pulldown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close-Grip Lat Pulldown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тяга верхнего блока узким хватом"
+          }
+        }
+      }
+    },
+    "concentration_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Concentration Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Концентрированный подъём на бицепс"
           }
         }
       }
@@ -269,6 +524,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Становая тяга"
+          }
+        }
+      }
+    },
+    "decline_bench_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decline Bench Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим штанги лёжа головой вниз"
+          }
+        }
+      }
+    },
+    "decline_crunch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decline Crunch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скручивания на наклонной скамье"
+          }
+        }
+      }
+    },
+    "diamond_push_up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diamond Push-up"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Алмазные отжимания"
           }
         }
       }
@@ -358,6 +664,57 @@
         }
       }
     },
+    "dumbbell_overhead_extension" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overhead Dumbbell Extension"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Французский жим гантели из-за головы"
+          }
+        }
+      }
+    },
+    "dumbbell_pullover" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumbbell Pullover"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пуловер с гантелью"
+          }
+        }
+      }
+    },
+    "dumbbell_romanian_deadlift" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumbbell Romanian Deadlift"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Румынская тяга с гантелями"
+          }
+        }
+      }
+    },
     "dumbbell_shrug" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -371,6 +728,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Шраги с гантелями"
+          }
+        }
+      }
+    },
+    "dumbbell_skull_crusher" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumbbell Skull Crusher"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Французский жим гантелей лёжа"
+          }
+        }
+      }
+    },
+    "dumbbell_sumo_squat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumbbell Sumo Squat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Присед плие с гантелью"
+          }
+        }
+      }
+    },
+    "ez_bar_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EZ-Bar Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подъём EZ-штанги на бицепс"
+          }
+        }
+      }
+    },
+    "face_pull" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face Pull"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тяга каната к лицу"
           }
         }
       }
@@ -392,6 +817,23 @@
         }
       }
     },
+    "front_raise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Front Raise"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подъём гантелей перед собой"
+          }
+        }
+      }
+    },
     "front_squat" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -409,6 +851,23 @@
         }
       }
     },
+    "glute_bridge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glute Bridge"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ягодичный мостик"
+          }
+        }
+      }
+    },
     "goblet_squat" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -422,6 +881,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Гоблет-присед"
+          }
+        }
+      }
+    },
+    "good_morning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Good Morning"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гуд морнинг"
           }
         }
       }
@@ -460,6 +936,23 @@
         }
       }
     },
+    "hanging_knee_raise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hanging Knee Raise"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подъём коленей в висе"
+          }
+        }
+      }
+    },
     "hanging_leg_raise" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -473,6 +966,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подъём ног в висе"
+          }
+        }
+      }
+    },
+    "hip_abduction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hip Abduction Machine"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разведение ног в тренажёре"
+          }
+        }
+      }
+    },
+    "hip_adduction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hip Adduction Machine"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сведение ног в тренажёре"
           }
         }
       }
@@ -494,6 +1021,40 @@
         }
       }
     },
+    "incline_dumbbell_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incline Dumbbell Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сгибание рук сидя на наклонной скамье"
+          }
+        }
+      }
+    },
+    "incline_dumbbell_fly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incline Dumbbell Fly"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разводка гантелей на наклонной скамье"
+          }
+        }
+      }
+    },
     "incline_dumbbell_press" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -507,6 +1068,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Жим гантелей на наклонной скамье"
+          }
+        }
+      }
+    },
+    "inverted_row" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inverted Row"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Австралийские подтягивания"
+          }
+        }
+      }
+    },
+    "jump_rope" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jump Rope"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скакалка"
+          }
+        }
+      }
+    },
+    "jump_squat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jump Squat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приседания с выпрыгиванием"
           }
         }
       }
@@ -613,6 +1225,125 @@
         }
       }
     },
+    "leg_press_calf_raise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leg Press Calf Raise"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подъём на носки в жиме ногами"
+          }
+        }
+      }
+    },
+    "lying_leg_raise" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lying Leg Raise"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подъём ног лёжа"
+          }
+        }
+      }
+    },
+    "machine_chest_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Machine Chest Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим от груди в тренажёре"
+          }
+        }
+      }
+    },
+    "machine_preacher_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Machine Preacher Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сгибание рук в тренажёре Скотта"
+          }
+        }
+      }
+    },
+    "machine_row" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Machine Row"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тяга в рычажном тренажёре"
+          }
+        }
+      }
+    },
+    "machine_shoulder_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Machine Shoulder Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим вверх в тренажёре"
+          }
+        }
+      }
+    },
+    "nordic_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nordic Hamstring Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нордические сгибания"
+          }
+        }
+      }
+    },
     "one_arm_dumbbell_row" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -647,6 +1378,57 @@
         }
       }
     },
+    "pec_deck" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pec Deck"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бабочка"
+          }
+        }
+      }
+    },
+    "pendulum_squat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pendulum Squat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Маятниковый присед"
+          }
+        }
+      }
+    },
+    "pistol_squat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pistol Squat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пистолетик"
+          }
+        }
+      }
+    },
     "plank" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -660,6 +1442,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Планка"
+          }
+        }
+      }
+    },
+    "power_clean" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Power Clean"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Взятие штанги на грудь"
+          }
+        }
+      }
+    },
+    "preacher_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preacher Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сгибание рук на скамье Скотта"
           }
         }
       }
@@ -681,6 +1497,23 @@
         }
       }
     },
+    "push_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Швунг жимовой"
+          }
+        }
+      }
+    },
     "push_up" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -694,6 +1527,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Отжимания"
+          }
+        }
+      }
+    },
+    "rack_pull" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rack Pull"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тяга штанги с плинтов"
           }
         }
       }
@@ -715,6 +1565,57 @@
         }
       }
     },
+    "reverse_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reverse Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подъём штанги обратным хватом"
+          }
+        }
+      }
+    },
+    "reverse_lunge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reverse Lunge"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обратные выпады"
+          }
+        }
+      }
+    },
+    "reverse_pec_deck" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reverse Pec Deck"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обратная бабочка"
+          }
+        }
+      }
+    },
     "romanian_deadlift" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -728,6 +1629,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Румынская тяга"
+          }
+        }
+      }
+    },
+    "rope_pushdown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rope Pushdown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разгибание рук на блоке с канатом"
+          }
+        }
+      }
+    },
+    "russian_twist" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Russian Twist"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Русские скручивания"
           }
         }
       }
@@ -783,6 +1718,40 @@
         }
       }
     },
+    "seated_french_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seated Overhead Barbell Extension"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Французский жим штанги сидя"
+          }
+        }
+      }
+    },
+    "seated_leg_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seated Leg Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сгибание ног сидя"
+          }
+        }
+      }
+    },
     "side_plank" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -800,6 +1769,23 @@
         }
       }
     },
+    "sissy_squat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sissy Squat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сисси-присед"
+          }
+        }
+      }
+    },
     "skull_crusher" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -813,6 +1799,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Французский жим лёжа"
+          }
+        }
+      }
+    },
+    "smith_machine_bench_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smith Machine Bench Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим лёжа в Смите"
+          }
+        }
+      }
+    },
+    "smith_machine_incline_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smith Machine Incline Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим в Смите на наклонной скамье"
+          }
+        }
+      }
+    },
+    "smith_machine_lunge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smith Machine Lunge"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выпады в Смите"
+          }
+        }
+      }
+    },
+    "smith_machine_shoulder_press" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smith Machine Shoulder Press"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жим сидя в Смите"
           }
         }
       }
@@ -851,6 +1905,57 @@
         }
       }
     },
+    "step_up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumbbell Step-up"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зашагивания на тумбу"
+          }
+        }
+      }
+    },
+    "straight_arm_pulldown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Straight-Arm Pulldown"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пуловер на верхнем блоке"
+          }
+        }
+      }
+    },
+    "sumo_deadlift" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sumo Deadlift"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Становая тяга сумо"
+          }
+        }
+      }
+    },
     "t_bar_row" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -864,6 +1969,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тяга Т-грифа"
+          }
+        }
+      }
+    },
+    "thruster" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thruster"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Трастер"
+          }
+        }
+      }
+    },
+    "trap_bar_deadlift" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trap Bar Deadlift"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Становая тяга с трэп-грифом"
+          }
+        }
+      }
+    },
+    "triceps_kickback" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Triceps Kickback"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разгибание руки с гантелью в наклоне"
           }
         }
       }
@@ -885,6 +2041,57 @@
         }
       }
     },
+    "upright_row" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upright Row"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тяга штанги к подбородку"
+          }
+        }
+      }
+    },
+    "walking_lunge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walking Lunge"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выпады в ходьбе"
+          }
+        }
+      }
+    },
+    "wall_sit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wall Sit"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стульчик у стены"
+          }
+        }
+      }
+    },
     "weighted_neck_flexion" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -898,6 +2105,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сгибание шеи с блином лёжа"
+          }
+        }
+      }
+    },
+    "wide_grip_pull_up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wide-Grip Pull-up"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подтягивания широким хватом"
+          }
+        }
+      }
+    },
+    "wrist_curl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wrist Curl"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сгибание запястий со штангой"
           }
         }
       }

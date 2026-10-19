@@ -30,7 +30,7 @@
 - A chart for every exercise: best weight, volume, reps or time by week, month, 3 months, year or all time; estimated 1RM for reference.
 - History with a summary by week, month and year: workouts, time, volume, sets by muscle group, streak of weeks.
 - Share a template, a workout or a whole period as plain text — for a coach, a chat or notes.
-- 53 built-in exercises plus your own; kilograms or pounds.
+- 126 built-in exercises plus your own; kilograms or pounds.
 - Light and dark theme, Russian and English.
 - iOS 17+, iPhone. Free, no ads, no accounts, no data collected.
 

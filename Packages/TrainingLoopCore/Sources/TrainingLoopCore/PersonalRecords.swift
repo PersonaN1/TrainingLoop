@@ -26,8 +26,14 @@ public enum RecordMetric: Hashable, Sendable {
         }
     }
 
-    /// The values one set reaches; volume is per workout, so it isn't here.
+    /// The values one set reaches, on its better side (D23); volume is per workout, so it isn't here.
     public static func values(of set: PlannedSet) -> [RecordMetric: Double] {
+        set.sides.reduce(into: [:]) { values, side in
+            values.merge(sideValues(of: side), uniquingKeysWith: max)
+        }
+    }
+
+    private static func sideValues(of set: PlannedSet) -> [RecordMetric: Double] {
         var values: [RecordMetric: Double] = [:]
         if let weight = set.weightKg, weight > 0 {
             values[.weight] = weight
@@ -77,7 +83,7 @@ public struct PersonalBests: Equatable, Sendable {
     }
 
     static func volume(of sets: [PlannedSet]) -> Double {
-        sets.reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
+        sets.reduce(0) { $0 + $1.volumeKg }
     }
 }
 

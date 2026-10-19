@@ -144,7 +144,14 @@ public struct TextExport {
     }
 
     /// "80 kg × 10", "+5 kg × 6", "8", "0:45", "60 kg"; "—" for a set with nothing in it.
+    /// A split set: "L 14 kg × 10 / R 12 kg × 9" (D23).
     private func set(_ set: PlannedSet, adds: Bool) -> String {
+        let sides = set.sides
+        guard set.isSplit else { return side(set.left, adds: adds) }
+        return localized("L \(side(sides[0], adds: adds))") + " / " + localized("R \(side(sides[1], adds: adds))")
+    }
+
+    private func side(_ set: PlannedSet, adds: Bool) -> String {
         let weight = set.weightKg.map { signedWeight($0, adds: adds) }
         switch (weight, value(set)) {
         case let (weight?, value?): return "\(weight) × \(value)"
@@ -210,7 +217,7 @@ public struct TextExport {
     }
 
     private static func volume(_ definition: TemplateDefinition) -> Double {
-        definition.exercises.flatMap(\.sets).reduce(0) { $0 + WorkoutVolume.of(weightKg: $1.weightKg, reps: $1.reps) }
+        definition.exercises.flatMap(\.sets).reduce(0) { $0 + $1.volumeKg }
     }
 
     private func localized(_ value: String.LocalizationValue) -> String {
