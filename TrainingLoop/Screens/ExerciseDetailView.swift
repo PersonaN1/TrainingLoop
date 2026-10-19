@@ -92,7 +92,7 @@ struct ExerciseDetailView: View {
                 LabeledContent("Exercise Type", value: exercise.measure.title)
                 LabeledContent("With Weight", value: exercise.weighted ? String(localized: "Yes") : String(localized: "No"))
                 if exercise.bySide {
-                    LabeledContent("Left and Right Separately", value: String(localized: "Yes"))
+                    LabeledContent("Left and Right", value: String(localized: "Yes"))
                 }
             } header: {
                 if exercise.isCustom { CustomBadge() }

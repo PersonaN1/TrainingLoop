@@ -84,25 +84,29 @@ public struct ActiveWorkout: Codable, Hashable, Sendable {
         /// Typed by the user; a nil field shows the suggestion in grey.
         public var entered: PlannedSet
         public var doneAt: Date?
-        /// Left and right are entered separately (D23): the values are the left side, `right` the right one.
-        /// One tick covers both.
+        /// The exercise is done with both arms or legs (D23): one line counts for each side.
         public var bySide: Bool
+        /// The sides differ: a line for each, L and R; the values are the left side, `right` the right one.
+        /// One tick covers both.
+        public var isSplit: Bool
 
         public init(id: UUID = UUID(), planned: PlannedSet, previous: PlannedSet?,
-                    entered: PlannedSet = PlannedSet(), doneAt: Date? = nil, bySide: Bool = false) {
+                    entered: PlannedSet = PlannedSet(), doneAt: Date? = nil, bySide: Bool = false,
+                    isSplit: Bool = false) {
             self.id = id
             self.planned = planned
             self.previous = previous
             self.entered = entered
             self.doneAt = doneAt
-            self.bySide = bySide
+            self.bySide = bySide || isSplit
+            self.isSplit = isSplit
         }
 
         private enum CodingKeys: String, CodingKey {
-            case id, planned, previous, entered, doneAt, bySide
+            case id, planned, previous, entered, doneAt, bySide, isSplit
         }
 
-        /// A workout saved by an earlier build has no `bySide`.
+        /// A workout saved by an earlier build has no `bySide` nor `isSplit`.
         public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             id = try container.decode(UUID.self, forKey: .id)
@@ -111,6 +115,7 @@ public struct ActiveWorkout: Codable, Hashable, Sendable {
             entered = try container.decode(PlannedSet.self, forKey: .entered)
             doneAt = try container.decodeIfPresent(Date.self, forKey: .doneAt)
             bySide = try container.decodeIfPresent(Bool.self, forKey: .bySide) ?? false
+            isSplit = try container.decodeIfPresent(Bool.self, forKey: .isSplit) ?? false
         }
 
         public var isDone: Bool { doneAt != nil }
@@ -120,8 +125,8 @@ public struct ActiveWorkout: Codable, Hashable, Sendable {
         public var suggested: PlannedSet {
             var result = PlannedSet(reps: planned.reps ?? previous?.reps,
                                     seconds: planned.seconds ?? previous?.seconds,
-                                    weightKg: planned.weightKg ?? previous?.weightKg)
-            if bySide {
+                                    weightKg: planned.weightKg ?? previous?.weightKg, bothSides: bySide)
+            if isSplit {
                 let plannedRight = planned.right ?? PlannedSet.Side(reps: planned.reps, seconds: planned.seconds,
                                                                      weightKg: planned.weightKg)
                 let previousRight = previous?.right
@@ -138,7 +143,7 @@ public struct ActiveWorkout: Codable, Hashable, Sendable {
             let suggested = suggested
             var result = PlannedSet(reps: entered.reps ?? suggested.reps,
                                     seconds: entered.seconds ?? suggested.seconds,
-                                    weightKg: entered.weightKg ?? suggested.weightKg)
+                                    weightKg: entered.weightKg ?? suggested.weightKg, bothSides: bySide)
             if let right = suggested.right {
                 result.right = PlannedSet.Side(reps: entered.right?.reps ?? right.reps,
                                                seconds: entered.right?.seconds ?? right.seconds,
@@ -319,7 +324,24 @@ extension ActiveWorkout {
                 exercise.sets.append(SetRow(planned: PlannedSet(), previous: nil))
                 return
             }
-            exercise.sets.append(SetRow(planned: last.planned, previous: nil, entered: last.value, bySide: last.bySide))
+            exercise.sets.append(SetRow(planned: last.planned, previous: nil, entered: last.value, bySide: last.bySide,
+                                        isSplit: last.isSplit))
+        }
+    }
+
+    /// "Split into L and R" (D23): the set gets a line for each side, both starting from what it shows.
+    /// Joining keeps the left side's values for both.
+    public mutating func setSplit(_ id: UUID, _ isSplit: Bool) {
+        updateSet(id) { set in
+            guard set.bySide, set.isSplit != isSplit else { return }
+            if isSplit {
+                let value = set.value
+                set.entered = PlannedSet(reps: value.reps, seconds: value.seconds, weightKg: value.weightKg,
+                                         right: .init(reps: value.reps, seconds: value.seconds, weightKg: value.weightKg))
+            } else {
+                set.entered.right = nil
+            }
+            set.isSplit = isSplit
         }
     }
 
@@ -490,10 +512,15 @@ extension ActiveWorkout {
         for index in exercise.sets.indices {
             var set = exercise.sets[index]
             // A done set keeps its shape: it was recorded the way the exercise went then.
-            if !set.isDone { set.bySide = kind.bySide }
-            set.planned = set.planned.fitted(measure: kind.measure, weighted: kind.weighted, bySide: set.bySide)
-            set.previous = set.previous?.fitted(measure: kind.measure, weighted: kind.weighted, bySide: true)
-            set.entered = set.entered.fitted(measure: kind.measure, weighted: kind.weighted, bySide: set.bySide)
+            if !set.isDone {
+                set.bySide = kind.bySide
+                set.isSplit = set.isSplit && kind.bySide
+            }
+            set.planned = set.planned.fitted(measure: kind.measure, weighted: kind.weighted, bothSides: set.isSplit)
+            set.previous = set.previous.map {
+                $0.fitted(measure: kind.measure, weighted: kind.weighted, bothSides: $0.bothSides)
+            }
+            set.entered = set.entered.fitted(measure: kind.measure, weighted: kind.weighted, bothSides: set.isSplit)
             exercise.sets[index] = set
         }
     }

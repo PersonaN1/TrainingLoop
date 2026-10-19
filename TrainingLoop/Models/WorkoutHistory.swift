@@ -121,8 +121,9 @@ extension Exercise {
 
 extension WorkoutSet {
     var planned: PlannedSet {
-        PlannedSet(reps: reps, seconds: seconds, weightKg: weightKg,
-                   right: bySide ? .init(reps: rightReps, seconds: rightSeconds, weightKg: rightWeightKg) : nil)
+        let isSplit = bySide && (rightReps != nil || rightSeconds != nil || rightWeightKg != nil)
+        return PlannedSet(reps: reps, seconds: seconds, weightKg: weightKg, bothSides: bySide,
+                          right: isSplit ? .init(reps: rightReps, seconds: rightSeconds, weightKg: rightWeightKg) : nil)
     }
 }
 

@@ -85,7 +85,6 @@ struct ExerciseEditorView: View {
                         }
                     }
                     Toggle("With Weight", isOn: $draft.weighted)
-                    Toggle("Left and Right Separately", isOn: $draft.bySide)
                 } header: {
                     Text("What to Record in a Set")
                 } footer: {
@@ -97,6 +96,8 @@ struct ExerciseEditorView: View {
                         Text("Weight can be left empty — for example, pull-ups without a belt.")
                     }
                 }
+
+                BothSidesSection(isOn: $draft.bySide)
 
                 Section("Description") {
                     Picker("Primary Group", selection: $draft.primaryGroup) {
@@ -192,6 +193,19 @@ private struct MuscleChips: View {
     }
 }
 
+/// "Left and Right" (SPEC D23): each side does the set, volume counts both; a set can be split.
+private struct BothSidesSection: View {
+    @Binding var isOn: Bool
+
+    var body: some View {
+        Section {
+            Toggle("Left and Right", isOn: $isOn)
+        } footer: {
+            Text("Two dumbbells or one arm at a time: a set counts for each side. When the sides differ, swipe the set right to split it into L and R.")
+        }
+    }
+}
+
 /// Lays subviews out in rows, starting a new row when the next one doesn't fit.
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
@@ -265,9 +279,7 @@ struct BuiltinExerciseEditorView: View {
                 } header: {
                     Text("Target Muscles")
                 }
-                Section {
-                    Toggle("Left and Right Separately", isOn: $bySide)
-                }
+                BothSidesSection(isOn: $bySide)
                 Section("Note") {
                     TextField("Note — for example, seat setting", text: $note, axis: .vertical)
                         .lineLimit(3...)

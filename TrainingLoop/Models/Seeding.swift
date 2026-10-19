@@ -80,6 +80,38 @@ enum MuscleMigration {
     }
 }
 
+/// Both sides (SPEC D23), once: built-in exercises take the catalog's flag, and the sets already in History
+/// of every exercise done with both sides count for both, so volume and its records don't jump.
+enum BothSidesMigration {
+    private static let key = "bothSidesMigrated.1"
+
+    @MainActor
+    static func runOnce(_ context: ModelContext, defaults: UserDefaults = .standard) {
+        guard !defaults.bool(forKey: key) else { return }
+        let exercises = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+        for exercise in exercises {
+            if let builtin = exercise.builtin, exercise.bySide != builtin.bySide { exercise.bySide = builtin.bySide }
+        }
+        var changed: Set<UUID> = []
+        var workouts: [PersistentIdentifier: Workout] = [:]
+        for exercise in exercises where exercise.bySide {
+            let id = exercise.id
+            let sets = (try? context.fetch(FetchDescriptor<WorkoutSet>(predicate: #Predicate {
+                $0.exerciseID == id && !$0.bySide
+            }))) ?? []
+            for set in sets {
+                set.bySide = true
+                changed.insert(id)
+                if let workout = set.entry?.workout { workouts[workout.persistentModelID] = workout }
+            }
+        }
+        workouts.values.forEach { $0.updateTotals() }
+        if context.hasChanges { context.saveOrReport() }
+        defaults.set(true, forKey: key)
+        RecordRecount.start(changed, context: context)
+    }
+}
+
 /// Creates the example templates once, on first launch (SPEC D18).
 enum ExampleSeeder {
     private static let key = "didSeedExamples"

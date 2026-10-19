@@ -461,10 +461,10 @@ final class WorkoutController {
                      canComplete: workout[position].canTick(measure: model?.measure ?? .reps))
     }
 
-    /// "62.5 kg × 8", "× 12", "45 s"; "L 14 kg × 10 · R 12 kg × 9" for a set by sides (D23).
+    /// "62.5 kg × 8", "× 12", "45 s"; "L 14 kg × 10 · R 12 kg × 9" for a split set (D23).
     private func planText(_ value: PlannedSet, weighted: Bool) -> String {
         let sides = value.sides
-        guard sides.count == 2 else { return sideText(value, weighted: weighted) }
+        guard value.isSplit else { return sideText(value.left, weighted: weighted) }
         return String(localized: "L \(sideText(sides[0], weighted: weighted)) · R \(sideText(sides[1], weighted: weighted))")
     }
 

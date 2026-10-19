@@ -182,7 +182,8 @@ struct DurationSheet: View {
 }
 
 /// One planned set (SPEC D4, D15): reps or time, and weight when the exercise is weighted.
-/// An empty weight means "use the previous time's weight" (D4). A done set by sides has both sides (D23).
+/// An empty weight means "use the previous time's weight" (D4). A done set of both sides can be split
+/// into L and R (D23).
 struct SetSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppSettings.self) private var settings
@@ -192,13 +193,14 @@ struct SetSheet: View {
     let lastWeightKnown: Bool
     /// A set of a finished workout: an empty weight is no weight, not last time's.
     let isDone: Bool
-    /// Left and right have their own values.
-    let bySide: Bool
+    /// Done with both arms or legs: the set can have a value for each.
+    let bothSides: Bool
     let canDelete: Bool
     /// nil deletes the set.
     let save: (PlannedSet?) -> Void
     @State private var left: SideInput
     @State private var right: SideInput
+    @State private var isSplit: Bool
     @FocusState private var weightFocused: Bool
 
     /// What the controls of one side hold.
@@ -227,14 +229,15 @@ struct SetSheet: View {
     }
 
     init(number: Int, set: PlannedSet, measure: Measure, weighted: Bool, lastWeightKnown: Bool, isDone: Bool = false,
-         bySide: Bool = false, unit: WeightUnit,
+         bothSides: Bool = false, unit: WeightUnit,
          canDelete: Bool, save: @escaping (PlannedSet?) -> Void) {
         self.number = number
         self.measure = measure
         self.weighted = weighted
         self.lastWeightKnown = lastWeightKnown
         self.isDone = isDone
-        self.bySide = bySide
+        self.bothSides = bothSides
+        _isSplit = State(initialValue: bothSides && set.isSplit)
         self.canDelete = canDelete
         self.save = save
         _left = State(initialValue: SideInput(reps: set.reps, seconds: set.seconds, weightKg: set.weightKg, unit: unit))
@@ -245,13 +248,18 @@ struct SetSheet: View {
     }
 
     private var isValid: Bool {
-        left.isValid(measure) && (!bySide || right.isValid(measure))
+        left.isValid(measure) && (!isSplit || right.isValid(measure))
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                if bySide {
+                if bothSides {
+                    Section {
+                        Toggle("Split into L and R", isOn: $isSplit.animation())
+                    }
+                }
+                if isSplit {
                     controls($left, header: Text("Left"))
                     controls($right, header: Text("Right"))
                 } else {
@@ -282,7 +290,7 @@ struct SetSheet: View {
                 }
             }
         }
-        .presentationDetents(bySide ? [.large] : [.medium, .large])
+        .presentationDetents(bothSides ? [.large] : [.medium, .large])
     }
 
     @ViewBuilder
@@ -321,7 +329,7 @@ struct SetSheet: View {
         } header: {
             if let header { header }
         } footer: {
-            if weighted && !isDone && !bySide {
+            if weighted && !isDone {
                 Text("Leave empty to use the weight from the previous time.")
             }
         }
@@ -329,7 +337,8 @@ struct SetSheet: View {
 
     private var result: PlannedSet {
         var set = values(left)
-        if bySide {
+        set.bothSides = bothSides
+        if isSplit {
             let side = values(right)
             set.right = .init(reps: side.reps, seconds: side.seconds, weightKg: side.weightKg)
         }

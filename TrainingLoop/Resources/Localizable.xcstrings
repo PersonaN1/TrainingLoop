@@ -1714,6 +1714,16 @@
         }
       }
     },
+    "Join L and R" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить Л и П"
+          }
+        }
+      }
+    },
     "Keep Screen On" : {
       "localizations" : {
         "ru" : {
@@ -1844,12 +1854,12 @@
         }
       }
     },
-    "Left and Right Separately" : {
+    "Left and Right" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Левая и правая отдельно"
+            "value" : "Левая и правая"
           }
         }
       }
@@ -2971,6 +2981,16 @@
         }
       }
     },
+    "Split into L and R" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разделить на Л и П"
+          }
+        }
+      }
+    },
     "Split Superset" : {
       "localizations" : {
         "ru" : {
@@ -3326,6 +3346,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Трицепс"
+          }
+        }
+      }
+    },
+    "Two dumbbells or one arm at a time: a set counts for each side. When the sides differ, swipe the set right to split it into L and R." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Две гантели или по одной руке: подход засчитывается каждой стороне. Если стороны сделали по-разному, смахните подход вправо и разделите на Л и П."
           }
         }
       }

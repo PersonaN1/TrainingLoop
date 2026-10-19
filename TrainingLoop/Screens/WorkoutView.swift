@@ -237,6 +237,17 @@ struct WorkoutView: View {
                             workouts.change { $0.removeSet(set.id) }
                         }
                     }
+                    // The sides differed this time (D23).
+                    .swipeActions(edge: .leading) {
+                        if set.bySide {
+                            Button(set.isSplit ? "Join L and R" : "Split into L and R",
+                                   systemImage: set.isSplit ? "arrow.right.and.line.vertical.and.arrow.left"
+                                                            : "arrow.left.and.right") {
+                                withAnimation { workouts.change { $0.setSplit(set.id, !set.isSplit) } }
+                            }
+                            .tint(.accentColor)
+                        }
+                    }
             }
             Button("Add Set", systemImage: "plus") { workouts.change { $0.addSet(to: exercise.id) } }
                 .font(.subheadline)
@@ -274,7 +285,7 @@ private struct SetColumnsHeader: View {
 }
 
 /// № · last time · weight · reps or seconds · tick. Suggested values show in grey and a tick takes them (D7).
-/// A set by sides has a line for each side, L and R, and one tick for both (D23).
+/// A split set has a line for each side, L and R, and one tick for both (D23).
 private struct SetRowView: View {
     @Environment(WorkoutController.self) private var workouts
     static let fieldWidth: CGFloat = 64
@@ -291,7 +302,7 @@ private struct SetRowView: View {
     let isRecord: Bool
     let inSuperset: Bool
 
-    /// Which values a line shows: the whole set, or one side of a set by sides.
+    /// Which values a line shows: the whole set, or one side of a split set.
     private enum Line { case whole, left, right }
 
     var body: some View {
@@ -307,7 +318,7 @@ private struct SetRowView: View {
                 }
             }
             .frame(width: Self.numberWidth, alignment: .leading)
-            if row.bySide {
+            if row.isSplit {
                 VStack(spacing: 6) {
                     line(.left)
                     line(.right)

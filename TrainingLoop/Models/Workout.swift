@@ -67,7 +67,8 @@ final class WorkoutSet {
     var seconds: Int?
     /// Always kilograms, unrounded; pounds are for input and display only (SPEC D15).
     var weightKg: Double?
-    /// A set by sides (SPEC D23): the values above are the left side, these the right one.
+    /// A set of both arms or legs (SPEC D23): the values above are each side's. A split set has the left
+    /// side above and the right one here.
     var bySide: Bool = false
     var rightReps: Int?
     var rightSeconds: Int?
@@ -86,12 +87,11 @@ final class WorkoutSet {
         self.workoutStartedAt = workoutStartedAt
     }
 
-    /// A set with both sides when it has a right one.
     convenience init(order: Int, _ set: PlannedSet, exerciseID: UUID, workoutStartedAt: Date) {
         self.init(order: order, reps: set.reps, seconds: set.seconds, weightKg: set.weightKg,
                   exerciseID: exerciseID, workoutStartedAt: workoutStartedAt)
+        bySide = set.bothSides
         if let right = set.right {
-            bySide = true
             rightReps = right.reps
             rightSeconds = right.seconds
             rightWeightKg = right.weightKg

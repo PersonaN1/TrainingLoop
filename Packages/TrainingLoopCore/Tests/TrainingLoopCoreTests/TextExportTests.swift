@@ -145,6 +145,17 @@ struct TextExportTests {
         #expect(export("ru").workout(sided).contains("Румынская тяга: Л 14 кг × 10 / П 12 кг × 9"))
     }
 
+    /// A set of both sides not split reads as one, its volume counts both (D23).
+    @Test func workoutSetOfBothSides() {
+        let pair = TextExport.Workout(name: "Arms", startedAt: date(10, 1), durationSeconds: 600, note: "",
+                                      definition: TemplateDefinition(items: [
+            .exercise(TemplateExercise(exerciseID: deadlift, sets: [PlannedSet(reps: 10, weightKg: 14, bothSides: true)],
+                                       restSeconds: 0)),
+        ]))
+        #expect(export("en").workout(pair).hasSuffix(
+            "Romanian Deadlift: 14 kg × 10\n\nTotal: 1 exercise · 1 set · 280 kg"))
+    }
+
     @Test func workoutWithoutWeightLeavesVolumeOut() {
         let bodyweight = TextExport.Workout(name: "Home", startedAt: date(10, 1), durationSeconds: 600, note: "",
                                             definition: TemplateDefinition(items: [

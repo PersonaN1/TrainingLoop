@@ -144,10 +144,10 @@ public struct TextExport {
     }
 
     /// "80 kg × 10", "+5 kg × 6", "8", "0:45", "60 kg"; "—" for a set with nothing in it.
-    /// A set by sides: "L 14 kg × 10 / R 12 kg × 9" (D23).
+    /// A split set: "L 14 kg × 10 / R 12 kg × 9" (D23).
     private func set(_ set: PlannedSet, adds: Bool) -> String {
         let sides = set.sides
-        guard sides.count == 2 else { return side(set, adds: adds) }
+        guard set.isSplit else { return side(set.left, adds: adds) }
         return localized("L \(side(sides[0], adds: adds))") + " / " + localized("R \(side(sides[1], adds: adds))")
     }
 

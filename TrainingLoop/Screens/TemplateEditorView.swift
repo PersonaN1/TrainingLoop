@@ -341,8 +341,8 @@ struct TemplateEditorView: View {
             SetSheet(number: editing.index + 1, set: item.sets[editing.index], measure: measure(of: item),
                      weighted: exercise?.weighted ?? true,
                      lastWeightKnown: lastWeightKnown(item), isDone: isRecord,
-                     // A template's value is for both sides; a record keeps what each side did (D23).
-                     bySide: isRecord && (item.sets[editing.index].right != nil || exercise?.bySide == true),
+                     // A template's value is for both sides; a record can keep what each side did (D23).
+                     bothSides: isRecord && (item.sets[editing.index].bothSides || exercise?.bySide == true),
                      unit: settings.weightUnit,
                      canDelete: item.sets.count > 1) { result in
                 draft.updateExercise(item.id) { exercise in
@@ -465,7 +465,7 @@ struct TemplateEditorView: View {
 }
 
 /// "1 · 8 reps · 60 kg"; an empty weight reads "last time's weight" in gray (DESIGN V6),
-/// when there is one. A set by sides has a line for each, L and R (D23).
+/// when there is one. A split set has a line for each side, L and R (D23).
 struct SetLine: View {
     let number: Int
     let set: PlannedSet
@@ -480,7 +480,7 @@ struct SetLine: View {
                 .foregroundStyle(.secondary)
                 .frame(minWidth: 20, alignment: .leading)
             let sides = set.sides
-            if sides.count == 2 {
+            if set.isSplit {
                 VStack(spacing: 4) {
                     line(sides[0], side: Text("L", comment: "Left side of a set"))
                     line(sides[1], side: Text("R", comment: "Right side of a set"))

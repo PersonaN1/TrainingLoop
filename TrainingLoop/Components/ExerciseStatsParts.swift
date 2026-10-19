@@ -105,10 +105,10 @@ extension ExerciseStats.Metric {
 
 enum StatsFormat {
     /// "80 kg × 5", "15 reps", "1:30", "+10 kg × 8" for added weight on a bodyweight exercise;
-    /// "L 14 kg × 10 / R 12 kg × 9" for a set by sides (D23).
+    /// "L 14 kg × 10 / R 12 kg × 9" for a split set (D23).
     static func set(_ set: PlannedSet, equipment: Equipment, unit: WeightUnit) -> String {
         let sides = set.sides
-        guard sides.count == 2 else { return side(set, equipment: equipment, unit: unit) }
+        guard set.isSplit else { return side(set.left, equipment: equipment, unit: unit) }
         return String(localized: "L \(side(sides[0], equipment: equipment, unit: unit))") + " / "
             + String(localized: "R \(side(sides[1], equipment: equipment, unit: unit))")
     }

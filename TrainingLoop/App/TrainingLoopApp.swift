@@ -43,6 +43,7 @@ enum AppModel {
         // Built-in exercises first: the example templates refer to them.
         BuiltinSeeder.addMissing(container.mainContext)
         MuscleMigration.runOnce(container.mainContext)
+        BothSidesMigration.runOnce(container.mainContext)
         ExampleSeeder.seedIfNeeded(container.mainContext)
         DefaultNames.relocalize(container.mainContext)
         RecordCounts.countOnce(container.mainContext)

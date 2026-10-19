@@ -97,9 +97,13 @@ struct BuiltinExercisesTests {
         }
     }
 
-    @Test func oneSidedExercisesGoBySides() throws {
+    /// One arm at a time or a dumbbell in each hand; one dumbbell in both hands is not (D23).
+    @Test func eachSideExercisesHaveBothSides() throws {
         #expect(try #require(BuiltinExercises.exercise(key: "one_arm_dumbbell_row")).bySide)
         #expect(try #require(BuiltinExercises.exercise(key: "concentration_curl")).bySide)
+        #expect(try #require(BuiltinExercises.exercise(key: "dumbbell_curl")).bySide)
+        #expect(try #require(BuiltinExercises.exercise(key: "dumbbell_bench_press")).bySide)
+        #expect(try !#require(BuiltinExercises.exercise(key: "goblet_squat")).bySide)
         #expect(try !#require(BuiltinExercises.exercise(key: "barbell_curl")).bySide)
     }
 
