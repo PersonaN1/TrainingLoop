@@ -201,7 +201,7 @@ private struct BothSidesSection: View {
         Section {
             Toggle("Left and Right", isOn: $isOn)
         } footer: {
-            Text("Two dumbbells or one arm at a time: a set counts for each side. When the sides differ, swipe the set right to split it into L and R.")
+            Text("Two dumbbells or one arm at a time: a set counts for each side. When the sides differ, swipe the set right or hold it to split it into L and R.")
         }
     }
 }

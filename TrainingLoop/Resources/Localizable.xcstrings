@@ -3350,12 +3350,12 @@
         }
       }
     },
-    "Two dumbbells or one arm at a time: a set counts for each side. When the sides differ, swipe the set right to split it into L and R." : {
+    "Two dumbbells or one arm at a time: a set counts for each side. When the sides differ, swipe the set right or hold it to split it into L and R." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Две гантели или по одной руке: подход засчитывается каждой стороне. Если стороны сделали по-разному, смахните подход вправо и разделите на Л и П."
+            "value" : "Две гантели или по одной руке: подход засчитывается каждой стороне. Если стороны сделали по-разному, смахните подход вправо или удерживайте его и разделите на Л и П."
           }
         }
       }

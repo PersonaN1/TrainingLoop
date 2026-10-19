@@ -39,7 +39,10 @@ final class WorkoutController {
         audio = WorkoutAudio(settings: settings)
         restNotification = RestNotification(settings: settings)
         workout = Self.load(from: fileURL)
-        guard context != nil else { return }
+        guard let context else { return }
+        // A restored workout follows its exercises as they are now: one changed meanwhile, or by an
+        // update (SPEC D23: both sides), records its open sets the new way.
+        if let restored = workout { workout = fitted(restored, context: context) }
         // The lock screen buttons reach the workout through here, even when they woke the app.
         WorkoutCommands.handler = { [weak self] in self?.perform($0) }
         WorkoutCommands.flush = { [weak self] in await self?.liveActivity.flush() }

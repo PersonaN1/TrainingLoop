@@ -237,20 +237,26 @@ struct WorkoutView: View {
                             workouts.change { $0.removeSet(set.id) }
                         }
                     }
-                    // The sides differed this time (D23).
+                    // The sides differed this time (D23): a swipe right or a long press.
                     .swipeActions(edge: .leading) {
-                        if set.bySide {
-                            Button(set.isSplit ? "Join L and R" : "Split into L and R",
-                                   systemImage: set.isSplit ? "arrow.right.and.line.vertical.and.arrow.left"
-                                                            : "arrow.left.and.right") {
-                                withAnimation { workouts.change { $0.setSplit(set.id, !set.isSplit) } }
-                            }
-                            .tint(.accentColor)
+                        if set.bySide { splitButton(set).tint(.accentColor) }
+                    }
+                    .contextMenu {
+                        if set.bySide { splitButton(set) }
+                        Button("Delete", systemImage: "trash", role: .destructive) {
+                            workouts.change { $0.removeSet(set.id) }
                         }
                     }
             }
             Button("Add Set", systemImage: "plus") { workouts.change { $0.addSet(to: exercise.id) } }
                 .font(.subheadline)
+        }
+    }
+
+    private func splitButton(_ set: ActiveWorkout.SetRow) -> some View {
+        Button(set.isSplit ? "Join L and R" : "Split into L and R",
+               systemImage: set.isSplit ? "arrow.right.and.line.vertical.and.arrow.left" : "arrow.left.and.right") {
+            withAnimation { workouts.change { $0.setSplit(set.id, !set.isSplit) } }
         }
     }
 
