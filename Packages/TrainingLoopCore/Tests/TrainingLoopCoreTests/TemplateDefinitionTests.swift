@@ -54,4 +54,19 @@ struct TemplateDefinitionTests {
         #expect(superset.restWithinSeconds == 30)
         #expect(superset.restAfterSeconds == 90)
     }
+
+    @Test func replacingExerciseIDReachesSupersets() {
+        let old = UUID(), new = UUID(), other = UUID()
+        let single = TemplateExercise(exerciseID: old, sets: [PlannedSet(reps: 5, weightKg: 60)], restSeconds: 120)
+        let inSuperset = TemplateExercise(exerciseID: old, sets: [PlannedSet(reps: 8)], restSeconds: 0)
+        let untouched = TemplateExercise(exerciseID: other, sets: [PlannedSet(reps: 10)], restSeconds: 0)
+        let definition = TemplateDefinition(items: [
+            .exercise(single),
+            .superset(TemplateSuperset(exercises: [untouched, inSuperset], restWithinSeconds: 30, restAfterSeconds: 90)),
+        ])
+        let replaced = definition.replacingExerciseID(old, with: new)
+        #expect(replaced.exerciseIDs == [new, other, new])
+        #expect(replaced.exercises.map(\.sets) == definition.exercises.map(\.sets))
+        #expect(replaced.exercises.map(\.id) == definition.exercises.map(\.id))
+    }
 }

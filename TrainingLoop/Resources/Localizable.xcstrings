@@ -758,6 +758,16 @@
         }
       }
     },
+    "Can’t merge" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нельзя объединить"
+          }
+        }
+      }
+    },
     "Change Order" : {
       "localizations" : {
         "ru" : {
@@ -1744,6 +1754,16 @@
         }
       }
     },
+    "Keep “%@”" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить «%@»"
+          }
+        }
+      }
+    },
     "Kettlebell" : {
       "localizations" : {
         "ru" : {
@@ -2011,6 +2031,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Макс. время"
+          }
+        }
+      }
+    },
+    "Merge" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить"
+          }
+        }
+      }
+    },
+    "Merge exercises?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Объединить упражнения?"
           }
         }
       }
@@ -2381,6 +2421,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
+          }
+        }
+      }
+    },
+    "One of them is in the workout in progress. Finish the workout first." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Одно из них есть в идущей тренировке. Сначала завершите её."
           }
         }
       }
@@ -2811,6 +2861,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Выберите соседние упражнения, чтобы объединить их в суперсет. Перетаскивайте, чтобы поменять порядок: между упражнениями суперсета — чтобы добавить в него, в сторону от него — чтобы убрать."
+          }
+        }
+      }
+    },
+    "Select two exercises" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите два упражнения"
           }
         }
       }
@@ -3641,6 +3701,26 @@
         }
       }
     },
+    "Workouts with “%@”: %lld, with “%@”: %lld." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировок с «%1$@»: %2$lld, с «%3$@»: %4$lld."
+          }
+        }
+      }
+    },
+    "Workouts, templates and records of the other one move to the kept exercise. This can’t be undone." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировки, шаблоны и рекорды второго перейдут в оставленное. Отменить нельзя."
+          }
+        }
+      }
+    },
     "Year" : {
       "localizations" : {
         "ru" : {
@@ -3697,6 +3777,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "~%lld мин"
+          }
+        }
+      }
+    },
+    "“%@” and “%@” are measured differently: one in reps, the other in time." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%1$@» и «%2$@» считаются по-разному: одно в повторах, другое во времени."
           }
         }
       }

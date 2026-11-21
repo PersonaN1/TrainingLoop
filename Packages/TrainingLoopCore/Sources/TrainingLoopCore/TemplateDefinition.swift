@@ -19,6 +19,25 @@ public struct TemplateDefinition: Codable, Hashable, Sendable {
     }
 
     public var exerciseIDs: [UUID] { exercises.map(\.exerciseID) }
+
+    /// The same template with every use of one exercise switched to another, sets and rests kept
+    /// (merging two exercises, SPEC D24).
+    public func replacingExerciseID(_ old: UUID, with new: UUID) -> TemplateDefinition {
+        func replaced(_ exercise: TemplateExercise) -> TemplateExercise {
+            var exercise = exercise
+            if exercise.exerciseID == old { exercise.exerciseID = new }
+            return exercise
+        }
+        return TemplateDefinition(items: items.map { item -> TemplateItem in
+            switch item {
+            case .exercise(let exercise):
+                return .exercise(replaced(exercise))
+            case .superset(var superset):
+                superset.exercises = superset.exercises.map(replaced)
+                return .superset(superset)
+            }
+        })
+    }
 }
 
 /// A top-level element of a template: a single exercise or a superset (no nesting, SPEC D3).
