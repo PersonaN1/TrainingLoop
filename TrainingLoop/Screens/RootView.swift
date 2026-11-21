@@ -6,6 +6,8 @@ struct RootView: View {
     @Environment(WorkoutController.self) private var workouts
     @Environment(AppSettings.self) private var settings
     @Environment(\.scenePhase) private var scenePhase
+    /// "Show Tips Again" rebuilds the tabs, so tips pick up their new IDs, and lands on Workouts.
+    @AppStorage(TipsSetup.generationKey) private var tipsGeneration = 0
 
     var body: some View {
         @Bindable var workouts = workouts
@@ -19,6 +21,7 @@ struct RootView: View {
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape") }
         }
+        .id(tipsGeneration)
         .runningWorkoutBar(isShown: workouts.workout != nil && !workouts.isPresented) {
             RunningWorkoutBar()
         }

@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import TipKit
 import TrainingLoopCore
 
 /// The Exercises tab: catalog with search and a filter, grouped by primary muscle group (SPEC D8, D13; DESIGN V10).
@@ -21,12 +22,19 @@ struct ExercisesView: View {
     @State private var selection: Set<PersistentIdentifier> = []
     @State private var merging: MergePair?
     @State private var mergeProblem: MergeProblem?
+    private let statsTip = ExerciseStatsTip()
+    private let mergeTip = MergeExercisesTip()
 
     var body: some View {
         NavigationStack {
             List(selection: $selection) {
                 if filter.isActive {
                     ExerciseFilterChips(filter: $filter)
+                }
+                if !editMode.isEditing {
+                    Section {
+                        TipView(statsTip).tipRow()
+                    }
                 }
                 ForEach(sections, id: \.group) { section in
                     Section(section.group.title) {
@@ -41,6 +49,7 @@ struct ExercisesView: View {
             .navigationTitle("Exercises")
             .navigationDestination(for: Exercise.self) { exercise in
                 ExerciseDetailView(exercise: exercise)
+                    .onAppear { statsTip.invalidate(reason: .actionPerformed) }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .toolbar {
@@ -79,8 +88,12 @@ struct ExercisesView: View {
                         ToolbarSpacer(.fixed, placement: .topBarTrailing)
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button("Select") { setEditing(true) }
-                            .disabled(exercises.count < 2)
+                        Button("Select") {
+                            mergeTip.invalidate(reason: .actionPerformed)
+                            setEditing(true)
+                        }
+                        .disabled(exercises.count < 2)
+                        .popoverTip(mergeTip, arrowEdge: .top)
                     }
                     if #available(iOS 26, *) {
                         ToolbarSpacer(.fixed, placement: .topBarTrailing)
@@ -92,6 +105,7 @@ struct ExercisesView: View {
             }
             .toolbar(editMode.isEditing ? .hidden : .automatic, for: .tabBar)
             .environment(\.editMode, $editMode)
+            .onTipInvalidated(statsTip) { MergeExercisesTip.statsTipDone = true }
             .alert(item: $mergeProblem) { problem in
                 Alert(title: Text("Can’t merge"), message: Text(problem.message), dismissButton: .default(Text("OK")))
             }

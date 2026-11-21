@@ -1744,6 +1744,16 @@
         }
       }
     },
+    "Keep it in History" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраните в историю"
+          }
+        }
+      }
+    },
     "Keep Screen On" : {
       "localizations" : {
         "ru" : {
@@ -2121,6 +2131,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ещё"
+          }
+        }
+      }
+    },
+    "More actions" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ещё действия"
           }
         }
       }
@@ -2545,6 +2565,16 @@
         }
       }
     },
+    "Progress of an exercise" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прогресс упражнения"
+          }
+        }
+      }
+    },
     "Quads" : {
       "localizations" : {
         "ru" : {
@@ -2805,6 +2835,16 @@
         }
       }
     },
+    "Save, and the workout appears in History. New records are marked with 🏆." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённая тренировка появится в «Истории». Новые рекорды отмечены 🏆."
+          }
+        }
+      }
+    },
     "Sec" : {
       "localizations" : {
         "ru" : {
@@ -2861,6 +2901,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Выберите соседние упражнения, чтобы объединить их в суперсет. Перетаскивайте, чтобы поменять порядок: между упражнениями суперсета — чтобы добавить в него, в сторону от него — чтобы убрать."
+          }
+        }
+      }
+    },
+    "Select two copies of one exercise and merge them, history included." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите две копии одного упражнения и объедините их вместе с историей."
           }
         }
       }
@@ -2945,6 +2995,16 @@
         }
       }
     },
+    "Share as text" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться текстом"
+          }
+        }
+      }
+    },
     "Shoulders" : {
       "localizations" : {
         "ru" : {
@@ -2991,6 +3051,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показывать на экране блокировки"
+          }
+        }
+      }
+    },
+    "Show Tips Again" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать подсказки снова"
           }
         }
       }
@@ -3152,6 +3222,26 @@
         }
       }
     },
+    "Start the workout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать тренировку"
+          }
+        }
+      }
+    },
+    "Start with an example" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начните с примера"
+          }
+        }
+      }
+    },
     "Started" : {
       "localizations" : {
         "ru" : {
@@ -3274,12 +3364,32 @@
         }
       }
     },
+    "Swipe a template left to edit, duplicate or delete it. Or touch and hold it." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Смахните шаблон влево, чтобы изменить, скопировать или удалить его. Или удерживайте его."
+          }
+        }
+      }
+    },
     "System" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Системная"
+          }
+        }
+      }
+    },
+    "Tap an exercise to see its chart, records and best weight for reps." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите на упражнение: там график, рекорды и лучший вес на повторы."
           }
         }
       }
@@ -3401,6 +3511,16 @@
         }
       }
     },
+    "Tick each set: the rest timer starts by itself and keeps running on the Lock Screen." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмечайте каждый подход: отдых запустится сам и будет идти на заблокированном экране."
+          }
+        }
+      }
+    },
     "Time" : {
       "localizations" : {
         "ru" : {
@@ -3467,6 +3587,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Две гантели или по одной руке: подход засчитывается каждой стороне. Если стороны сделали по-разному, смахните подход вправо или удерживайте его и разделите на Л и П."
+          }
+        }
+      }
+    },
+    "Two of the same?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дубли?"
           }
         }
       }
@@ -3801,12 +3931,32 @@
         }
       }
     },
+    "↑ shares the workouts of a period, Select — the ones you tick. For a coach, a chat or your notes." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "↑ — тренировки за период, «Выбрать» — отмеченные. Для тренера, чата или заметок."
+          }
+        }
+      }
+    },
     "−10" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "−10"
+          }
+        }
+      }
+    },
+    "▶ starts a workout right away, + makes your own template. Tap a template to see its exercises." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "▶ сразу запускает тренировку, + создаёт свой шаблон. Нажмите на шаблон, чтобы увидеть упражнения."
           }
         }
       }

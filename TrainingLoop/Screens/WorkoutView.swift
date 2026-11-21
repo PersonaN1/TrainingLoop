@@ -736,10 +736,3 @@ private struct WorkoutOrderView: View {
     }
 }
 
-/// First-time hint: a set of both sides can be split when they differ (SPEC D23). Gone for good after ×
-/// or the first split.
-struct SplitSetTip: Tip {
-    var title: Text { Text("Sides differed?") }
-    var message: Text? { Text("Hold the set or swipe it right → “Split into L and R”.") }
-    var image: Image? { Image(systemName: "arrow.left.and.right") }
-}

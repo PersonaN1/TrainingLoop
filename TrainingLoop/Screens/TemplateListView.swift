@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import TipKit
 import TrainingLoopCore
 
 /// The Workouts tab: template cards (SPEC D13, DESIGN V5), as SetLoop's timer list.
@@ -15,6 +16,8 @@ struct TemplateListView: View {
     @State private var pendingDelete: PersistentIdentifier?
     @State private var editor: TemplateEditorTarget?
     @State private var limitReached = false
+    private let introTip = TemplatesIntroTip()
+    private let actionsTip = TemplateActionsTip()
     /// How far "Start Free Workout" sits below the title (DESIGN V5).
     private static let freeWorkoutShift: CGFloat = 10
 
@@ -30,6 +33,12 @@ struct TemplateListView: View {
                     }
                     // Midway between the title and the templates: the shift below comes off this gap.
                     .listSectionSpacing(Self.freeWorkoutShift + 14)
+                    if !templates.isEmpty {
+                        Section {
+                            TipView(introTip).tipRow()
+                            TipView(actionsTip).tipRow()
+                        }
+                    }
                 }
                 // Rows are tagged by persistent ID to match the selection (the model's own `id` is a UUID).
                 ForEach(templates, id: \.persistentModelID) { template in
@@ -40,19 +49,17 @@ struct TemplateListView: View {
                     }
                     .swipeActions {
                         // No destructive role: it would remove the row before the confirmation.
-                        Button("Delete", systemImage: "trash") { pendingDelete = template.persistentModelID }
+                        Button("Delete", systemImage: "trash") { askDelete(template) }
                             .tint(.red)
                         Button("Duplicate", systemImage: "plus.square.on.square") { duplicate(template) }
                             .tint(.gray)
-                        Button("Edit", systemImage: "pencil") { editor = .edit(template) }
+                        Button("Edit", systemImage: "pencil") { edit(template) }
                             .tint(.orange)
                     }
                     .contextMenu {
-                        Button("Edit", systemImage: "pencil") { editor = .edit(template) }
+                        Button("Edit", systemImage: "pencil") { edit(template) }
                         Button("Duplicate", systemImage: "plus.square.on.square") { duplicate(template) }
-                        Button("Delete", systemImage: "trash", role: .destructive) {
-                            pendingDelete = template.persistentModelID
-                        }
+                        Button("Delete", systemImage: "trash", role: .destructive) { askDelete(template) }
                     }
                     // On the row, so the iOS 26+ popover points at the template being deleted.
                     .confirmationDialog(
@@ -107,7 +114,19 @@ struct TemplateListView: View {
                 TemplateEditorView(template: target.template)
             }
             .templateLimitAlert(isPresented: $limitReached)
+            .onTipInvalidated(introTip) { TemplateActionsTip.introDone = true }
         }
+    }
+
+    // The swipe and the menu are what the actions tip talks about.
+    private func edit(_ template: Template) {
+        actionsTip.invalidate(reason: .actionPerformed)
+        editor = .edit(template)
+    }
+
+    private func askDelete(_ template: Template) {
+        actionsTip.invalidate(reason: .actionPerformed)
+        pendingDelete = template.persistentModelID
     }
 
     private func add() {
@@ -115,6 +134,7 @@ struct TemplateListView: View {
     }
 
     private func duplicate(_ template: Template) {
+        actionsTip.invalidate(reason: .actionPerformed)
         if !context.duplicate(template) { limitReached = true }
     }
 
