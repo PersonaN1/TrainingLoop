@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import TipKit
 import TrainingLoopCore
 
 /// After "Finish" (SPEC D6, D11, D16; DESIGN V8): totals, name and note, "Update template" or
@@ -18,6 +19,7 @@ struct WorkoutSummaryView: View {
     @State private var confirmingDiscard = false
     @State private var saveFailed = false
     @State private var loaded = false
+    private let historyTip = HistoryTip()
 
     var body: some View {
         NavigationStack {
@@ -96,6 +98,9 @@ struct WorkoutSummaryView: View {
                 TextField("Note", text: $note, axis: .vertical)
                     .lineLimit(1...5)
             }
+            Section {
+                TipView(historyTip).tipRow()
+            }
             if let template {
                 if workout.compositionDiffers(from: template.definition) {
                     Section {
@@ -129,6 +134,7 @@ struct WorkoutSummaryView: View {
                                           note: note.trimmingCharacters(in: .whitespacesAndNewlines),
                                           endedAt: endedAt, updateTemplate: updateTemplate,
                                           saveAsTemplate: saveAsTemplate, context: context)
+                        historyTip.invalidate(reason: .actionPerformed)
                     } catch {
                         saveFailed = true
                     }

@@ -148,4 +148,4 @@ English, в поле App Review Information → Notes:
 5. `5-history.png` — история тренировок с числом рекордов.
 6. `6-summary.png` — сводка за месяц: тоннаж по неделям, календарь.
 
-Сняты в симуляторе iPhone 18 Pro Max (iOS 27), время в статус-баре 9:41, язык системы совпадает с языком снимков. Данные — отладочная история за 10 недель: Debug-сборка с аргументом запуска `-SampleHistory YES` на чистой установке (`TrainingLoop/Models/SampleHistory.swift`). Уменьшенные JPG для сайта и README — в `site/screens/`.
+Сняты в симуляторе iPhone 18 Pro Max (iOS 27), время в статус-баре 9:41, язык системы совпадает с языком снимков. Данные — отладочная история за 10 недель: Debug-сборка с аргументом запуска `-SampleHistory YES` на чистой установке (`TrainingLoop/Models/SampleHistory.swift`). Подсказки (D25) на снимках не нужны: аргумент `-hideTips` прячет их все, `-showAllTips` — показывает все сразу. Уменьшенные JPG для сайта и README — в `site/screens/`.

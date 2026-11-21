@@ -77,6 +77,7 @@ struct SettingsView: View {
                 Section("About") {
                     Link("Privacy Policy", destination: SupportLinks.privacy)
                     Link("Support", destination: SupportLinks.support)
+                    Button("Show Tips Again") { TipsSetup.showAgain() }
                     LabeledContent("Version", value: Bundle.main.versionString)
                 }
             }

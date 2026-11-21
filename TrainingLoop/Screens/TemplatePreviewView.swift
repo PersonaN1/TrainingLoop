@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import TipKit
 import TrainingLoopCore
 
 /// A template read-only (DESIGN V6): its exercises, sets and rests; ✎ opens the editor.
@@ -15,6 +16,7 @@ struct TemplatePreviewView: View {
     @State private var limitReached = false
     /// Deleting waits until the screen is gone, so it never renders a deleted model.
     @State private var pendingDelete = false
+    private let startTip = StartTip()
 
     var body: some View {
         let definition = template.definition
@@ -52,6 +54,7 @@ struct TemplatePreviewView: View {
         }
         .safeAreaInset(edge: .bottom) {
             Button {
+                startTip.invalidate(reason: .actionPerformed)
                 workouts.start(template, context: context)
             } label: {
                 Label("Start", systemImage: "play.fill")
@@ -59,9 +62,11 @@ struct TemplatePreviewView: View {
                     .frame(maxWidth: .infinity, minHeight: 34)
             }
             .buttonStyle(.borderedProminent)
+            .popoverTip(startTip, arrowEdge: .bottom)
             .padding()
         }
         .navigationTitle(template.name)
+        .onAppear { TemplateActionsTip.openedTemplate = true }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Edit", systemImage: "pencil") { editing = true }

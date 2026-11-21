@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import TipKit
 import TrainingLoopCore
 
 /// The History tab: finished workouts by day, or the summary (SPEC D11, D16; DESIGN V9).
@@ -16,6 +17,7 @@ struct HistoryView: View {
     @State private var path: [Route] = []
     @State private var adding = false
     @State private var exporting = false
+    private let shareTip = ShareHistoryTip()
     /// Rows are added as the list scrolls: a List of all 3000 workouts takes seconds to show (TECH T12).
     @State private var shownCount = Self.page
     private static let page = 200
@@ -68,6 +70,9 @@ struct HistoryView: View {
             .sheet(isPresented: $adding) {
                 TemplateEditorView(record: nil)
             }
+            // Both ways of sharing count as done.
+            .onChange(of: editMode.isEditing) { if $1 { shareTip.invalidate(reason: .actionPerformed) } }
+            .onChange(of: exporting) { if $1 { shareTip.invalidate(reason: .actionPerformed) } }
             .sheet(isPresented: $exporting) {
                 HistoryExportView(workouts: workouts, exercises: allExercises)
             }
@@ -106,6 +111,11 @@ struct HistoryView: View {
                     Label(String(localized: "\(max(0, Limits.maxWorkouts - workouts.count)) places left: delete old workouts or export them as text."),
                           systemImage: "exclamationmark.triangle")
                         .font(.subheadline)
+                }
+            }
+            if !editMode.isEditing && !workouts.isEmpty {
+                Section {
+                    TipView(shareTip).tipRow()
                 }
             }
             ForEach(days, id: \.date) { day in

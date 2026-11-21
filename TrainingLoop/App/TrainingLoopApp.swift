@@ -8,11 +8,7 @@ struct TrainingLoopApp: App {
     @State private var workouts = AppModel.workouts
 
     init() {
-        #if DEBUG
-        if TestLaunch.isTesting { Tips.hideAllTipsForTesting() }
-        if UserDefaults.standard.bool(forKey: "ResetTips") { try? Tips.resetDatastore() }
-        #endif
-        try? Tips.configure([.displayFrequency(.immediate)])
+        TipsSetup.configure()
     }
 
     var body: some Scene {
