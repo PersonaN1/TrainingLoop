@@ -6,6 +6,7 @@ import TrainingLoopCore
 struct ExercisesView: View {
     @Environment(\.modelContext) private var context
     @Environment(AppSettings.self) private var settings
+    @Environment(WorkoutController.self) private var workouts
     @Query(filter: #Predicate<Exercise> { !$0.isHidden && !$0.isArchived })
     private var exercises: [Exercise]
     @State private var searchText = ""
@@ -15,10 +16,15 @@ struct ExercisesView: View {
     @State private var summariesStale = true
     @State private var editor: ExerciseDraft?
     @State private var limitReached = false
+    // Merging two exercises (SPEC D24, DESIGN V14).
+    @State private var editMode = EditMode.inactive
+    @State private var selection: Set<PersistentIdentifier> = []
+    @State private var merging: MergePair?
+    @State private var mergeProblem: MergeProblem?
 
     var body: some View {
         NavigationStack {
-            List {
+            List(selection: $selection) {
                 if filter.isActive {
                     ExerciseFilterChips(filter: $filter)
                 }
@@ -26,6 +32,7 @@ struct ExercisesView: View {
                     Section(section.group.title) {
                         ForEach(section.exercises) { exercise in
                             NavigationLink(value: exercise) { row(exercise) }
+                                .tag(exercise.persistentModelID)
                         }
                     }
                 }
@@ -37,14 +44,56 @@ struct ExercisesView: View {
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter, offersDone: true) }
-                // iOS 26+ merges neighbouring items into one glass capsule; keep "+" apart from the filter.
-                if #available(iOS 26, *) {
-                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                if editMode.isEditing {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") { setEditing(false) }
+                    }
+                    // A hint, not a button: no glass capsule around it on iOS 26+.
+                    if #available(iOS 26, *) {
+                        ToolbarItem(placement: .bottomBar) { mergeHint }
+                            .sharedBackgroundVisibility(.hidden)
+                    } else {
+                        ToolbarItem(placement: .bottomBar) { mergeHint }
+                    }
+                    if #available(iOS 26, *) {
+                        ToolbarSpacer(.flexible, placement: .bottomBar)
+                    } else {
+                        ToolbarItem(placement: .bottomBar) { Spacer() }
+                    }
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("Merge") { startMerge() }
+                            .disabled(selection.count != 2)
+                            // Its own dialog, so the iOS 26+ popover points at this button.
+                            .confirmationDialog("Merge exercises?", isPresented: isMerging, titleVisibility: .visible,
+                                                presenting: merging) { pair in
+                                Button("Keep “\(pair.first.name)”") { merge(pair.second, into: pair.first) }
+                                Button("Keep “\(pair.second.name)”") { merge(pair.first, into: pair.second) }
+                            } message: { pair in
+                                Text(mergeMessage(pair))
+                            }
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) { ExerciseFilterMenu(filter: $filter, offersDone: true) }
+                    // iOS 26+ merges neighbouring items into one glass capsule; keep the buttons apart.
+                    if #available(iOS 26, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Select") { setEditing(true) }
+                            .disabled(exercises.count < 2)
+                    }
+                    if #available(iOS 26, *) {
+                        ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("New Exercise", systemImage: "plus") { add() }
+                    }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("New Exercise", systemImage: "plus") { add() }
-                }
+            }
+            .toolbar(editMode.isEditing ? .hidden : .automatic, for: .tabBar)
+            .environment(\.editMode, $editMode)
+            .alert(item: $mergeProblem) { problem in
+                Alert(title: Text("Can’t merge"), message: Text(problem.message), dismissButton: .default(Text("OK")))
             }
             .sheet(item: $editor) { draft in
                 ExerciseEditorView(draft: draft)
@@ -67,6 +116,13 @@ struct ExercisesView: View {
                             done: Set(summaries.filter { $0.value.workoutCount > 0 }.keys))
     }
 
+    private var mergeHint: some View {
+        Text("Select two exercises")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .fixedSize()
+    }
+
     private func row(_ exercise: Exercise) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
@@ -87,6 +143,46 @@ struct ExercisesView: View {
 
     // MARK: Actions
 
+    private func setEditing(_ editing: Bool) {
+        withAnimation {
+            editMode = editing ? .active : .inactive
+            selection = []
+        }
+    }
+
+    private var isMerging: Binding<Bool> {
+        Binding { merging != nil } set: { if !$0 { merging = nil } }
+    }
+
+    private func startMerge() {
+        let picked = exercises.filter { selection.contains($0.persistentModelID) }
+        guard picked.count == 2 else { return }
+        let first = picked[0], second = picked[1]
+        switch ExerciseMerge.problem(first, second, workouts: workouts) {
+        case .measure: mergeProblem = MergeProblem(first: first, second: second, kind: .measure)
+        case .inWorkout: mergeProblem = MergeProblem(first: first, second: second, kind: .inWorkout)
+        case nil: merging = MergePair(first: first, second: second)
+        }
+    }
+
+    private func mergeMessage(_ pair: MergePair) -> String {
+        let first = context.workoutCount(of: pair.first), second = context.workoutCount(of: pair.second)
+        return String(localized: "Workouts with “\(pair.first.name)”: \(first), with “\(pair.second.name)”: \(second).")
+            + "\n\n"
+            + String(localized: "Workouts, templates and records of the other one move to the kept exercise. This can’t be undone.")
+    }
+
+    private func merge(_ other: Exercise, into kept: Exercise) {
+        merging = nil
+        ExerciseMerge.merge(other, into: kept, context: context)
+        setEditing(false)
+        // The kept row shows the joined history right away, not on the next visit to the tab.
+        Task {
+            summariesStale = false
+            await loadSummaries()
+        }
+    }
+
     private func add() {
         if context.customExerciseCount() >= Limits.maxCustomExercises {
             limitReached = true
@@ -99,6 +195,27 @@ struct ExercisesView: View {
     private func loadSummaries() async {
         let measures = Dictionary(exercises.map { ($0.id, $0.measure) }, uniquingKeysWith: { first, _ in first })
         summaries = await HistoryReader.read(context.container) { await $0.exerciseSummaries(measures: measures) }
+    }
+}
+
+private struct MergePair {
+    let first: Exercise
+    let second: Exercise
+}
+
+private struct MergeProblem: Identifiable {
+    let first: Exercise
+    let second: Exercise
+    let kind: ExerciseMerge.Problem
+    var id: String { "\(first.id)-\(second.id)" }
+
+    var message: String {
+        switch kind {
+        case .measure:
+            String(localized: "“\(first.name)” and “\(second.name)” are measured differently: one in reps, the other in time.")
+        case .inWorkout:
+            String(localized: "One of them is in the workout in progress. Finish the workout first.")
+        }
     }
 }
 
