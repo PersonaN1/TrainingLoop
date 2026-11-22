@@ -114,7 +114,8 @@ enum BothSidesMigration {
 
 /// Creates the example templates once, on first launch (SPEC D18).
 enum ExampleSeeder {
-    private static let key = "didSeedExamples"
+    /// Also tells an update from 1.0 apart from a new install (`TipsSetup.classifyInstall`).
+    static let key = "didSeedExamples"
 
     @MainActor
     static func seedIfNeeded(_ context: ModelContext, defaults: UserDefaults = .standard) {

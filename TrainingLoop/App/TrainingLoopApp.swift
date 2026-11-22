@@ -49,6 +49,7 @@ enum AppModel {
         BuiltinSeeder.addMissing(container.mainContext)
         MuscleMigration.runOnce(container.mainContext)
         BothSidesMigration.runOnce(container.mainContext)
+        TipsSetup.classifyInstall()
         ExampleSeeder.seedIfNeeded(container.mainContext)
         DefaultNames.relocalize(container.mainContext)
         RecordCounts.countOnce(container.mainContext)
