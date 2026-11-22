@@ -96,6 +96,8 @@ struct MergeExercisesTip: Tip {
 @MainActor
 enum TipsSetup {
     nonisolated static let generationKey = "tipsGeneration"
+    private static let checkedUpgradeKey = "tipsCheckedUpgrade"
+    private static let upgradePendingKey = "tipsUpgradePending"
 
     /// Bumped by "Show Tips Again": tips with a new ID start unseen. TipKit's own reset works
     /// only before `Tips.configure`, which would mean restarting the app.
@@ -103,6 +105,16 @@ enum TipsSetup {
 
     nonisolated static func id(_ name: String) -> String {
         "\(name).\(UserDefaults.standard.integer(forKey: generationKey))"
+    }
+
+    /// Once per install, before the example templates are seeded: their flag is already set only
+    /// for someone updating from 1.0, who knows the basics. Called from the store setup too,
+    /// since an App Intent may open the store before the app's UI exists.
+    static func classifyInstall() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: checkedUpgradeKey) else { return }
+        defaults.set(true, forKey: checkedUpgradeKey)
+        defaults.set(defaults.bool(forKey: ExampleSeeder.key), forKey: upgradePendingKey)
     }
 
     static func configure() {
@@ -114,6 +126,19 @@ enum TipsSetup {
         if TestLaunch.isTesting { Tips.hideAllTipsForTesting() }
         #endif
         try? Tips.configure([.displayFrequency(.immediate)])
+
+        classifyInstall()
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: upgradePendingKey) else { return }
+        defaults.set(false, forKey: upgradePendingKey)
+        // Keep only hidden actions and what's new in 1.1 for them; the split-set tip came with 1.0.
+        TemplatesIntroTip().invalidate(reason: .actionPerformed)
+        StartTip().invalidate(reason: .actionPerformed)
+        SplitSetTip().invalidate(reason: .actionPerformed)
+        HistoryTip().invalidate(reason: .actionPerformed)
+        ExerciseStatsTip().invalidate(reason: .actionPerformed)
+        TemplateActionsTip.introDone = true
+        MergeExercisesTip.statsTipDone = true
     }
 
     /// Settings → Show Tips Again.
