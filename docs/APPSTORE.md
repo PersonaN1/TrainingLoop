@@ -58,6 +58,7 @@ TrainingLoop — дневник силовых тренировок для iPhon
 • Отметили подход — начался отдых. Сигналы звуком, голосом и вибрацией.
 • Отдых и текущий подход на экране блокировки и в Dynamic Island.
 • Новый рекорд отмечается 🏆 прямо у подхода.
+• Упражнения на две стороны отмечены «Л+П»: вес указывается на одну сторону, а если руки сделали по-разному, подход делится на левую и правую.
 
 ИСТОРИЯ И ПРОГРЕСС
 • Личные рекорды: максимальный вес, лучший вес на 1, 3, 5, 8 и 10 повторов, повторы, время и тоннаж.
@@ -69,11 +70,18 @@ TrainingLoop — дневник силовых тренировок для iPhon
 УПРАЖНЕНИЯ И НАСТРОЙКИ
 • 126 встроенных упражнений на русском и английском, а также ваши собственные.
 • Поиск и фильтры по группе мышц и оборудованию.
+• Завели своё упражнение, а потом нашли такое же в каталоге? Объедините их: история, шаблоны и рекорды соберутся в одном.
 • Килограммы или фунты, светлая и тёмная тема.
+• Подсказки при первом запуске; показать их снова можно в Настройках.
 
 Бесплатно и без ограничений: все функции доступны сразу — без подписок, платных дополнений, рекламы и регистрации. Тренировки хранятся только на вашем iPhone.
 
 Вопросы и предложения: t.me/setnewloop
+
+**Что нового в 1.1** (поле «Что нового»):
+
+• Объединение упражнений. Завели своё, а потом нашли такое же в каталоге — выберите оба в «Упражнениях» и объедините: тренировки, шаблоны и рекорды перейдут в одно.
+• Подсказки при первом запуске: как начать с примера, где спрятаны действия с шаблоном, как поделиться тренировками. Показать их снова — в Настройках.
 
 ## English
 
@@ -105,6 +113,7 @@ DURING THE WORKOUT
 • Tick off a set and the rest begins, with sounds, voice cues and vibration.
 • Rest and the current set on the Lock Screen and in the Dynamic Island.
 • A new record is marked 🏆 right next to the set.
+• Exercises for both sides are marked L+R: enter the weight for one side, and if your sides differed, split the set into left and right.
 
 HISTORY AND PROGRESS
 • Personal records: heaviest weight, best weight for 1, 3, 5, 8 and 10 reps, reps, time and volume.
@@ -116,11 +125,18 @@ HISTORY AND PROGRESS
 EXERCISES AND SETTINGS
 • 126 built-in exercises in English and Russian, plus your own.
 • Search and filters by muscle group and equipment.
+• Made your own exercise and then found the same one in the catalog? Merge them: history, templates and records come together in one.
 • Kilograms or pounds, light and dark theme.
+• Tips on first use; bring them back any time in Settings.
 
 Free, no limits: every feature is available right away — no subscriptions, paid extras, ads or sign-up. Your workouts stay on your iPhone.
 
 Questions and suggestions: t.me/setnewloop
+
+**What's New in 1.1:**
+
+• Merge exercises. Made your own and then found the same one in the catalog? Select both in Exercises and merge them: workouts, templates and records move into one.
+• Tips on first use: starting from an example, the hidden template actions, sharing your workouts. Bring them back any time in Settings.
 
 ## Notes for App Review
 
@@ -133,6 +149,7 @@ English, в поле App Review Information → Notes:
 > 2. Enter a weight in the first set and tap its circle. The set is marked done and the rest timer starts.
 > 3. Lock the phone. The rest countdown appears on the Lock Screen (Live Activity) and in the Dynamic Island, with +10 and Skip. When the rest ends, the card shows the next set with a Done button that marks it from the Lock Screen.
 > 4. Tap Finish to see the summary and save the workout to History. Open Exercises → Barbell Back Squat to see its chart and records (they appear from the second workout with the exercise).
+> 5. To merge two exercises (for example, a custom one and the same one from the catalog), open Exercises, tap Select, tick two exercises and tap Merge.
 >
 > Background audio: the audio background mode plays the rest-end sounds and voice prompts while the screen is locked during a workout; without it the cues stop when the phone locks. The audio session is active only during a workout. Music from other apps keeps playing and is only lowered briefly around each cue.
 > If sounds and voice are off, or Silent Mode is not ignored, the end of rest is announced with a local notification instead; permission is asked the first time it is needed.
