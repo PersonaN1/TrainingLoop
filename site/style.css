@@ -62,7 +62,8 @@ html.js [data-lang]:not(.shown) { display: none; }
   display: inline-block; margin-top: 8px; background: var(--fg); color: var(--bg);
   border-radius: 10px; padding: 8px 14px; font-size: 14px; font-weight: 600;
 }
-.telegram .button { margin-top: 4px; }
+.telegram .button, .sibling .button { margin-top: 4px; }
+.store { margin-top: 16px; }
 .shots {
   display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
   margin: 24px -16px; padding: 0 16px 8px; scrollbar-width: thin;

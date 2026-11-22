@@ -5,7 +5,7 @@
 <p align="center">Workout log for iPhone — plan once, then just tick sets.<br>
 <a href="https://personan1.github.io/TrainingLoop/">Website</a> · <a href="https://t.me/setnewloop">Telegram</a> · <a href="https://personan1.github.io/TrainingLoop/support/">Support</a> · <a href="https://personan1.github.io/TrainingLoop/privacy/">Privacy</a></p>
 
-**Status:** in development, coming soon to the App Store. From the maker of [SetLoop](https://github.com/PersonaN1/SetLoop).
+**Status:** available on the App Store — [TrainingLoop](https://apps.apple.com/ru/app/trainingloop/id6837618686). From the maker of [SetLoop](https://github.com/PersonaN1/SetLoop).
 
 <p align="center">
 <img src="site/screens/en-1-templates.jpg" width="200" alt="Workout templates">
